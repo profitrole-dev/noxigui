@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import * as PIXI from 'pixi.js';
 import { RuntimeInstance } from '@noxigui/runtime';
+import { createPixiRenderer } from '@noxigui/renderer-pixi';
 
 const initialSchema = `
 <Grid Margin="16" RowGap="12" ColumnGap="12">
@@ -149,7 +150,7 @@ export default function App() {
     }
 
     try {
-      const runtime = RuntimeInstance.create(code);
+      const runtime = RuntimeInstance.create(code, createPixiRenderer());
       runtimeRef.current = runtime;
       // runtime.setGridDebug(true);
 

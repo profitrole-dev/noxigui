@@ -20,6 +20,9 @@ importers:
 
   packages/playground:
     dependencies:
+      '@noxigui/renderer-pixi':
+        specifier: workspace:*
+        version: link:../renderer-pixi
       '@noxigui/runtime':
         specifier: file:../runtime
         version: link:../runtime
