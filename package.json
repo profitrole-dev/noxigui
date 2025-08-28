@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev": "pnpm -F @noxigui/parser build && pnpm -F @noxigui/runtime build && pnpm -F @noxigui/playground dev",
-    "build": "pnpm -F @noxigui/parser build && pnpm -F @noxigui/runtime build && pnpm -F @noxigui/playground build"
+    "dev": "pnpm -F @noxigui/parser build && pnpm -F @noxigui/runtime build && pnpm -F @noxigui/renderer-pixi build && pnpm -F @noxigui/playground dev",
+    "build": "pnpm -F @noxigui/parser build && pnpm -F @noxigui/runtime build && pnpm -F @noxigui/renderer-pixi build && pnpm -F @noxigui/playground build"
   }
 }

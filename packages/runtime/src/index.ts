@@ -1,8 +1,9 @@
 export * from './template.js';
 export * from './core.js';
 export * from './elements/BorderPanel.js';
-export * from './elements/PixiImage.js';
-export * from './elements/PixiText.js';
+export * from './elements/Image.js';
+export * from './elements/Text.js';
 export * from './elements/Grid.js';
 export * from './helpers.js';
+export type { Renderer, RenderImage, RenderText, RenderGraphics, RenderContainer } from './renderer.js';
 export { RuntimeInstance } from './runtime.js';

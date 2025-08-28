@@ -1,18 +1,23 @@
-import * as PIXI from 'pixi.js';
 import { UIElement } from '../core.js';
 import type { Size, Rect } from '../core.js';
+import type { Renderer, RenderGraphics, RenderContainer } from '../renderer.js';
 
 export class BorderPanel extends UIElement {
-  bg = new PIXI.Graphics();
-  container = new PIXI.Container();
+  bg: RenderGraphics;
+  container: RenderContainer;
   child?: UIElement;
   background?: number;
   clipToBounds = false;
-  private maskG: PIXI.Graphics | null = null;
+  private maskG: RenderGraphics | null = null;
   padding = { l: 0, t: 0, r: 0, b: 0 };
+  private renderer: Renderer;
 
-  constructor(opts?: { background?: number; child?: UIElement }) {
+  constructor(renderer: Renderer, opts?: { background?: number; child?: UIElement }) {
     super();
+    this.renderer = renderer;
+    this.container = renderer.createContainer();
+    this.bg = renderer.createGraphics();
+    this.container.addChild(this.bg.getDisplayObject());
     this.background = opts?.background;
     this.child = opts?.child;
   }
@@ -50,8 +55,8 @@ export class BorderPanel extends UIElement {
     const innerH = Math.max(0, rect.height - this.margin.t - this.margin.b);
     this.final = { x: innerX, y: innerY, width: innerW, height: innerH };
 
-    this.container.position.set(innerX, innerY);
-    this.container.sortableChildren = true;
+    this.container.setPosition(innerX, innerY);
+    this.container.setSortableChildren(true);
 
     this.bg.clear();
     if (this.background !== undefined) {
@@ -60,15 +65,15 @@ export class BorderPanel extends UIElement {
 
     if (this.clipToBounds) {
       if (!this.maskG) {
-        this.maskG = new PIXI.Graphics();
-        this.container.addChild(this.maskG);
-        this.container.mask = this.maskG;
+        this.maskG = this.renderer.createGraphics();
+        this.container.addChild(this.maskG.getDisplayObject());
+        this.container.setMask(this.maskG.getDisplayObject());
       }
       this.maskG.clear();
       this.maskG.beginFill(0xffffff).drawRect(0, 0, innerW, innerH).endFill();
     } else if (this.maskG) {
-      this.container.mask = null;
-      this.container.removeChild(this.maskG);
+      this.container.setMask(null);
+      this.container.removeChild(this.maskG.getDisplayObject());
       this.maskG.destroy();
       this.maskG = null;
     }

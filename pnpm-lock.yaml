@@ -20,6 +20,9 @@ importers:
 
   packages/playground:
     dependencies:
+      '@noxigui/renderer-pixi':
+        specifier: workspace:*
+        version: link:../renderer-pixi
       '@noxigui/runtime':
         specifier: file:../runtime
         version: link:../runtime
@@ -54,6 +57,15 @@ importers:
       vite:
         specifier: ^6.3.5
         version: 6.3.5
+
+  packages/renderer-pixi:
+    dependencies:
+      '@noxigui/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      pixi.js:
+        specifier: ^7.4.0
+        version: 7.4.3
 
   packages/runtime:
     dependencies:
