@@ -198,8 +198,13 @@ export default function App() {
                 endColumn: position.column,
               });
 
-              const trimmed = textUntilPosition.trimStart();
-              if (!trimmed.startsWith('<')) {
+              const lastLt = textUntilPosition.lastIndexOf('<');
+              if (lastLt === -1) {
+                return { suggestions: [] };
+              }
+
+              const tagContent = textUntilPosition.slice(lastLt + 1);
+              if (tagContent.startsWith('/')) {
                 return { suggestions: [] };
               }
 
@@ -211,23 +216,27 @@ export default function App() {
                 endColumn: word.endColumn,
               };
 
-              const afterLt = trimmed.slice(1);
-              const hasSpace = afterLt.includes(' ');
+              const spaceIdx = tagContent.indexOf(' ');
+              const tagName =
+                spaceIdx === -1 ? tagContent : tagContent.slice(0, spaceIdx);
 
-              if (!hasSpace) {
+              if (spaceIdx === -1) {
                 const tagSuggestions: monacoEditor.languages.CompletionItem[] = [
                   {
                     label: 'Grid',
                     kind: monaco.languages.CompletionItemKind.Snippet,
                     insertText: '<Grid>\n\t$0\n</Grid>',
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    insertTextRules:
+                      monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                     range,
                   },
                   {
                     label: 'Use Card',
                     kind: monaco.languages.CompletionItemKind.Snippet,
-                    insertText: '<Use Template="Card">\n\t<Slot Name="Media">\n\t\t$0\n\t</Slot>\n</Use>',
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    insertText:
+                      '<Use Template="Card">\n\t<Slot Name="Media">\n\t\t$0\n\t</Slot>\n</Use>',
+                    insertTextRules:
+                      monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                     range,
                   },
                   {
@@ -241,15 +250,17 @@ export default function App() {
                 return { suggestions: tagSuggestions };
               }
 
-              const tagName = afterLt.split(/\s+/)[0];
               const attrs = elementAttributes[tagName] ?? [];
-              const attrSuggestions: monacoEditor.languages.CompletionItem[] = attrs.map(label => ({
-                label,
-                kind: monaco.languages.CompletionItemKind.Property,
-                insertText: `${label}="$0"`,
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                range,
-              }));
+              const attrSuggestions: monacoEditor.languages.CompletionItem[] = attrs.map(
+                (label) => ({
+                  label,
+                  kind: monaco.languages.CompletionItemKind.Property,
+                  insertText: `${label}="$0"`,
+                  insertTextRules:
+                    monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                  range,
+                })
+              );
 
               return { suggestions: attrSuggestions };
             },
