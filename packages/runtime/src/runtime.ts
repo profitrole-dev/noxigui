@@ -15,7 +15,23 @@ export const RuntimeInstance = {
       const child = (u as any).child as UIElement | undefined;
       if (child) visit(child, f);
     };
-    const setGridDebug = (on: boolean) => visit(root, g => { g.debug = on; });
+    const setGridDebug = async (on: boolean) => {
+      if (on) {
+        const { createGridDebug } = await import('./elements/GridDebug.js');
+        visit(root, g => {
+          if (!g.debugLayer) {
+            g.debugLayer = createGridDebug(renderer);
+            container.addChild(g.debugLayer.g.getDisplayObject());
+          }
+          g.debug = true;
+        });
+      } else {
+        visit(root, g => {
+          g.debug = false;
+          g.debugLayer?.g.setVisible?.(false);
+        });
+      }
+    };
 
     const layout = (size: Size) => {
       root.measure(size);

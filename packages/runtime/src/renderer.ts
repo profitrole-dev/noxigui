@@ -15,10 +15,14 @@ export interface RenderText {
 
 export interface RenderGraphics {
   clear(): void;
-  beginFill(color: number): RenderGraphics;
+  beginFill(color: number, alpha?: number): RenderGraphics;
   drawRect(x: number, y: number, w: number, h: number): RenderGraphics;
+  lineStyle?(opts: { width: number; color: number; alpha?: number }): RenderGraphics;
+  moveTo?(x: number, y: number): RenderGraphics;
+  lineTo?(x: number, y: number): RenderGraphics;
   endFill(): void;
   destroy(): void;
+  setVisible?(v: boolean): void;
   getDisplayObject(): any;
 }
 

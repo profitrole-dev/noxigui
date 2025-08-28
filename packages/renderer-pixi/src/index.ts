@@ -71,12 +71,24 @@ class PixiRenderGraphics implements RenderGraphics {
   clear() {
     this.g.clear();
   }
-  beginFill(color: number) {
-    this.g.beginFill(color);
+  beginFill(color: number, alpha = 1) {
+    this.g.beginFill(color, alpha);
     return this;
   }
   drawRect(x: number, y: number, w: number, h: number) {
     this.g.drawRect(x, y, w, h);
+    return this;
+  }
+  lineStyle(opts: { width: number; color: number; alpha?: number }) {
+    this.g.lineStyle({ width: opts.width, color: opts.color, alpha: opts.alpha ?? 1, alignment: 0 });
+    return this;
+  }
+  moveTo(x: number, y: number) {
+    this.g.moveTo(x, y);
+    return this;
+  }
+  lineTo(x: number, y: number) {
+    this.g.lineTo(x, y);
     return this;
   }
   endFill() {
@@ -84,6 +96,9 @@ class PixiRenderGraphics implements RenderGraphics {
   }
   destroy() {
     this.g.destroy();
+  }
+  setVisible(v: boolean) {
+    this.g.visible = v;
   }
   getDisplayObject() {
     return this.g;
