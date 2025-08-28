@@ -3,7 +3,9 @@
   "compilerOptions": {
     "outDir": "dist",
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "allowImportingTsExtensions": false,
+    "erasableSyntaxOnly": false
   },
   "include": ["src"]
 }

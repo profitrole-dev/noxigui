@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "workspaces": ["packages/*"],
   "scripts": {
-    "dev": "npm -w @noxigui/playground run dev",
+    "dev": "npm -w @noxigui/runtime run build && npm -w @noxigui/playground run dev",
     "build": "npm -w @noxigui/runtime run build && npm -w @noxigui/playground run build"
   }
 }
