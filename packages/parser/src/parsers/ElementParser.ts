@@ -1,4 +1,4 @@
-import type { UIElement } from '../../../core/src/index.js';
+import type { UIElement } from '@noxigui/core';
 import type { Parser } from '../Parser.js';
 import type * as PIXI from 'pixi.js';
 

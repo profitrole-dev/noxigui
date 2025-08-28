@@ -5,7 +5,7 @@ import type {
   RenderText,
   RenderGraphics,
   RenderContainer,
-} from '@noxigui/runtime';
+} from '@noxigui/core';
 
 class PixiRenderImage implements RenderImage {
   sprite: PIXI.Sprite;

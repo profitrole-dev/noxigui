@@ -1,8 +1,8 @@
-import { Text } from '../../../runtime/src/elements/Text.js';
-import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } from '../../../runtime/src/helpers.js';
+import { Text } from '../../../runtime-core/src/elements/Text.js';
+import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } from '../../../runtime-core/src/helpers.js';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '../../../core/src/index.js';
+import type { UIElement } from '@noxigui/core';
 import type * as PIXI from 'pixi.js';
 
 /** Parser for `<TextBlock>` elements. */

@@ -1,10 +1,10 @@
 {
-  "name": "@noxigui/runtime",
+  "name": "@noxigui/runtime-core",
   "version": "0.1.0",
   "type": "module",
-  "main": "dist/runtime/src/index.js",
-  "types": "dist/runtime/src/index.d.ts",
-  "exports": "./dist/runtime/src/index.js",
+  "main": "dist/runtime-core/src/index.js",
+  "types": "dist/runtime-core/src/index.d.ts",
+  "exports": "./dist/runtime-core/src/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json"
   },

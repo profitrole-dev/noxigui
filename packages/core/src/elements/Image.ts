@@ -1,30 +1,20 @@
-import { UIElement } from '../../../core/src/index.js';
-import type { Size, Rect } from '../../../core/src/index.js';
-import type { Renderer, RenderImage } from '../renderer.js';
+import { UIElement } from './UIElement.js';
+import type { Size, Rect } from '../common/geometry.js';
 
 export class Image extends UIElement {
-  sprite: RenderImage;
-  hAlign: 'Left'|'Center'|'Right' = 'Left';
-  vAlign: 'Top'|'Center'|'Bottom' = 'Top';
-  stretch: 'None'|'Fill'|'Uniform'|'UniformToFill' = 'Uniform';
-  private natW = 0;
-  private natH = 0;
+  hAlign: 'Left' | 'Center' | 'Right' = 'Left';
+  vAlign: 'Top' | 'Center' | 'Bottom' = 'Top';
+  stretch: 'None' | 'Fill' | 'Uniform' | 'UniformToFill' = 'Uniform';
+  protected natW = 0;
+  protected natH = 0;
+  renderX = 0;
+  renderY = 0;
+  renderScaleX = 1;
+  renderScaleY = 1;
 
-  constructor(renderer: Renderer, tex?: any) {
-    super();
-    this.sprite = renderer.createImage(tex);
-    this.updateNaturalSize();
-  }
-
-  private updateNaturalSize() {
-    const size = this.sprite.getNaturalSize();
-    this.natW = Math.max(0, size.width);
-    this.natH = Math.max(0, size.height);
-  }
-
-  setTexture(tex?: any) {
-    this.sprite.setTexture(tex);
-    this.updateNaturalSize();
+  protected setNaturalSize(w: number, h: number) {
+    this.natW = Math.max(0, w);
+    this.natH = Math.max(0, h);
   }
 
   measure(avail: Size) {
@@ -134,7 +124,9 @@ export class Image extends UIElement {
     if (this.vAlign === 'Center') y = y0 + (h - drawH) / 2;
     else if (this.vAlign === 'Bottom') y = y0 + (h - drawH);
 
-    this.sprite.setScale(scaleX, scaleY);
-    this.sprite.setPosition(x, y);
+    this.renderScaleX = scaleX;
+    this.renderScaleY = scaleY;
+    this.renderX = x;
+    this.renderY = y;
   }
 }

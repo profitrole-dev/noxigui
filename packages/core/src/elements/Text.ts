@@ -1,20 +1,26 @@
-import { UIElement } from '../../../core/src/index.js';
-import type { Size, Rect } from '../../../core/src/index.js';
-import type { Renderer, RenderText } from '../renderer.js';
+import { UIElement } from './UIElement.js';
+import type { Size, Rect } from '../common/geometry.js';
 
-export class Text extends UIElement {
-  text: RenderText;
+export abstract class Text extends UIElement {
+  content: string;
+  style: { fill: string; fontSize: number };
   hAlign: 'Left' | 'Center' | 'Right' = 'Left';
   vAlign: 'Top' | 'Center' | 'Bottom' = 'Top';
+  renderX = 0;
+  renderY = 0;
+  renderWidth = 0;
+  renderHeight = 0;
 
-  constructor(renderer: Renderer, content: string, style: { fill: string; fontSize: number }) {
+  constructor(content: string, style: { fill: string; fontSize: number }) {
     super();
-    this.text = renderer.createText(content, style);
+    this.content = content;
+    this.style = style;
   }
 
+  protected abstract measureText(width: number, align: 'left' | 'center' | 'right'): Size;
+
   measure(avail: Size) {
-    this.text.setWordWrap(Math.max(1, avail.width), 'left');
-    const b = this.text.getBounds();
+    const b = this.measureText(Math.max(1, avail.width), 'left');
     const intrinsicW = b.width + this.margin.l + this.margin.r;
     const intrinsicH = b.height + this.margin.t + this.margin.b;
     this.desired = {
@@ -30,14 +36,17 @@ export class Text extends UIElement {
     this.final = { x: x0, y: y0, width: w, height: h };
 
     const align = this.hAlign === 'Center' ? 'center' : this.hAlign === 'Right' ? 'right' : 'left';
-    this.text.setWordWrap(Math.max(1, w), align);
-    const b = this.text.getBounds();
+    const b = this.measureText(Math.max(1, w), align);
 
     let x = x0, y = y0;
     if (this.hAlign === 'Center') x = x0 + (w - b.width) / 2;
     else if (this.hAlign === 'Right') x = x0 + (w - b.width);
     if (this.vAlign === 'Center') y = y0 + (h - b.height) / 2;
     else if (this.vAlign === 'Bottom') y = y0 + (h - b.height);
-    this.text.setPosition(x, y);
+
+    this.renderX = x;
+    this.renderY = y;
+    this.renderWidth = b.width;
+    this.renderHeight = b.height;
   }
 }
