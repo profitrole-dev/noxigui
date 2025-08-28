@@ -1,0 +1,17 @@
+{
+  "name": "@noxigui/app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "pixi.js": "^7.4.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-monaco-editor": "^0.58.0"
+  }
+}
