@@ -2,24 +2,8 @@
   "name": "noxigui",
   "private": true,
   "version": "0.1.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.6",
-    "@vitejs/plugin-react": "^4.5.1",
-    "monaco-editor": "^0.52.2",
-    "typescript": "~5.8.3",
-    "vite": "^6.3.5"
-  },
-  "dependencies": {
-    "pixi.js": "^7.4.3",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-monaco-editor": "^0.58.0"
+    "dev": "pnpm -F @noxigui/runtime build && pnpm -F @noxigui/playground dev",
+    "build": "pnpm -F @noxigui/runtime build && pnpm -F @noxigui/playground build"
   }
 }
