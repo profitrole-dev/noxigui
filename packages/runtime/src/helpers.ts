@@ -1,4 +1,4 @@
-import type { UIElement } from './core.js';
+import type { UIElement } from '../../core/src/index.js';
 import { Grid } from './elements/Grid.js';
 
 export function applyGridAttachedProps(node: Element, el: UIElement) {

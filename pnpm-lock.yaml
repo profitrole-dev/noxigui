@@ -19,6 +19,9 @@ importers:
 
   packages/parser:
     dependencies:
+      '@noxigui/core':
+        specifier: file:../core
+        version: link:../core
       pixi.js:
         specifier: ^7.4.3
         version: 7.4.3

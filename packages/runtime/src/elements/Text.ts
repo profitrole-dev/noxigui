@@ -1,5 +1,5 @@
-import { UIElement } from '../core.js';
-import type { Size, Rect } from '../core.js';
+import { UIElement } from '../../../core/src/index.js';
+import type { Size, Rect } from '../../../core/src/index.js';
 import type { Renderer, RenderText } from '../renderer.js';
 
 export class Text extends UIElement {
