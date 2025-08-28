@@ -1,6 +1,5 @@
-import type { UIElement } from '@noxigui/core';
+import type { UIElement, RenderContainer } from '@noxigui/core';
 import type { Parser } from '../Parser.js';
-import type * as PIXI from 'pixi.js';
 
 /**
  * Converts DOM nodes into runtime UI elements.
@@ -20,12 +19,12 @@ export interface ElementParser {
      */
   parse(node: Element, p: Parser): UIElement | null;
   /**
-     * Optionally attach UI elements to the PIXI display tree.
+     * Optionally attach UI elements to the renderer display tree.
      *
      * @param into - Container to attach to.
      * @param el - Parsed UI element.
      * @param collect - Recursive helper to collect children.
      * @returns `true` if the element was collected.
      */
-  collect?(into: PIXI.Container, el: UIElement, collect: (into: PIXI.Container, el: UIElement) => void): boolean | void;
+  collect?(into: RenderContainer, el: UIElement, collect: (into: RenderContainer, el: UIElement) => void): boolean | void;
 }

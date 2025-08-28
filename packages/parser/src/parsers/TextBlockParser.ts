@@ -1,9 +1,7 @@
-import { Text } from '../../../runtime-core/src/elements/Text.js';
-import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } from '../../../runtime-core/src/helpers.js';
+import { Text, applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } from '@noxigui/runtime-core';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '@noxigui/core';
-import type * as PIXI from 'pixi.js';
+import type { UIElement, RenderContainer } from '@noxigui/core';
 
 /** Parser for `<TextBlock>` elements. */
 export class TextBlockParser implements ElementParser {
@@ -20,7 +18,7 @@ export class TextBlockParser implements ElementParser {
     return leaf;
   }
 
-  collect(into: PIXI.Container, el: UIElement) {
+  collect(into: RenderContainer, el: UIElement) {
     if (el instanceof Text) {
       into.addChild(el.text.getDisplayObject());
       return true;

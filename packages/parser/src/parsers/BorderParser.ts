@@ -1,9 +1,7 @@
-import { BorderPanel } from '../../../runtime-core/src/elements/BorderPanel.js';
-import { applyGridAttachedProps, parseSizeAttrs, parseColor, parseMargin, applyMargin } from '../../../runtime-core/src/helpers.js';
+import { BorderPanel, applyGridAttachedProps, parseSizeAttrs, parseColor, parseMargin, applyMargin } from '@noxigui/runtime-core';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '@noxigui/core';
-import type * as PIXI from 'pixi.js';
+import type { UIElement, RenderContainer } from '@noxigui/core';
 
 /** Parser for `<Border>` elements. */
 export class BorderParser implements ElementParser {
@@ -22,7 +20,7 @@ export class BorderParser implements ElementParser {
     return panel;
   }
 
-  collect(into: PIXI.Container, el: UIElement, collect: (into: PIXI.Container, el: UIElement) => void) {
+  collect(into: RenderContainer, el: UIElement, collect: (into: RenderContainer, el: UIElement) => void) {
     if (el instanceof BorderPanel) {
       const group = el.container.getDisplayObject();
       el.container.setSortableChildren(true);

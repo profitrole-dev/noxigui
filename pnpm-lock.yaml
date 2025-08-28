@@ -22,9 +22,9 @@ importers:
       '@noxigui/core':
         specifier: file:../core
         version: link:../core
-      pixi.js:
-        specifier: ^7.4.3
-        version: 7.4.3
+      '@noxigui/runtime-core':
+        specifier: file:../runtime-core
+        version: link:../runtime-core
     devDependencies:
       typescript:
         specifier: ~5.8.3

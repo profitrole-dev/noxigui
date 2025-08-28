@@ -1,10 +1,8 @@
-import { Grid } from '../../../runtime-core/src/elements/Grid.js';
+import { Grid, applyGridAttachedProps, parseLen, applyMargin } from '@noxigui/runtime-core';
 import { Row, Col } from '@noxigui/core';
-import { applyGridAttachedProps, parseLen, applyMargin } from '../../../runtime-core/src/helpers.js';
+import type { UIElement, RenderContainer } from '@noxigui/core';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '@noxigui/core';
-import type * as PIXI from 'pixi.js';
 
 /** Parser for `<Grid>` elements. */
 export class GridParser implements ElementParser {
@@ -36,12 +34,12 @@ export class GridParser implements ElementParser {
     return g;
   }
 
-  collect(into: PIXI.Container, el: UIElement, collect: (into: PIXI.Container, el: UIElement) => void) {
+  collect(into: RenderContainer, el: UIElement, collect: (into: RenderContainer, el: UIElement) => void) {
     if (el instanceof Grid) {
       for (const ch of el.children) collect(into, ch);
       el.debugG.zIndex = 100000;
-      if (el.debugG.parent !== into) {
-        el.debugG.parent?.removeChild(el.debugG);
+      if ((el.debugG as any).parent !== into) {
+        (el.debugG as any).parent?.removeChild(el.debugG);
         into.addChild(el.debugG);
       }
       return true;
