@@ -27,25 +27,17 @@ export class BorderPanel extends UIElement {
       width: Math.max(0, avail.width - this.margin.l - this.margin.r - this.padding.l - this.padding.r),
       height: Math.max(0, avail.height - this.margin.t - this.margin.b - this.padding.t - this.padding.b),
     };
+    let intrinsicW = this.margin.l + this.margin.r + this.padding.l + this.padding.r;
+    let intrinsicH = this.margin.t + this.margin.b + this.padding.t + this.padding.b;
     if (this.child) {
       this.child.measure(inner);
-      this.desired = {
-        width: this.child.desired.width + this.margin.l + this.margin.r + this.padding.l + this.padding.r,
-        height: this.child.desired.height + this.margin.t + this.margin.b + this.padding.t + this.padding.b,
-      };
-    } else {
-      this.desired = {
-        width: this.margin.l + this.margin.r + this.padding.l + this.padding.r,
-        height: this.margin.t + this.margin.b + this.padding.t + this.padding.b,
-      };
+      intrinsicW += this.child.desired.width;
+      intrinsicH += this.child.desired.height;
     }
-
-    this.desired.width = Math.max(this.desired.width, this.minW + this.margin.l + this.margin.r);
-    this.desired.height = Math.max(this.desired.height, this.minH + this.margin.t + this.margin.b);
-    if (this.prefW !== undefined)
-      this.desired.width = Math.max(this.desired.width, this.prefW + this.margin.l + this.margin.r);
-    if (this.prefH !== undefined)
-      this.desired.height = Math.max(this.desired.height, this.prefH + this.margin.t + this.margin.b);
+    this.desired = {
+      width: this.measureAxis('x', avail.width, intrinsicW),
+      height: this.measureAxis('y', avail.height, intrinsicH),
+    };
   }
 
   arrange(rect: Rect) {
