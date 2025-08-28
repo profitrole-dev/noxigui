@@ -13,7 +13,6 @@ export class GridParser implements ElementParser {
     const rgAttr = node.getAttribute('RowGap'); if (rgAttr != null) g.rowGap = parseFloat(rgAttr) || 0;
     const cgAttr = node.getAttribute('ColumnGap'); if (cgAttr != null) g.colGap = parseFloat(cgAttr) || 0;
     applyMargin(node, g);
-    const dbg = node.getAttribute('Debug'); if (dbg && dbg.toLowerCase() === 'true') g.debug = true;
     applyGridAttachedProps(node, g);
 
     for (const ch of Array.from(node.children)) {
