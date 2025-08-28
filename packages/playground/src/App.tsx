@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import * as PIXI from 'pixi.js';
-import { RuntimeInstance } from './runtime';
+import { RuntimeInstance } from '@noxigui/runtime';
 
 const initialSchema = `
 <Grid Margin="16" RowGap="12" ColumnGap="12">
