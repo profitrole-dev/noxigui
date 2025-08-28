@@ -1,0 +1,16 @@
+{
+  "name": "@noxigui/core",
+  "version": "0.2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsc -p tsconfig.json && node --test dist/tests/layout/*.test.js"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3",
+    "@types/node": "^20.11.30"
+  }
+}
