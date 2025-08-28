@@ -1,6 +1,7 @@
 // App.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
+import type * as monacoEditor from 'monaco-editor';
 import * as PIXI from 'pixi.js';
 import { RuntimeInstance } from '@noxigui/runtime';
 import { createPixiRenderer } from '@noxigui/renderer-pixi';
@@ -174,6 +175,56 @@ export default function App() {
         onChange={setCode}
         height="100%"
         width="50%"
+        editorDidMount={(_editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => {
+          monaco.languages.registerCompletionItemProvider('xml', {
+            triggerCharacters: ['<'],
+            provideCompletionItems: (model, position) => {
+              const textUntilPosition = model.getValueInRange({
+                startLineNumber: position.lineNumber,
+                startColumn: 1,
+                endLineNumber: position.lineNumber,
+                endColumn: position.column,
+              });
+
+              if (!textUntilPosition.trim().startsWith('<')) {
+                return { suggestions: [] };
+              }
+
+              const word = model.getWordUntilPosition(position);
+              const range: monacoEditor.IRange = {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: word.startColumn,
+                endColumn: word.endColumn,
+              };
+
+              const suggestions: monacoEditor.languages.CompletionItem[] = [
+                {
+                  label: 'Grid',
+                  kind: monaco.languages.CompletionItemKind.Snippet,
+                  insertText: '<Grid>\n\t$0\n</Grid>',
+                  insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                  range,
+                },
+                {
+                  label: 'Use Card',
+                  kind: monaco.languages.CompletionItemKind.Snippet,
+                  insertText: '<Use Template="Card">\n\t<Slot Name="Media">\n\t\t$0\n\t</Slot>\n</Use>',
+                  insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                  range,
+                },
+                {
+                  label: 'RowDefinition',
+                  kind: monaco.languages.CompletionItemKind.Snippet,
+                  insertText: '<RowDefinition Height="Auto" />',
+                  range,
+                },
+              ];
+
+              return { suggestions };
+            },
+          });
+        }}
         options={{
           minimap: { enabled: false },
           fontSize: 14,
