@@ -1,32 +1,29 @@
-import * as PIXI from 'pixi.js';
 import { UIElement } from '../core.js';
 import type { Size, Rect } from '../core.js';
+import type { Renderer, RenderImage } from '../renderer.js';
 
-export class PixiImage extends UIElement {
-  sprite: PIXI.Sprite;
+export class Image extends UIElement {
+  sprite: RenderImage;
   hAlign: 'Left'|'Center'|'Right' = 'Left';
   vAlign: 'Top'|'Center'|'Bottom' = 'Top';
   stretch: 'None'|'Fill'|'Uniform'|'UniformToFill' = 'Uniform';
   private natW = 0;
   private natH = 0;
 
-  constructor(tex?: PIXI.Texture) {
+  constructor(renderer: Renderer, tex?: any) {
     super();
-    this.sprite = new PIXI.Sprite(tex ?? PIXI.Texture.WHITE);
-    this.sprite.anchor.set(0, 0);
+    this.sprite = renderer.createImage(tex);
     this.updateNaturalSize();
   }
 
   private updateNaturalSize() {
-    const t = this.sprite.texture;
-    const w = (t as any)?.orig?.width ?? t.width ?? 0;
-    const h = (t as any)?.orig?.height ?? t.height ?? 0;
-    this.natW = Math.max(0, w);
-    this.natH = Math.max(0, h);
+    const size = this.sprite.getNaturalSize();
+    this.natW = Math.max(0, size.width);
+    this.natH = Math.max(0, size.height);
   }
 
-  setTexture(tex?: PIXI.Texture) {
-    this.sprite.texture = tex ?? PIXI.Texture.WHITE;
+  setTexture(tex?: any) {
+    this.sprite.setTexture(tex);
     this.updateNaturalSize();
   }
 
@@ -38,7 +35,6 @@ export class PixiImage extends UIElement {
     const baseW = natW > 0 ? natW : fallback;
     const baseH = natH > 0 ? natH : fallback;
 
-    // 1) explicit Width/Height take priority
     if (this.prefW !== undefined && this.prefH !== undefined) {
       this.desired = {
         width: this.prefW + this.margin.l + this.margin.r,
@@ -47,7 +43,6 @@ export class PixiImage extends UIElement {
       return;
     }
 
-    // 2) only one side specified
     if (this.prefW !== undefined && this.prefH === undefined) {
       const h = baseH * (this.prefW / baseW);
       this.desired = { width: this.prefW + this.margin.l + this.margin.r, height: h + this.margin.t + this.margin.b };
@@ -59,7 +54,6 @@ export class PixiImage extends UIElement {
       return;
     }
 
-    // 3) no explicit size -> use avail (may be Infinity)
     const hasW = Number.isFinite(avail.width);
     const hasH = Number.isFinite(avail.height);
 
@@ -67,7 +61,6 @@ export class PixiImage extends UIElement {
     let drawH = baseH;
 
     if (this.stretch === 'None') {
-      // already baseW/baseH
     } else if (this.stretch === 'Fill') {
       drawW = hasW ? Math.min(avail.width, baseW) : baseW;
       drawH = hasH ? Math.min(avail.height, baseH) : baseH;
@@ -127,8 +120,7 @@ export class PixiImage extends UIElement {
     if (this.vAlign === 'Center') y = y0 + (h - drawH) / 2;
     else if (this.vAlign === 'Bottom') y = y0 + (h - drawH);
 
-    this.sprite.scale.set(scaleX, scaleY);
-    this.sprite.x = x;
-    this.sprite.y = y;
+    this.sprite.setScale(scaleX, scaleY);
+    this.sprite.setPosition(x, y);
   }
 }

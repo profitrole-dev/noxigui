@@ -9,7 +9,7 @@ import type * as PIXI from 'pixi.js';
 export class BorderParser implements ElementParser {
   test(node: Element): boolean { return node.tagName === 'Border'; }
   parse(node: Element, p: Parser) {
-    const panel = new BorderPanel({ background: parseColor(node.getAttribute('Background')) });
+    const panel = new BorderPanel(p.renderer, { background: parseColor(node.getAttribute('Background')) });
     parseSizeAttrs(node, panel);
     applyMargin(node, panel);
     const pad = node.getAttribute('Padding'); if (pad) panel.padding = parseMargin(pad);
@@ -24,9 +24,8 @@ export class BorderParser implements ElementParser {
 
   collect(into: PIXI.Container, el: UIElement, collect: (into: PIXI.Container, el: UIElement) => void) {
     if (el instanceof BorderPanel) {
-      const group = el.container;
-      group.sortableChildren = true;
-      if (!group.children.includes(el.bg)) group.addChildAt(el.bg, 0);
+      const group = el.container.getDisplayObject();
+      el.container.setSortableChildren(true);
       into.addChild(group);
       if (el.child) collect(group, el.child);
       return true;

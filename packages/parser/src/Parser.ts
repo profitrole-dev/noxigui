@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { UIElement } from '../../runtime/src/core.js';
 import { parsers as elementParsers } from './parsers/index.js';
+import type { Renderer } from '../../runtime/src/renderer.js';
 
 /**
  * Parses NoxiGUI XML markup into UI elements and a PIXI display tree.
@@ -11,7 +12,7 @@ export class Parser {
    *
    * @param parsers - Registered element parsers. Defaults to built-in parsers.
    */
-  constructor(private parsers = elementParsers) {}
+  constructor(public renderer: Renderer, private parsers = elementParsers) {}
 
   /**
    * Parse a single DOM element using the first parser that matches it.

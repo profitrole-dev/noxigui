@@ -55,6 +55,15 @@ importers:
         specifier: ^6.3.5
         version: 6.3.5
 
+  packages/renderer-pixi:
+    dependencies:
+      '@noxigui/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      pixi.js:
+        specifier: ^7.4.0
+        version: 7.4.3
+
   packages/runtime:
     dependencies:
       '@noxigui/parser':
