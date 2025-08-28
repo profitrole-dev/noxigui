@@ -1,9 +1,7 @@
-import { ContentPresenter } from '../../../runtime-core/src/index.js';
-import { applyGridAttachedProps, applyMargin } from '../../../runtime-core/src/helpers.js';
+import { ContentPresenter, applyGridAttachedProps, applyMargin } from '@noxigui/runtime-core';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '@noxigui/core';
-import type * as PIXI from 'pixi.js';
+import type { UIElement, RenderContainer } from '@noxigui/core';
 
 /** Parser for `<ContentPresenter>` elements. */
 export class ContentPresenterParser implements ElementParser {
@@ -15,7 +13,7 @@ export class ContentPresenterParser implements ElementParser {
     return cp;
   }
 
-  collect(into: PIXI.Container, el: UIElement, collect: (into: PIXI.Container, el: UIElement) => void) {
+  collect(into: RenderContainer, el: UIElement, collect: (into: RenderContainer, el: UIElement) => void) {
     if (el instanceof ContentPresenter && (el as any).child) {
       collect(into, (el as any).child);
       return true;
