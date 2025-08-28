@@ -2,9 +2,8 @@
   "name": "noxigui",
   "private": true,
   "version": "0.1.0",
-  "workspaces": ["packages/*"],
   "scripts": {
-    "dev": "npm -w @noxigui/runtime run build && npm -w @noxigui/playground run dev",
-    "build": "npm -w @noxigui/runtime run build && npm -w @noxigui/playground run build"
+    "dev": "pnpm -F @noxigui/runtime build && pnpm -F @noxigui/playground dev",
+    "build": "pnpm -F @noxigui/runtime build && pnpm -F @noxigui/playground build"
   }
 }
