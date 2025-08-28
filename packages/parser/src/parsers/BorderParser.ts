@@ -1,4 +1,11 @@
-import { BorderPanel, applyGridAttachedProps, parseSizeAttrs, parseColor, parseMargin, applyMargin } from '@noxigui/runtime-core';
+import {
+  BorderPanel,
+  applyGridAttachedProps,
+  parseSizeAttrs,
+  parseColor,
+  parseMargin,
+  applyMargin,
+} from '@noxigui/runtime-core';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
 import type { UIElement, RenderContainer } from '@noxigui/core';

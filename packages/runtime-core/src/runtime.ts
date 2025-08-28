@@ -1,4 +1,4 @@
-import { Parser } from '../../parser/src/Parser.js';
+import { Parser } from '@noxigui/parser';
 import { Grid } from './elements/Grid.js';
 import { UIElement } from '@noxigui/core';
 import type { Size, Renderer } from '@noxigui/core';
@@ -21,7 +21,7 @@ export const RuntimeInstance = {
       root.arrange({ x: 0, y: 0, width: size.width, height: size.height });
     };
 
-    const destroy = () => container.destroy({ children: true });
+    const destroy = () => container.getDisplayObject().destroy({ children: true });
 
     return { container, layout, destroy, setGridDebug };
   }
