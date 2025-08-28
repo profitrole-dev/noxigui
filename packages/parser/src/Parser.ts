@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { UIElement } from '../../runtime/src/core.js';
+import { UIElement } from '../../core/src/index.js';
 import { parsers as elementParsers } from './parsers/index.js';
 import type { Renderer } from '../../runtime/src/renderer.js';
 

@@ -2,7 +2,7 @@ import { BorderPanel } from '../../../runtime/src/elements/BorderPanel.js';
 import { applyGridAttachedProps, parseSizeAttrs, parseColor, parseMargin, applyMargin } from '../../../runtime/src/helpers.js';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '../../../runtime/src/core.js';
+import type { UIElement } from '../../../core/src/index.js';
 import type * as PIXI from 'pixi.js';
 
 /** Parser for `<Border>` elements. */

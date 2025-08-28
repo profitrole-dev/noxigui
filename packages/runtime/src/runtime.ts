@@ -1,7 +1,7 @@
 import { Parser } from '../../parser/src/Parser.js';
 import { Grid } from './elements/Grid.js';
-import { UIElement } from './core.js';
-import type { Size } from './core.js';
+import { UIElement } from '../../core/src/index.js';
+import type { Size } from '../../core/src/index.js';
 import type { Renderer } from './renderer.js';
 
 export const RuntimeInstance = {

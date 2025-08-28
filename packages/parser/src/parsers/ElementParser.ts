@@ -1,4 +1,4 @@
-import type { UIElement } from '../../../runtime/src/core.js';
+import type { UIElement } from '../../../core/src/index.js';
 import type { Parser } from '../Parser.js';
 import type * as PIXI from 'pixi.js';
 

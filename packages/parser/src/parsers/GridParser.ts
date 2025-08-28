@@ -2,7 +2,7 @@ import { Grid, Row, Col } from '../../../runtime/src/elements/Grid.js';
 import { applyGridAttachedProps, parseLen, applyMargin } from '../../../runtime/src/helpers.js';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '../../../runtime/src/core.js';
+import type { UIElement } from '../../../core/src/index.js';
 import type * as PIXI from 'pixi.js';
 
 /** Parser for `<Grid>` elements. */

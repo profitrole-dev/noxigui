@@ -3,7 +3,7 @@ import { Image } from '../../../runtime/src/elements/Image.js';
 import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } from '../../../runtime/src/helpers.js';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '../../../runtime/src/core.js';
+import type { UIElement } from '../../../core/src/index.js';
 
 /** Parser for `<Image>` elements. */
 export class ImageParser implements ElementParser {

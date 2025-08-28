@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
-import { UIElement } from '../core.js';
-import type { Size, Rect } from '../core.js';
+import { UIElement } from '../../../core/src/index.js';
+import type { Size, Rect } from '../../../core/src/index.js';
 import type { Len } from '../helpers.js';
 import { BorderPanel } from './BorderPanel.js';
 

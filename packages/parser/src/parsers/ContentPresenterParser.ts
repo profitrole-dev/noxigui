@@ -1,8 +1,8 @@
-import { ContentPresenter } from '../../../runtime/src/core.js';
+import { ContentPresenter } from '../../../runtime/src/index.js';
 import { applyGridAttachedProps, applyMargin } from '../../../runtime/src/helpers.js';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '../../../runtime/src/core.js';
+import type { UIElement } from '../../../core/src/index.js';
 import type * as PIXI from 'pixi.js';
 
 /** Parser for `<ContentPresenter>` elements. */
