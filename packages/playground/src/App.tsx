@@ -100,13 +100,7 @@ export default function App() {
       ]);
 
       await PIXI.Assets.load([
-        'bg', 'feature_1', 'feature_2', 'logo',
-        'icon_h1', 'icon_h2',
-        'icon_l1', 'icon_l2', 'icon_l3', 'icon_l4', 'icon_l5',
-        'icon_m1', 'icon_m2', 'icon_m3',
-        'logo',
         'monster',
-        'underline',
       ]);
 
       if (!cancelled) setAssetsReady(true);
