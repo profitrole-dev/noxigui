@@ -38,10 +38,12 @@ export class GridParser implements ElementParser {
   collect(into: PIXI.Container, el: UIElement, collect: (into: PIXI.Container, el: UIElement) => void) {
     if (el instanceof Grid) {
       for (const ch of el.children) collect(into, ch);
-      el.debugG.zIndex = 100000;
-      if (el.debugG.parent !== into) {
-        el.debugG.parent?.removeChild(el.debugG);
-        into.addChild(el.debugG);
+      if (el.debugG) {
+        el.debugG.zIndex = 100000;
+        if (el.debugG.parent !== into) {
+          el.debugG.parent?.removeChild(el.debugG);
+          into.addChild(el.debugG);
+        }
       }
       return true;
     }

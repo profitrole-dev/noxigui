@@ -20,7 +20,7 @@ export class Grid extends UIElement {
   colGap = 0;
 
   debug = false;
-  debugG = new PIXI.Graphics();
+  debugG: PIXI.Graphics | null = null;
 
   add(ch: UIElement) { this.children.push(ch); }
   static setRow(el: UIElement, i: number) { rowMap.set(el, i|0); }
@@ -191,10 +191,17 @@ export class Grid extends UIElement {
   }
 
   private drawDebug(xs: number[], ys: number[]) {
+    if (!this.debug) {
+      if (this.debugG) {
+        this.debugG.visible = false;
+        this.debugG.clear();
+      }
+      return;
+    }
+    if (!this.debugG) this.debugG = new PIXI.Graphics();
     const g = this.debugG;
-    g.visible = this.debug;
+    g.visible = true;
     g.clear();
-    if (!this.debug) return;
     if (this.final.width <= 0 || this.final.height <= 0) return;
 
     const x0 = this.final.x, y0 = this.final.y;
