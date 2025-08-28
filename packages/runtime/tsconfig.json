@@ -5,7 +5,13 @@
     "declaration": true,
     "declarationMap": true,
     "allowImportingTsExtensions": false,
-    "erasableSyntaxOnly": false
+    "erasableSyntaxOnly": false,
+    "baseUrl": "src",
+    "paths": {
+      "@noxigui/core": ["../core/src/index.ts"],
+      "@noxigui/core/*": ["../core/src/*"]
+    },
+    "moduleResolution": "node"
   },
   "include": ["src"]
 }
