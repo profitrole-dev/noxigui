@@ -1,11 +1,11 @@
-import { parse } from './parser.js';
+import { Parser } from '../../parser/src/Parser.js';
 import { Grid } from './elements/Grid.js';
 import { UIElement } from './core.js';
 import type { Size } from './core.js';
 
 export const RuntimeInstance = {
   create(xml: string) {
-    const { root, container } = parse(xml);
+    const { root, container } = new Parser().parse(xml);
 
     const visit = (u: UIElement, f: (g: Grid) => void) => {
       if (u instanceof Grid) f(u);

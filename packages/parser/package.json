@@ -1,0 +1,17 @@
+{
+  "name": "@noxigui/parser",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/parser/src/index.js",
+  "types": "dist/parser/src/index.d.ts",
+  "exports": "./dist/parser/src/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "pixi.js": "^7.4.3"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3"
+  }
+}

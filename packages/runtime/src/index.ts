@@ -5,5 +5,4 @@ export * from './elements/PixiImage.js';
 export * from './elements/PixiText.js';
 export * from './elements/Grid.js';
 export * from './helpers.js';
-export * from './parser.js';
 export { RuntimeInstance } from './runtime.js';
