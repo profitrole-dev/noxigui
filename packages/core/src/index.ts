@@ -7,3 +7,5 @@ export * from './elements/BorderPanel.js';
 export * from './elements/Grid.js';
 export * from './elements/Image.js';
 export * from './elements/Text.js';
+export * from './common/geometry.js';
+export * from './common/renderer.js';

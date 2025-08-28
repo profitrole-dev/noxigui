@@ -1,6 +1,5 @@
-import type { Size, Rect } from '../../../core/src/index.js';
-import { Text as CoreText } from '../../../core/src/index.js';
-import type { Renderer, RenderText } from '../renderer.js';
+import type { Size, Rect, Renderer, RenderText } from '@noxigui/core';
+import { Text as CoreText } from '@noxigui/core';
 
 export class Text extends CoreText {
   text: RenderText;

@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "pixi.js": "^7.4.0",
-    "@noxigui/runtime": "workspace:*"
+    "@noxigui/core": "workspace:*"
   }
 }

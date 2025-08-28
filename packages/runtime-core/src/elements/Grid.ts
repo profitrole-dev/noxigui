@@ -1,8 +1,8 @@
 import * as PIXI from 'pixi.js';
-import { Grid as CoreGrid, Col } from '../../../core/src/index.js';
+import { Grid as CoreGrid, Col } from '@noxigui/core';
 import { BorderPanel } from './BorderPanel.js';
 
-export { Row, Col } from '../../../core/src/index.js';
+export { Row, Col } from '@noxigui/core';
 
 export class Grid extends CoreGrid {
   debugG = new PIXI.Graphics();

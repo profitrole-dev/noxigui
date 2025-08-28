@@ -1,8 +1,8 @@
-import { ContentPresenter } from '../../../runtime/src/index.js';
-import { applyGridAttachedProps, applyMargin } from '../../../runtime/src/helpers.js';
+import { ContentPresenter } from '../../../runtime-core/src/index.js';
+import { applyGridAttachedProps, applyMargin } from '../../../runtime-core/src/helpers.js';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '../../../core/src/index.js';
+import type { UIElement } from '@noxigui/core';
 import type * as PIXI from 'pixi.js';
 
 /** Parser for `<ContentPresenter>` elements. */

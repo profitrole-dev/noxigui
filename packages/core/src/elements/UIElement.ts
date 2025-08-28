@@ -1,9 +1,7 @@
 import type { MeasureCtx } from '../layout/engine.js';
 import { RuleRegistry } from '../layout/engine.js';
 import { createDefaultRegistry } from '../layout/register-defaults.js';
-
-export type Size = { width: number; height: number };
-export type Rect = { x: number; y: number; width: number; height: number };
+import type { Size, Rect } from '../common/geometry.js';
 
 const defaultRegistry = createDefaultRegistry();
 

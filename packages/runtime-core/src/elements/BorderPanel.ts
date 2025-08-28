@@ -1,6 +1,5 @@
-import type { Rect } from '../../../core/src/index.js';
-import { BorderPanel as CoreBorderPanel, type UIElement } from '../../../core/src/index.js';
-import type { Renderer, RenderGraphics, RenderContainer } from '../renderer.js';
+import type { Rect, Renderer, RenderGraphics, RenderContainer } from '@noxigui/core';
+import { BorderPanel as CoreBorderPanel, type UIElement } from '@noxigui/core';
 
 export class BorderPanel extends CoreBorderPanel {
   bg: RenderGraphics;
