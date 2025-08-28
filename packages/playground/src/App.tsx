@@ -96,24 +96,7 @@ export default function App() {
 
     const loadAssets = async () => {
       PIXI.Assets.add([
-        // { alias: 'bg', src: '/bg.png' },
-        { alias: 'icon_h1', src: '/icon_h1.png' },
-        { alias: 'icon_h2', src: '/icon_h2.png' },
-        { alias: 'icon_l1', src: '/icon_l1.png' },
-        { alias: 'icon_l2', src: '/icon_l2.png' },
-        { alias: 'icon_l3', src: '/icon_l3.png' },
-        { alias: 'icon_l4', src: '/icon_l4.png' },
-        { alias: 'icon_l5', src: '/icon_l5.png' },
-        { alias: 'icon_m1', src: '/icon_m1.png' },
-        { alias: 'icon_m2', src: '/icon_m2.png' },
-        { alias: 'icon_m3', src: '/icon_m3.png' },
-        { alias: 'logo', src: '/logo.png' },
-        { alias: 'monster', src: '/monster.png' },
-        { alias: 'underline', src: '/underline.png' },
-        { alias: 'bg', src: 'start_page/bg.png' },
-        { alias: 'feature_1', src: 'start_page/feature_1.png' },
-        { alias: 'feature_2', src: 'start_page/feature_2.png' },
-        { alias: 'logo', src: 'start_page/logo.png' },
+        { alias: 'monster', src: '/monster.png' }
       ]);
 
       await PIXI.Assets.load([
