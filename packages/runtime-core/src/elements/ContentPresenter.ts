@@ -1,5 +1,5 @@
-import { UIElement } from '../../../core/src/index.js';
-import type { Size, Rect } from '../../../core/src/index.js';
+import { UIElement } from '@noxigui/core';
+import type { Size, Rect } from '@noxigui/core';
 
 /**
  * Simple presenter that proxies measurement and arrangement to a single child.

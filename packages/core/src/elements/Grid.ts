@@ -1,4 +1,5 @@
-import { UIElement, type Size, type Rect } from './UIElement.js';
+import { UIElement } from './UIElement.js';
+import type { Size, Rect } from '../common/geometry.js';
 
 export type Len = { kind: 'auto' | 'px' | 'star'; v: number };
 export class Row { actual = 0; desired = 0; constructor(public len: Len) {} }

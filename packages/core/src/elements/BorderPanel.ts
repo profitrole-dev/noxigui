@@ -1,4 +1,5 @@
-import { UIElement, type Size, type Rect } from './UIElement.js';
+import { UIElement } from './UIElement.js';
+import type { Size, Rect } from '../common/geometry.js';
 
 export class BorderPanel extends UIElement {
   child?: UIElement;

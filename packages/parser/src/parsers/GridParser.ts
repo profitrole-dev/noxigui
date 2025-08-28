@@ -1,9 +1,9 @@
-import { Grid } from '../../../runtime/src/elements/Grid.js';
-import { Row, Col } from '../../../core/src/index.js';
-import { applyGridAttachedProps, parseLen, applyMargin } from '../../../runtime/src/helpers.js';
+import { Grid } from '../../../runtime-core/src/elements/Grid.js';
+import { Row, Col } from '@noxigui/core';
+import { applyGridAttachedProps, parseLen, applyMargin } from '../../../runtime-core/src/helpers.js';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '../../../core/src/index.js';
+import type { UIElement } from '@noxigui/core';
 import type * as PIXI from 'pixi.js';
 
 /** Parser for `<Grid>` elements. */

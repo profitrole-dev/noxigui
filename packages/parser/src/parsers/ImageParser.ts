@@ -1,9 +1,9 @@
 import * as PIXI from 'pixi.js';
-import { Image } from '../../../runtime/src/elements/Image.js';
-import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } from '../../../runtime/src/helpers.js';
+import { Image } from '../../../runtime-core/src/elements/Image.js';
+import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } from '../../../runtime-core/src/helpers.js';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '../../../core/src/index.js';
+import type { UIElement } from '@noxigui/core';
 
 /** Parser for `<Image>` elements. */
 export class ImageParser implements ElementParser {

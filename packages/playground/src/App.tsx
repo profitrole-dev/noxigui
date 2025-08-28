@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import * as PIXI from 'pixi.js';
-import { RuntimeInstance } from '@noxigui/runtime';
+import { RuntimeInstance } from '@noxigui/runtime-core';
 import { createPixiRenderer } from '@noxigui/renderer-pixi';
 
 const initialSchema = `

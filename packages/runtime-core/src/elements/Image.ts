@@ -1,6 +1,5 @@
-import type { Rect } from '../../../core/src/index.js';
-import { Image as CoreImage } from '../../../core/src/index.js';
-import type { Renderer, RenderImage } from '../renderer.js';
+import type { Rect, Renderer, RenderImage } from '@noxigui/core';
+import { Image as CoreImage } from '@noxigui/core';
 
 export class Image extends CoreImage {
   sprite: RenderImage;

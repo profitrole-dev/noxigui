@@ -2,9 +2,9 @@
   "name": "@noxigui/parser",
   "version": "0.1.0",
   "type": "module",
-  "main": "dist/parser/src/index.js",
-  "types": "dist/parser/src/index.d.ts",
-  "exports": "./dist/parser/src/index.js",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": "./dist/src/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json"
   },
