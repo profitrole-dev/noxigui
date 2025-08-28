@@ -176,8 +176,19 @@ export default function App() {
         height="100%"
         width="50%"
         editorDidMount={(_editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => {
+          const elementAttributes: Record<string, string[]> = {
+            Grid: ['Margin', 'RowGap', 'ColumnGap', 'Row', 'Column'],
+            Use: ['Template', 'Title', 'TitleSize', 'Grid.Row', 'Grid.Column'],
+            Slot: ['Name'],
+            Image: ['Source', 'Stretch', 'HorizontalAlignment', 'VerticalAlignment'],
+            Border: ['Padding', 'Background', 'ClipToBounds'],
+            TextBlock: ['Text', 'FontSize', 'Foreground'],
+            RowDefinition: ['Height'],
+            ColumnDefinition: ['Width'],
+          };
+
           monaco.languages.registerCompletionItemProvider('xml', {
-            triggerCharacters: ['<'],
+            triggerCharacters: ['<', ' ', '.'],
             provideCompletionItems: (model, position) => {
               const textUntilPosition = model.getValueInRange({
                 startLineNumber: position.lineNumber,
@@ -186,7 +197,8 @@ export default function App() {
                 endColumn: position.column,
               });
 
-              if (!textUntilPosition.trim().startsWith('<')) {
+              const trimmed = textUntilPosition.trimStart();
+              if (!trimmed.startsWith('<')) {
                 return { suggestions: [] };
               }
 
@@ -198,30 +210,47 @@ export default function App() {
                 endColumn: word.endColumn,
               };
 
-              const suggestions: monacoEditor.languages.CompletionItem[] = [
-                {
-                  label: 'Grid',
-                  kind: monaco.languages.CompletionItemKind.Snippet,
-                  insertText: '<Grid>\n\t$0\n</Grid>',
-                  insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                  range,
-                },
-                {
-                  label: 'Use Card',
-                  kind: monaco.languages.CompletionItemKind.Snippet,
-                  insertText: '<Use Template="Card">\n\t<Slot Name="Media">\n\t\t$0\n\t</Slot>\n</Use>',
-                  insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                  range,
-                },
-                {
-                  label: 'RowDefinition',
-                  kind: monaco.languages.CompletionItemKind.Snippet,
-                  insertText: '<RowDefinition Height="Auto" />',
-                  range,
-                },
-              ];
+              const afterLt = trimmed.slice(1);
+              const hasSpace = afterLt.includes(' ');
 
-              return { suggestions };
+              if (!hasSpace) {
+                const tagSuggestions: monacoEditor.languages.CompletionItem[] = [
+                  {
+                    label: 'Grid',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: '<Grid>\n\t$0\n</Grid>',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range,
+                  },
+                  {
+                    label: 'Use Card',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: '<Use Template="Card">\n\t<Slot Name="Media">\n\t\t$0\n\t</Slot>\n</Use>',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range,
+                  },
+                  {
+                    label: 'RowDefinition',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: '<RowDefinition Height="Auto" />',
+                    range,
+                  },
+                ];
+
+                return { suggestions: tagSuggestions };
+              }
+
+              const tagName = afterLt.split(/\s+/)[0];
+              const attrs = elementAttributes[tagName] ?? [];
+              const attrSuggestions: monacoEditor.languages.CompletionItem[] = attrs.map(label => ({
+                label,
+                kind: monaco.languages.CompletionItemKind.Property,
+                insertText: `${label}="$0"`,
+                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                range,
+              }));
+
+              return { suggestions: attrSuggestions };
             },
           });
         }}
