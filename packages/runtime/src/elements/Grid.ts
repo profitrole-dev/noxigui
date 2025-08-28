@@ -147,9 +147,11 @@ export class Grid extends UIElement {
     const widthSum = this.cols.reduce((s, c) => s + c.actual, 0) + totalColGaps;
     const heightSum = this.rows.reduce((s, r) => s + r.actual, 0) + totalRowGaps;
 
+    const intrinsicW = widthSum + this.margin.l + this.margin.r;
+    const intrinsicH = heightSum + this.margin.t + this.margin.b;
     this.desired = {
-      width: widthSum + this.margin.l + this.margin.r,
-      height: heightSum + this.margin.t + this.margin.b,
+      width: this.measureAxis('x', avail.width, intrinsicW),
+      height: this.measureAxis('y', avail.height, intrinsicH),
     };
   }
 

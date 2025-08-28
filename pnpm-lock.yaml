@@ -78,6 +78,9 @@ importers:
 
   packages/runtime:
     dependencies:
+      '@noxigui/core':
+        specifier: file:../core
+        version: link:../core
       '@noxigui/parser':
         specifier: file:../parser
         version: link:../parser
