@@ -45,3 +45,12 @@ export function parseMargin(s?: string | null): Margin {
   if (a.length === 3) { const [l, t, r] = a; return { l, t, r, b: t }; }
   const [l, t, r, b] = a; return { l, t, r, b };
 }
+
+export function applyMargin(node: Element, el: UIElement) {
+  const m = node.getAttribute('Margin'); if (m) (el as any).margin = parseMargin(m);
+}
+
+export function applyAlignment(node: Element, el: any) {
+  const ha = node.getAttribute('HorizontalAlignment'); if (ha) el.hAlign = ha as any;
+  const va = node.getAttribute('VerticalAlignment'); if (va) el.vAlign = va as any;
+}
