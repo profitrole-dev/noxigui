@@ -51,12 +51,9 @@ importers:
 
   packages/playground:
     dependencies:
-      '@noxigui/renderer-pixi':
+      noxi.js:
         specifier: workspace:*
-        version: link:../renderer-pixi
-      '@noxigui/runtime':
-        specifier: workspace:*
-        version: link:../runtime
+        version: link:../noxi.js
       pixi.js:
         specifier: ^7.4.3
         version: 7.4.3
