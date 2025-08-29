@@ -28,3 +28,6 @@ dist-ssr
 # Allow publishing noxi.js build output
 !packages/noxi.js/dist
 !packages/noxi.js/dist/**
+
+*.tsbuildinfo
+packages/**/dist/
