@@ -1,10 +1,10 @@
-import { RuntimeInstance, type GuiObject, type Renderer } from '@noxigui/runtime';
+import { Noxi as RuntimeNoxi, type GuiObject, type Renderer } from '@noxigui/runtime';
 import { createPixiRenderer } from '@noxigui/renderer-pixi';
 
 const Noxi = {
   gui: {
     create(xml: string, renderer: Renderer = createPixiRenderer()): GuiObject {
-      return RuntimeInstance.create(xml, renderer);
+      return RuntimeNoxi.gui.create(xml, renderer);
     }
   }
 };

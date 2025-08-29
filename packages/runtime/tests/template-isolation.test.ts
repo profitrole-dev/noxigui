@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RuntimeInstance } from '../src/index.js';
+import { Noxi } from '../src/index.js';
 import type { Renderer, RenderContainer } from '../src/renderer.js';
 import { DOMParser as XmldomParser } from '@xmldom/xmldom';
 
@@ -68,8 +68,8 @@ test('templates are isolated between GuiObject instances', () => {
   const xmlA = '<Grid><Resources><Template Key="T"><TextBlock Text="One"/></Template></Resources><Use Template="T"/></Grid>';
   const xmlB = '<Grid><Resources><Template Key="T"><TextBlock Text="Two"/></Template></Resources><Use Template="T"/></Grid>';
 
-  const guiA = RuntimeInstance.create(xmlA, renderer);
-  const guiB = RuntimeInstance.create(xmlB, renderer);
+  const guiA = Noxi.gui.create(xmlA, renderer);
+  const guiB = Noxi.gui.create(xmlB, renderer);
 
   const textA = (guiA.root as any).children[0];
   const textB = (guiB.root as any).children[0];

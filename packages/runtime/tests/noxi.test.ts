@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RuntimeInstance, type GuiObject } from '../src/index.js';
+import { Noxi, type GuiObject } from '../src/index.js';
 import type { Renderer, RenderGraphics, RenderContainer } from '../src/renderer.js';
 import { DOMParser as XmldomParser } from '@xmldom/xmldom';
 
@@ -56,9 +56,9 @@ const renderer: Renderer = {
   createContainer() { return containerObj as RenderContainer; },
 };
 
-test('RuntimeInstance.create returns GuiObject', () => {
+test('Noxi.gui.create returns GuiObject', () => {
   const xml = '<Grid />';
-  const gui: GuiObject = RuntimeInstance.create(xml, renderer);
+  const gui: GuiObject = Noxi.gui.create(xml, renderer);
   assert.equal(gui.container, containerObj);
   gui.layout({ width: 100, height: 100 });
   gui.setGridDebug(true);

@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import * as PIXI from 'pixi.js';
-import { RuntimeInstance, type RenderContainer } from '@noxigui/runtime';
+import { Noxi, type RenderContainer } from '@noxigui/runtime';
 import { createPixiRenderer } from '@noxigui/renderer-pixi';
 
 const initialSchema = `
@@ -127,7 +127,7 @@ export default function App() {
     }
 
     try {
-      const runtime = RuntimeInstance.create(code, createPixiRenderer());
+      const runtime = Noxi.gui.create(code, createPixiRenderer());
       runtimeRef.current = runtime;
       // runtime.setGridDebug(true);
 
