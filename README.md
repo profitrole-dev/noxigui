@@ -9,4 +9,5 @@ Run `pnpm dev` to start the playground or `pnpm build` to build all packages.
 
 ```ts
 import Noxi from "noxi.js";
+const gui = Noxi.gui.create(xml); // uses PIXI.js renderer by default
 ```
