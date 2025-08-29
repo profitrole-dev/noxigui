@@ -41,14 +41,21 @@ export interface SizeRule {
  * Registry for sizing rules. Rules are executed grouped by phase and priority.
  */
 export class RuleRegistry {
-  private rules: SizeRule[] = [];
+  private rules: Record<Phase, SizeRule[]> = { normalize: [], primary: [], post: [] };
 
   constructor(rules: SizeRule[] = []) {
     this.register(...rules);
   }
 
   register(...r: SizeRule[]): void {
-    this.rules.push(...r);
+    const changed = new Set<Phase>();
+    for (const rule of r) {
+      this.rules[rule.phase].push(rule);
+      changed.add(rule.phase);
+    }
+    for (const phase of changed) {
+      this.rules[phase].sort((a, b) => a.priority - b.priority);
+    }
   }
 
   /**
@@ -57,11 +64,8 @@ export class RuleRegistry {
    * returned.
    */
   run(ctx: MeasureCtx): number {
-    const byPhase: Record<Phase, SizeRule[]> = { normalize: [], primary: [], post: [] };
-    for (const r of this.rules) byPhase[r.phase].push(r);
-    for (const phase of ['normalize','primary','post'] as Phase[]) {
-      const rules = byPhase[phase].sort((a, b) => a.priority - b.priority);
-      for (const rule of rules) {
+    for (const phase of ['normalize', 'primary', 'post'] as Phase[]) {
+      for (const rule of this.rules[phase]) {
         if (!rule.applies(ctx)) continue;
         const res = rule.compute(ctx);
         if (res) {
