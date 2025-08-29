@@ -1,7 +1,5 @@
 import { Parser } from '@noxigui/parser';
-import { Grid } from './elements/Grid.js';
-import { UIElement } from '@noxigui/core';
-import type { Size, Renderer } from '@noxigui/core';
+import { Grid, UIElement, type Size, type Renderer } from '@noxigui/runtime-core';
 
 export const RuntimeInstance = {
   create(xml: string, renderer: Renderer) {

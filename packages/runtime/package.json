@@ -1,5 +1,5 @@
 {
-  "name": "@noxigui/parser",
+  "name": "@noxigui/runtime",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
@@ -14,6 +14,7 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@noxigui/parser": "file:../parser",
     "@noxigui/runtime-core": "file:../runtime-core"
   },
   "devDependencies": {
