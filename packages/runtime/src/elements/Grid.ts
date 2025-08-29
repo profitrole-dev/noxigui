@@ -1,5 +1,4 @@
-import { UIElement } from '../core.js';
-import type { Size, Rect } from '../core.js';
+import { UIElement, type Size, type Rect } from '@noxigui/core';
 import type { Len } from '../helpers.js';
 import type { Renderer, RenderGraphics } from '../renderer.js';
 import { BorderPanel } from './BorderPanel.js';
@@ -163,11 +162,7 @@ export class Grid extends UIElement {
   arrange(rect: Rect) {
     const rowCount = this.rows.length;
     const colCount = this.cols.length;
-    const innerX = rect.x + this.margin.l;
-    const innerY = rect.y + this.margin.t;
-    const innerW = Math.max(0, rect.width - this.margin.l - this.margin.r);
-    const innerH = Math.max(0, rect.height - this.margin.t - this.margin.b);
-    this.final = { x: innerX, y: innerY, width: innerW, height: innerH };
+    const inner = this.arrangeSelf(rect);
 
     const xs: number[] = [0];
     for (const c of this.cols) xs.push(xs[xs.length - 1] + c.actual);
@@ -185,8 +180,8 @@ export class Grid extends UIElement {
       rs = Math.min(Math.max(1, rs), Math.max(1, rowCount - r));
       cs = Math.min(Math.max(1, cs), Math.max(1, colCount - c));
 
-      const x = xs[c] + c * this.colGap;
-      const y = ys[r] + r * this.rowGap;
+      const x = inner.x + xs[c] + c * this.colGap;
+      const y = inner.y + ys[r] + r * this.rowGap;
 
       const w = (xs[c + cs] - xs[c]) + (cs - 1) * this.colGap;
       const h = (ys[r + rs] - ys[r]) + (rs - 1) * this.rowGap;
@@ -194,7 +189,7 @@ export class Grid extends UIElement {
       ch.arrange({ x, y, width: w, height: h });
     }
 
-    this.drawDebug(xs, ys);
+    this.drawDebug(xs.map(v => v + inner.x), ys.map(v => v + inner.y));
   }
 
   private drawDebug(xs: number[], ys: number[]) {

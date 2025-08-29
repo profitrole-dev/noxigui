@@ -1,5 +1,4 @@
-import { UIElement } from '../core.js';
-import type { Size, Rect } from '../core.js';
+import { UIElement, type Size, type Rect } from '@noxigui/core';
 import type { Renderer, RenderImage } from '../renderer.js';
 
 export class Image extends UIElement {
@@ -113,10 +112,8 @@ export class Image extends UIElement {
   }
 
   arrange(rect: Rect) {
-    const x0 = rect.x + this.margin.l, y0 = rect.y + this.margin.t;
-    const w = Math.max(0, rect.width - this.margin.l - this.margin.r);
-    const h = Math.max(0, rect.height - this.margin.t - this.margin.b);
-    this.final = { x: x0, y: y0, width: w, height: h };
+    const inner = this.arrangeSelf(rect);
+    const w = inner.width, h = inner.height;
 
     const sw = this.natW || 1, sh = this.natH || 1;
     let scaleX = 1, scaleY = 1, drawW = sw, drawH = sh;
@@ -128,11 +125,11 @@ export class Image extends UIElement {
       case 'UniformToFill': { const s = Math.max(w / sw, h / sh); scaleX = scaleY = s; drawW = sw * s; drawH = sh * s; break; }
     }
 
-    let x = x0, y = y0;
-    if (this.hAlign === 'Center') x = x0 + (w - drawW) / 2;
-    else if (this.hAlign === 'Right') x = x0 + (w - drawW);
-    if (this.vAlign === 'Center') y = y0 + (h - drawH) / 2;
-    else if (this.vAlign === 'Bottom') y = y0 + (h - drawH);
+    let x = inner.x, y = inner.y;
+    if (this.hAlign === 'Center') x = inner.x + (inner.width - drawW) / 2;
+    else if (this.hAlign === 'Right') x = inner.x + (inner.width - drawW);
+    if (this.vAlign === 'Center') y = inner.y + (inner.height - drawH) / 2;
+    else if (this.vAlign === 'Bottom') y = inner.y + (inner.height - drawH);
 
     this.sprite.setScale(scaleX, scaleY);
     this.sprite.setPosition(x, y);
