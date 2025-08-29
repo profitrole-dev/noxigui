@@ -1,7 +1,6 @@
 import { Parser } from '@noxigui/parser';
+import { UIElement, type Size } from '@noxigui/core';
 import { Grid } from './elements/Grid.js';
-import { UIElement } from './core.js';
-import type { Size } from './core.js';
 import type { Renderer, RenderContainer } from './renderer.js';
 
 export const RuntimeInstance = {

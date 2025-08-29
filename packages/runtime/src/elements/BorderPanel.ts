@@ -1,5 +1,4 @@
-import { UIElement } from '../core.js';
-import type { Size, Rect } from '../core.js';
+import { UIElement, type Size, type Rect } from '@noxigui/core';
 import type { Renderer, RenderGraphics, RenderContainer } from '../renderer.js';
 
 export class BorderPanel extends UIElement {
@@ -41,18 +40,14 @@ export class BorderPanel extends UIElement {
   }
 
   arrange(rect: Rect) {
-    const innerX = rect.x + this.margin.l;
-    const innerY = rect.y + this.margin.t;
-    const innerW = Math.max(0, rect.width - this.margin.l - this.margin.r);
-    const innerH = Math.max(0, rect.height - this.margin.t - this.margin.b);
-    this.final = { x: innerX, y: innerY, width: innerW, height: innerH };
+    const inner = this.arrangeSelf(rect);
 
-    this.container.setPosition(innerX, innerY);
+    this.container.setPosition(inner.x, inner.y);
     this.container.setSortableChildren(true);
 
     this.bg.clear();
     if (this.background !== undefined) {
-      this.bg.beginFill(this.background).drawRect(0, 0, innerW, innerH).endFill();
+      this.bg.beginFill(this.background).drawRect(0, 0, inner.width, inner.height).endFill();
     }
 
     if (this.clipToBounds) {
@@ -62,7 +57,7 @@ export class BorderPanel extends UIElement {
         this.container.setMask(this.maskG.getDisplayObject());
       }
       this.maskG.clear();
-      this.maskG.beginFill(0xffffff).drawRect(0, 0, innerW, innerH).endFill();
+      this.maskG.beginFill(0xffffff).drawRect(0, 0, inner.width, inner.height).endFill();
     } else if (this.maskG) {
       this.container.setMask(null);
       this.container.removeChild(this.maskG.getDisplayObject());
@@ -73,8 +68,8 @@ export class BorderPanel extends UIElement {
     if (this.child) {
       const cx = this.padding.l;
       const cy = this.padding.t;
-      const cw = Math.max(0, innerW - this.padding.l - this.padding.r);
-      const ch = Math.max(0, innerH - this.padding.t - this.padding.b);
+      const cw = Math.max(0, inner.width - this.padding.l - this.padding.r);
+      const ch = Math.max(0, inner.height - this.padding.t - this.padding.b);
       this.child.arrange({ x: cx, y: cy, width: cw, height: ch });
     }
   }
