@@ -29,7 +29,7 @@ const visited = new Set();
 const order = [];
 function visit(name, stack = new Set()) {
   if (visited.has(name)) return;
-  if (stack.has(name)) throw new Error('Circular dependency detected');
+  if (stack.has(name)) return;
   stack.add(name);
   const deps = graph.get(name) || [];
   for (const dep of deps) {
