@@ -9,12 +9,12 @@ import type {
 
 class PixiRenderImage implements RenderImage {
   sprite: PIXI.Sprite;
-  constructor(tex?: PIXI.Texture) {
-    this.sprite = new PIXI.Sprite(tex ?? PIXI.Texture.WHITE);
+  constructor(tex?: unknown) {
+    this.sprite = new PIXI.Sprite((tex as PIXI.Texture | undefined) ?? PIXI.Texture.WHITE);
     this.sprite.anchor.set(0, 0);
   }
-  setTexture(tex?: PIXI.Texture) {
-    this.sprite.texture = tex ?? PIXI.Texture.WHITE;
+  setTexture(tex?: unknown) {
+    this.sprite.texture = (tex as PIXI.Texture | undefined) ?? PIXI.Texture.WHITE;
   }
   setPosition(x: number, y: number) {
     this.sprite.x = x;
@@ -117,7 +117,14 @@ class PixiRenderContainer implements RenderContainer {
 
 export function createPixiRenderer(): Renderer {
   return {
-    createImage(tex?: PIXI.Texture) {
+    getTexture(key: string) {
+      try {
+        return PIXI.Assets.get(key);
+      } catch {
+        return PIXI.Texture.from(key);
+      }
+    },
+    createImage(tex?: unknown) {
       return new PixiRenderImage(tex);
     },
     createText(content: string, style: { fill: string; fontSize: number }) {

@@ -10,7 +10,7 @@ export class Image extends UIElement {
   private natW = 0;
   private natH = 0;
 
-  constructor(renderer: Renderer, tex?: any) {
+  constructor(renderer: Renderer, tex?: unknown) {
     super();
     this.sprite = renderer.createImage(tex);
     this.updateNaturalSize();
@@ -22,7 +22,7 @@ export class Image extends UIElement {
     this.natH = Math.max(0, size.height);
   }
 
-  setTexture(tex?: any) {
+  setTexture(tex?: unknown) {
     this.sprite.setTexture(tex);
     this.updateNaturalSize();
   }
