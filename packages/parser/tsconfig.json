@@ -8,7 +8,7 @@
     "erasableSyntaxOnly": false,
     "baseUrl": "src",
     "paths": {
-      "@noxigui/runtime": ["../../runtime/dist/runtime/src/index.d.ts"]
+      "@noxigui/runtime": ["../../runtime/dist/src/index.d.ts"]
     },
     "moduleResolution": "node",
     "types": ["node"],
