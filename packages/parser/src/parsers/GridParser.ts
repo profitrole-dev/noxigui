@@ -3,7 +3,7 @@ import { applyGridAttachedProps, parseLen, applyMargin } from '../../../runtime/
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
 import type { UIElement } from '../../../runtime/src/core.js';
-import type * as PIXI from 'pixi.js';
+import type { RenderContainer } from '../../../runtime/src/renderer.js';
 
 /** Parser for `<Grid>` elements. */
 export class GridParser implements ElementParser {
@@ -35,12 +35,14 @@ export class GridParser implements ElementParser {
     return g;
   }
 
-  collect(into: PIXI.Container, el: UIElement, collect: (into: PIXI.Container, el: UIElement) => void) {
+  collect(into: RenderContainer, el: UIElement, collect: (into: RenderContainer, el: UIElement) => void) {
     if (el instanceof Grid) {
       for (const ch of el.children) collect(into, ch);
       el.debugG.zIndex = 100000;
-      if (el.debugG.parent !== into) {
-        el.debugG.parent?.removeChild(el.debugG);
+      const parent = (el.debugG as any).parent;
+      const intoObj = into.getDisplayObject();
+      if (parent !== intoObj) {
+        parent?.removeChild?.(el.debugG);
         into.addChild(el.debugG);
       }
       return true;

@@ -2,7 +2,7 @@ import { Parser } from '../../parser/src/Parser.js';
 import { Grid } from './elements/Grid.js';
 import { UIElement } from './core.js';
 import type { Size } from './core.js';
-import type { Renderer } from './renderer.js';
+import type { Renderer, RenderContainer } from './renderer.js';
 
 export const RuntimeInstance = {
   create(xml: string, renderer: Renderer) {
@@ -22,8 +22,16 @@ export const RuntimeInstance = {
       root.arrange({ x: 0, y: 0, width: size.width, height: size.height });
     };
 
-    const destroy = () => container.destroy({ children: true });
+    const destroy = () => {
+      const obj = container.getDisplayObject();
+      (obj as any)?.destroy?.({ children: true });
+    };
 
-    return { container, layout, destroy, setGridDebug };
+    return { container, layout, destroy, setGridDebug } as {
+      container: RenderContainer;
+      layout: (size: Size) => void;
+      destroy: () => void;
+      setGridDebug: (on: boolean) => void;
+    };
   }
 };

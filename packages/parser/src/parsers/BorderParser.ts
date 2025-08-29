@@ -3,7 +3,7 @@ import { applyGridAttachedProps, parseSizeAttrs, parseColor, parseMargin, applyM
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
 import type { UIElement } from '../../../runtime/src/core.js';
-import type * as PIXI from 'pixi.js';
+import type { RenderContainer } from '../../../runtime/src/renderer.js';
 
 /** Parser for `<Border>` elements. */
 export class BorderParser implements ElementParser {
@@ -22,11 +22,11 @@ export class BorderParser implements ElementParser {
     return panel;
   }
 
-  collect(into: PIXI.Container, el: UIElement, collect: (into: PIXI.Container, el: UIElement) => void) {
+  collect(into: RenderContainer, el: UIElement, collect: (into: RenderContainer, el: UIElement) => void) {
     if (el instanceof BorderPanel) {
-      const group = el.container.getDisplayObject();
-      el.container.setSortableChildren(true);
-      into.addChild(group);
+      const group = el.container;
+      group.setSortableChildren(true);
+      into.addChild(group.getDisplayObject());
       if (el.child) collect(group, el.child);
       return true;
     }
