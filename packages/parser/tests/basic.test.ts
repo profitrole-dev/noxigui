@@ -16,8 +16,6 @@ class PatchedDOMParser extends XmldomParser {
   }
 }
 
-globalThis.DOMParser = PatchedDOMParser as unknown as typeof globalThis.DOMParser;
-
 const createRenderer = () => {
   return {
     getTexture() { return undefined; },
@@ -59,7 +57,7 @@ const createRenderer = () => {
 
 test('parse simple grid with text', () => {
   const renderer = createRenderer();
-  const parser = new Parser(renderer);
+  const parser = new Parser(renderer, new PatchedDOMParser());
   const { root, container } = parser.parse('<Grid><TextBlock Text="Hello"/></Grid>');
   assert.ok(root instanceof Grid);
   const grid = root as Grid;

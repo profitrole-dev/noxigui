@@ -13,7 +13,8 @@ pnpm add @noxigui/parser pixi.js
 ```ts
 import { Parser } from '@noxigui/parser';
 
-const parser = new Parser();
+// supply a renderer and optionally an XML parser implementation
+const parser = new Parser(renderer, new DOMParser());
 const { root, container } = parser.parse('<Grid></Grid>');
 ```
 
@@ -32,7 +33,18 @@ class MyParser implements ElementParser {
   parse(node: Element, p: Parser) { /* ... */ return null; }
 }
 
-const parser = new Parser([new MyParser()]);
+const parser = new Parser(renderer, new DOMParser(), [new MyParser()]);
+```
+
+### Node.js
+
+In Node environments, provide an XML parser such as `@xmldom/xmldom`:
+
+```ts
+import { DOMParser } from '@xmldom/xmldom';
+import { Parser } from '@noxigui/parser';
+
+const parser = new Parser(renderer, new DOMParser());
 ```
 
 Custom parsers can also participate in assembling the PIXI display tree by

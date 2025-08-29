@@ -2,6 +2,10 @@ import { UIElement } from '@noxigui/runtime';
 import { parsers as elementParsers } from './parsers/index.js';
 import type { Renderer, RenderContainer } from '@noxigui/runtime';
 
+export interface XmlParser {
+  parseFromString(xml: string, type: string): Document;
+}
+
 /**
  * Parses NoxiGUI XML markup into UI elements and a PIXI display tree.
  */
@@ -11,7 +15,11 @@ export class Parser {
    *
    * @param parsers - Registered element parsers. Defaults to built-in parsers.
    */
-  constructor(public renderer: Renderer, private parsers = elementParsers) {}
+  constructor(
+    public renderer: Renderer,
+    private xmlParser: XmlParser = new DOMParser(),
+    private parsers = elementParsers,
+  ) {}
 
   /**
    * Parse a single DOM element using the first parser that matches it.
@@ -35,7 +43,7 @@ export class Parser {
    * @returns Object containing the root UI element and the root render container.
    */
   parse(xml: string) {
-    const dom = new DOMParser().parseFromString(xml, 'application/xml');
+    const dom = this.xmlParser.parseFromString(xml, 'application/xml');
     const rootEl = dom.documentElement;
     if (rootEl.tagName !== 'Grid') throw new Error('Root must be <Grid>');
 
