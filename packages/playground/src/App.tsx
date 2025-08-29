@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import * as PIXI from 'pixi.js';
-import { RuntimeInstance } from '@noxigui/runtime';
+import { RuntimeInstance, RenderContainer } from '@noxigui/runtime';
 import { createPixiRenderer } from '@noxigui/renderer-pixi';
 
 const initialSchema = `
@@ -55,7 +55,7 @@ const initialSchema = `
 </Grid>`;
 
 type RuntimeHandle = {
-  container: PIXI.Container;
+  container: RenderContainer;
   layout: (size: { width: number; height: number }) => void;
   destroy: () => void;
 };
@@ -131,7 +131,7 @@ export default function App() {
       runtimeRef.current = runtime;
       // runtime.setGridDebug(true);
 
-      app.stage.addChild(runtime.container);
+      app.stage.addChild(runtime.container.getDisplayObject());
 
       const relayout = () => {
         if (!appRef.current || !runtimeRef.current) return;

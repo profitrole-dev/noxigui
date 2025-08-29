@@ -3,7 +3,7 @@ import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } f
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
 import type { UIElement } from '../../../runtime/src/core.js';
-import type * as PIXI from 'pixi.js';
+import type { RenderContainer } from '../../../runtime/src/renderer.js';
 
 /** Parser for `<TextBlock>` elements. */
 export class TextBlockParser implements ElementParser {
@@ -20,7 +20,7 @@ export class TextBlockParser implements ElementParser {
     return leaf;
   }
 
-  collect(into: PIXI.Container, el: UIElement) {
+  collect(into: RenderContainer, el: UIElement) {
     if (el instanceof Text) {
       into.addChild(el.text.getDisplayObject());
       return true;

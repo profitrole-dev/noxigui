@@ -3,6 +3,7 @@ import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } f
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
 import type { UIElement } from '../../../runtime/src/core.js';
+import type { RenderContainer } from '../../../runtime/src/renderer.js';
 
 /** Parser for `<Image>` elements. */
 export class ImageParser implements ElementParser {
@@ -22,7 +23,7 @@ export class ImageParser implements ElementParser {
     return img;
   }
 
-  collect(into: any, el: UIElement) {
+  collect(into: RenderContainer, el: UIElement) {
     if (el instanceof Image) {
       into.addChild(el.sprite.getDisplayObject());
       return true;

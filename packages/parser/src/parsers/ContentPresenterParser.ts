@@ -3,7 +3,7 @@ import { applyGridAttachedProps, applyMargin } from '../../../runtime/src/helper
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
 import type { UIElement } from '../../../runtime/src/core.js';
-import type * as PIXI from 'pixi.js';
+import type { RenderContainer } from '../../../runtime/src/renderer.js';
 
 /** Parser for `<ContentPresenter>` elements. */
 export class ContentPresenterParser implements ElementParser {
@@ -15,7 +15,7 @@ export class ContentPresenterParser implements ElementParser {
     return cp;
   }
 
-  collect(into: PIXI.Container, el: UIElement, collect: (into: PIXI.Container, el: UIElement) => void) {
+  collect(into: RenderContainer, el: UIElement, collect: (into: RenderContainer, el: UIElement) => void) {
     if (el instanceof ContentPresenter && (el as any).child) {
       collect(into, (el as any).child);
       return true;

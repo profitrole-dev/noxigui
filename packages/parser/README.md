@@ -1,6 +1,6 @@
 # @noxigui/parser
 
-Parses NoxiGUI XML markup into runtime UI elements and a PIXI display tree.
+Parses NoxiGUI XML markup into runtime UI elements and a renderer display tree.
 
 ## Installation
 

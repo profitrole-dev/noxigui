@@ -1,7 +1,6 @@
-import * as PIXI from 'pixi.js';
 import { UIElement } from '../../runtime/src/core.js';
 import { parsers as elementParsers } from './parsers/index.js';
-import type { Renderer } from '../../runtime/src/renderer.js';
+import type { Renderer, RenderContainer } from '../../runtime/src/renderer.js';
 
 /**
  * Parses NoxiGUI XML markup into UI elements and a PIXI display tree.
@@ -30,10 +29,10 @@ export class Parser {
   }
 
   /**
-   * Parse an XML document into UI elements and assemble the PIXI container tree.
+   * Parse an XML document into UI elements and assemble the renderer's container tree.
    *
    * @param xml - XML markup starting with a `<Grid>` root element.
-   * @returns Object containing the root UI element and the PIXI container tree.
+   * @returns Object containing the root UI element and the root render container.
    */
   parse(xml: string) {
     const dom = new DOMParser().parseFromString(xml, 'application/xml');
@@ -43,10 +42,10 @@ export class Parser {
     const root = this.parseElement(rootEl);
     if (!root) throw new Error('Failed to parse root element');
 
-    const container = new PIXI.Container();
-    container.sortableChildren = true;
+    const container = this.renderer.createContainer();
+    container.setSortableChildren(true);
 
-    const collect = (into: PIXI.Container, u: UIElement) => {
+    const collect = (into: RenderContainer, u: UIElement) => {
       for (const p of this.parsers) {
         if (p.collect && p.collect(into, u, collect)) return;
       }
