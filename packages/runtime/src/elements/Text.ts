@@ -15,12 +15,9 @@ export class Text extends UIElement {
   measure(avail: Size) {
     this.text.setWordWrap(Math.max(1, avail.width), 'left');
     const b = this.text.getBounds();
-    const intrinsicW = b.width + this.margin.l + this.margin.r;
-    const intrinsicH = b.height + this.margin.t + this.margin.b;
-    this.desired = {
-      width: this.measureAxis('x', avail.width, intrinsicW),
-      height: this.measureAxis('y', avail.height, intrinsicH)
-    };
+    this.intrinsicWidth = b.width + this.margin.l + this.margin.r;
+    this.intrinsicHeight = b.height + this.margin.t + this.margin.b;
+    super.measure(avail);
   }
 
   arrange(rect: Rect) {

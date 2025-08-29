@@ -27,17 +27,16 @@ export class BorderPanel extends UIElement {
       width: Math.max(0, avail.width - this.margin.l - this.margin.r - this.padding.l - this.padding.r),
       height: Math.max(0, avail.height - this.margin.t - this.margin.b - this.padding.t - this.padding.b),
     };
-    let intrinsicW = this.margin.l + this.margin.r + this.padding.l + this.padding.r;
-    let intrinsicH = this.margin.t + this.margin.b + this.padding.t + this.padding.b;
+    let contentW = this.padding.l + this.padding.r;
+    let contentH = this.padding.t + this.padding.b;
     if (this.child) {
       this.child.measure(inner);
-      intrinsicW += this.child.desired.width;
-      intrinsicH += this.child.desired.height;
+      contentW += this.child.desired.width;
+      contentH += this.child.desired.height;
     }
-    this.desired = {
-      width: this.measureAxis('x', avail.width, intrinsicW),
-      height: this.measureAxis('y', avail.height, intrinsicH),
-    };
+    this.intrinsicWidth = contentW + this.margin.l + this.margin.r;
+    this.intrinsicHeight = contentH + this.margin.t + this.margin.b;
+    super.measure(avail);
   }
 
   arrange(rect: Rect) {

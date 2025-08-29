@@ -36,33 +36,24 @@ export class Image extends UIElement {
     const baseH = natH > 0 ? natH : fallback;
 
     if (this.prefW !== undefined && this.prefH !== undefined) {
-      const intrinsicW = this.prefW + this.margin.l + this.margin.r;
-      const intrinsicH = this.prefH + this.margin.t + this.margin.b;
-      this.desired = {
-        width: this.measureAxis('x', avail.width, intrinsicW),
-        height: this.measureAxis('y', avail.height, intrinsicH)
-      };
+      this.intrinsicWidth = this.prefW + this.margin.l + this.margin.r;
+      this.intrinsicHeight = this.prefH + this.margin.t + this.margin.b;
+      super.measure(avail);
       return;
     }
 
     if (this.prefW !== undefined && this.prefH === undefined) {
       const h = baseH * (this.prefW / baseW);
-      const intrinsicW = this.prefW + this.margin.l + this.margin.r;
-      const intrinsicH = h + this.margin.t + this.margin.b;
-      this.desired = {
-        width: this.measureAxis('x', avail.width, intrinsicW),
-        height: this.measureAxis('y', avail.height, intrinsicH)
-      };
+      this.intrinsicWidth = this.prefW + this.margin.l + this.margin.r;
+      this.intrinsicHeight = h + this.margin.t + this.margin.b;
+      super.measure(avail);
       return;
     }
     if (this.prefH !== undefined && this.prefW === undefined) {
       const w = baseW * (this.prefH / baseH);
-      const intrinsicW = w + this.margin.l + this.margin.r;
-      const intrinsicH = this.prefH + this.margin.t + this.margin.b;
-      this.desired = {
-        width: this.measureAxis('x', avail.width, intrinsicW),
-        height: this.measureAxis('y', avail.height, intrinsicH)
-      };
+      this.intrinsicWidth = w + this.margin.l + this.margin.r;
+      this.intrinsicHeight = this.prefH + this.margin.t + this.margin.b;
+      super.measure(avail);
       return;
     }
 
@@ -104,12 +95,9 @@ export class Image extends UIElement {
       }
     }
 
-    const intrinsicW = drawW + this.margin.l + this.margin.r;
-    const intrinsicH = drawH + this.margin.t + this.margin.b;
-    this.desired = {
-      width: this.measureAxis('x', avail.width, intrinsicW),
-      height: this.measureAxis('y', avail.height, intrinsicH)
-    };
+    this.intrinsicWidth = drawW + this.margin.l + this.margin.r;
+    this.intrinsicHeight = drawH + this.margin.t + this.margin.b;
+    super.measure(avail);
   }
 
   arrange(rect: Rect) {
