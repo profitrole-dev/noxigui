@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 /package-lock.json
 /pnpm-lock.yaml
+
+# Allow publishing noxi.js build output
+!packages/noxi.js/dist
+!packages/noxi.js/dist/**
