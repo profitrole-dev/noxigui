@@ -6,3 +6,7 @@ This repository is a monorepo containing:
 - `@noxigui/playground` – a Vite playground for experimenting with the runtime.
 
 Run `pnpm dev` to start the playground or `pnpm build` to build all packages.
+
+```ts
+import Noxi from "noxi.js";
+```
