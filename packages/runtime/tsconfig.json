@@ -10,8 +10,7 @@
     "paths": {
       "@noxigui/core": ["../../core/dist/src/index.d.ts"],
       "@noxigui/core/*": ["../../core/dist/src/*"],
-      "@noxigui/parser": ["../../parser/dist/src/index.d.ts"],
-      "@noxigui/parser/*": ["../../parser/dist/src/*"],
+      "@noxigui/parser": ["./parser-shim.d.ts"],
       "@noxigui/runtime": ["./index.ts"],
       "@noxigui/runtime/*": ["./*"]
     },

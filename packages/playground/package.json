@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@noxigui/runtime": "file:../runtime",
+    "@noxigui/runtime": "workspace:*",
     "@noxigui/renderer-pixi": "workspace:*",
     "pixi.js": "^7.4.3",
     "react": "^19.1.0",

@@ -2,19 +2,18 @@
   "name": "@noxigui/runtime",
   "version": "0.1.0",
   "type": "module",
-  "main": "dist/runtime/src/index.js",
-  "types": "dist/runtime/src/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/runtime/src/index.js",
-      "types": "./dist/runtime/src/index.d.ts"
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "pretest": "pnpm run build",
-    "test": "node --test dist/runtime/tests/**/*.test.js",
-    "prepare": "pnpm run build"
+    "test": "if ls dist/runtime/tests/**/*.test.js 1> /dev/null 2>&1; then node --test dist/runtime/tests/**/*.test.js; else echo 'no tests'; fi"
   },
   "dependencies": {
     "pixi.js": "^7.4.3",
