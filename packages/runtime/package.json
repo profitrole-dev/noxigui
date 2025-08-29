@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "pixi.js": "^7.4.3",
-    "@noxigui/parser": "file:../parser",
     "@noxigui/core": "file:../core"
   },
   "devDependencies": {

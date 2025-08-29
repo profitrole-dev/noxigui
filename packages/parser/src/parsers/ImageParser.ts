@@ -1,9 +1,9 @@
-import { Image } from '../../../runtime/src/elements/Image.js';
-import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } from '../../../runtime/src/helpers.js';
+import { Image } from '@noxigui/runtime/elements/Image.js';
+import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } from '@noxigui/runtime/helpers.js';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '../../../runtime/src/core.js';
-import type { RenderContainer } from '../../../runtime/src/renderer.js';
+import type { UIElement } from '@noxigui/runtime/core.js';
+import type { RenderContainer } from '@noxigui/runtime/renderer.js';
 
 /** Parser for `<Image>` elements. */
 export class ImageParser implements ElementParser {

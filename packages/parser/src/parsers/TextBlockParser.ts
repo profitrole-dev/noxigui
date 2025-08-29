@@ -1,9 +1,9 @@
-import { Text } from '../../../runtime/src/elements/Text.js';
-import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } from '../../../runtime/src/helpers.js';
+import { Text } from '@noxigui/runtime/elements/Text.js';
+import { applyGridAttachedProps, parseSizeAttrs, applyMargin, applyAlignment } from '@noxigui/runtime/helpers.js';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '../../../runtime/src/core.js';
-import type { RenderContainer } from '../../../runtime/src/renderer.js';
+import type { UIElement } from '@noxigui/runtime/core.js';
+import type { RenderContainer } from '@noxigui/runtime/renderer.js';
 
 /** Parser for `<TextBlock>` elements. */
 export class TextBlockParser implements ElementParser {

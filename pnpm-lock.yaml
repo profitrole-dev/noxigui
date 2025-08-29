@@ -19,9 +19,9 @@ importers:
 
   packages/parser:
     dependencies:
-      pixi.js:
-        specifier: ^7.4.3
-        version: 7.4.3
+      '@noxigui/runtime':
+        specifier: file:../runtime
+        version: link:../runtime
     devDependencies:
       typescript:
         specifier: ~5.8.3
@@ -81,9 +81,6 @@ importers:
       '@noxigui/core':
         specifier: file:../core
         version: link:../core
-      '@noxigui/parser':
-        specifier: file:../parser
-        version: link:../parser
       pixi.js:
         specifier: ^7.4.3
         version: 7.4.3
