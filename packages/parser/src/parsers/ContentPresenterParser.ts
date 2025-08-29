@@ -1,7 +1,7 @@
 import { ContentPresenter, applyGridAttachedProps, applyMargin } from '@noxigui/runtime-core';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement, RenderContainer } from '@noxigui/core';
+import type { UIElement, RenderContainer } from '@noxigui/runtime-core';
 
 /** Parser for `<ContentPresenter>` elements. */
 export class ContentPresenterParser implements ElementParser {

@@ -1,6 +1,5 @@
-import { Grid, applyGridAttachedProps, parseLen, applyMargin } from '@noxigui/runtime-core';
-import { Row, Col } from '@noxigui/core';
-import type { UIElement, RenderContainer } from '@noxigui/core';
+import { Grid, Row, Col, applyGridAttachedProps, parseLen, applyMargin } from '@noxigui/runtime-core';
+import type { UIElement, RenderContainer } from '@noxigui/runtime-core';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
 

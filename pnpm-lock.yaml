@@ -19,9 +19,6 @@ importers:
 
   packages/parser:
     dependencies:
-      '@noxigui/core':
-        specifier: file:../core
-        version: link:../core
       '@noxigui/runtime-core':
         specifier: file:../runtime-core
         version: link:../runtime-core
@@ -35,9 +32,9 @@ importers:
       '@noxigui/renderer-pixi':
         specifier: workspace:*
         version: link:../renderer-pixi
-      '@noxigui/runtime-core':
-        specifier: file:../runtime-core
-        version: link:../runtime-core
+      '@noxigui/runtime':
+        specifier: file:../runtime
+        version: link:../runtime
       pixi.js:
         specifier: ^7.4.3
         version: 7.4.3
@@ -79,14 +76,24 @@ importers:
         specifier: ^7.4.0
         version: 7.4.3
 
+  packages/runtime:
+    dependencies:
+      '@noxigui/parser':
+        specifier: file:../parser
+        version: link:../parser
+      '@noxigui/runtime-core':
+        specifier: file:../runtime-core
+        version: link:../runtime-core
+    devDependencies:
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+
   packages/runtime-core:
     dependencies:
       '@noxigui/core':
         specifier: file:../core
         version: link:../core
-      '@noxigui/parser':
-        specifier: file:../parser
-        version: link:../parser
       pixi.js:
         specifier: ^7.4.3
         version: 7.4.3

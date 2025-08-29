@@ -5,5 +5,5 @@ export * from './elements/Text.js';
 export * from './elements/Grid.js';
 export * from './elements/ContentPresenter.js';
 export * from './helpers.js';
-export type { Renderer, RenderImage, RenderText, RenderGraphics, RenderContainer } from '@noxigui/core';
-export { RuntimeInstance } from './runtime.js';
+export type { Renderer, RenderImage, RenderText, RenderGraphics, RenderContainer, Size } from '@noxigui/core';
+export { UIElement } from '@noxigui/core';
