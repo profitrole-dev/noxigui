@@ -1,7 +1,7 @@
 // Runtime base UIElement built on core RuleRegistry
 
-import type { MeasureCtx } from '../../core/src/index.js';
-import { createDefaultRegistry, RuleRegistry } from '../../core/src/index.js';
+import type { MeasureCtx } from '@noxigui/core';
+import { createDefaultRegistry, RuleRegistry } from '@noxigui/core';
 
 export type Size = { width: number; height: number };
 export type Rect = { x: number; y: number; width: number; height: number };

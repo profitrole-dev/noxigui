@@ -4,7 +4,12 @@
   "type": "module",
   "main": "dist/runtime/src/index.js",
   "types": "dist/runtime/src/index.d.ts",
-  "exports": "./dist/runtime/src/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/runtime/src/index.js",
+      "types": "./dist/runtime/src/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json"
   },

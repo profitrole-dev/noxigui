@@ -1,7 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": "src",
+    "paths": {
+      "@noxigui/runtime": ["../../runtime/dist/runtime/src/index.d.ts"],
+      "@noxigui/core": ["../../core/dist/src/index.d.ts"]
+    }
   },
   "include": ["src"]
 }
