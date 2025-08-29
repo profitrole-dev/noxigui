@@ -59,7 +59,7 @@ export default function App() {
 
   const pixiRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PIXI.Application | null>(null);
-  const runtimeRef = useRef<ReturnType<typeof Noxi.gui.create> | null>(null);
+  const guiRef = useRef<ReturnType<typeof Noxi.gui.create> | null>(null);
 
   // 1) Инициализация PIXI
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function App() {
         app.destroy(true, { children: true });
       } catch {}
       appRef.current = null;
-      runtimeRef.current = null;
+      guiRef.current = null;
     };
   }, []);
 
@@ -113,22 +113,22 @@ export default function App() {
     if (!app || !assetsReady) return;
 
     // убираем предыдущий рантайм
-    if (runtimeRef.current) {
-      try { runtimeRef.current.destroy(); } catch {}
+    if (guiRef.current) {
+      try { guiRef.current.destroy(); } catch {}
       app.stage.removeChildren().forEach(ch => ch.destroy());
-      runtimeRef.current = null;
+      guiRef.current = null;
     }
 
     try {
-      const runtime = Noxi.gui.create(code);
-      runtimeRef.current = runtime;
+      const gui = Noxi.gui.create(code);
+      guiRef.current = gui;
       // runtime.setGridDebug(true);
 
-      app.stage.addChild(runtime.container.getDisplayObject());
+      app.stage.addChild(gui.container.getDisplayObject());
 
       const relayout = () => {
-        if (!appRef.current || !runtimeRef.current) return;
-        runtimeRef.current.layout({
+        if (!appRef.current || !guiRef.current) return;
+        guiRef.current.layout({
           width: appRef.current.renderer.width,
           height: appRef.current.renderer.height,
         });
