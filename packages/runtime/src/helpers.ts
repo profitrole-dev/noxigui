@@ -1,5 +1,6 @@
 import type { UIElement } from '@noxigui/core';
 import { Grid } from './elements/Grid.js';
+import { DockPanel } from './elements/DockPanel.js';
 
 export function applyGridAttachedProps(node: Element, el: UIElement) {
   const r  = node.getAttribute('Grid.Row');         if (r)  Grid.setRow(el, +r);
@@ -8,6 +9,10 @@ export function applyGridAttachedProps(node: Element, el: UIElement) {
   const cs = node.getAttribute('Grid.ColumnSpan');  if (cs) Grid.setColSpan(el, +cs);
 }
 
+export function applyDockPanelProps(node: Element, el: UIElement) {
+  const d = node.getAttribute('DockPanel.Dock');
+  if (d === 'Left' || d === 'Top' || d === 'Right' || d === 'Bottom') DockPanel.setDock(el, d as any);
+}
 export function parseSizeAttrs(node: Element, el: UIElement) {
   const w = node.getAttribute('Width');      if (w) el.prefW = parseFloat(w);
   const h = node.getAttribute('Height');     if (h) el.prefH = parseFloat(h);
