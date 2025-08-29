@@ -17,6 +17,19 @@ importers:
         specifier: ~5.8.3
         version: 5.8.3
 
+  packages/noxi.js:
+    dependencies:
+      '@noxigui/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.30
+        version: 20.19.11
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+
   packages/parser:
     dependencies:
       '@noxigui/runtime':
