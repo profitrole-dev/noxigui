@@ -2,8 +2,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import * as PIXI from 'pixi.js';
-import { RuntimeInstance, type RenderContainer } from '@noxigui/runtime';
-import { createPixiRenderer } from '@noxigui/renderer-pixi';
+import Noxi from 'noxi.js';
+import type { GuiObject } from '@noxigui/runtime';
 
 const initialSchema = `
 <Grid Margin="16" RowGap="12" ColumnGap="12">
@@ -54,19 +54,13 @@ const initialSchema = `
   </Use>
 </Grid>`;
 
-type RuntimeHandle = {
-  container: RenderContainer;
-  layout: (size: { width: number; height: number }) => void;
-  destroy: () => void;
-};
-
 export default function App() {
   const [code, setCode] = useState(initialSchema);
   const [assetsReady, setAssetsReady] = useState(false);
 
   const pixiRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PIXI.Application | null>(null);
-  const runtimeRef = useRef<RuntimeHandle | null>(null);
+  const runtimeRef = useRef<GuiObject | null>(null);
 
   // 1) Инициализация PIXI
   useEffect(() => {
@@ -127,7 +121,7 @@ export default function App() {
     }
 
     try {
-      const runtime = RuntimeInstance.create(code, createPixiRenderer());
+      const runtime = Noxi.gui.create(code);
       runtimeRef.current = runtime;
       // runtime.setGridDebug(true);
 
