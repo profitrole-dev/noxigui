@@ -9,3 +9,4 @@ export { measureGrid, arrangeGrid } from './elements/grid/layout.js';
 export * from './helpers.js';
 export type { Renderer, RenderImage, RenderText, RenderGraphics, RenderContainer } from './renderer.js';
 export { RuntimeInstance } from './runtime.js';
+export { GuiObject } from './GuiObject.js';
