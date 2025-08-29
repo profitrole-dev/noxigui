@@ -1,9 +1,7 @@
-import { Grid, Row, Col } from '@noxigui/runtime/elements/Grid.js';
-import { applyGridAttachedProps, parseLen, applyMargin } from '@noxigui/runtime/helpers.js';
+import { Grid, Row, Col, applyGridAttachedProps, parseLen, applyMargin } from '@noxigui/runtime';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '@noxigui/runtime/core.js';
-import type { RenderContainer } from '@noxigui/runtime/renderer.js';
+import type { UIElement, RenderContainer } from '@noxigui/runtime';
 
 /** Parser for `<Grid>` elements. */
 export class GridParser implements ElementParser {

@@ -1,6 +1,6 @@
-import { UIElement } from '@noxigui/runtime/core.js';
+import { UIElement } from '@noxigui/runtime';
 import { parsers as elementParsers } from './parsers/index.js';
-import type { Renderer, RenderContainer } from '@noxigui/runtime/renderer.js';
+import type { Renderer, RenderContainer } from '@noxigui/runtime';
 
 /**
  * Parses NoxiGUI XML markup into UI elements and a PIXI display tree.

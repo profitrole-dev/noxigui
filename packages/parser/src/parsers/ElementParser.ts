@@ -1,6 +1,5 @@
-import type { UIElement } from '@noxigui/runtime/core.js';
 import type { Parser } from '../Parser.js';
-import type { RenderContainer } from '@noxigui/runtime/renderer.js';
+import type { UIElement, RenderContainer } from '@noxigui/runtime';
 
 /**
  * Converts DOM nodes into runtime UI elements.

@@ -1,4 +1,4 @@
-import { registerTemplate } from '@noxigui/runtime/template.js';
+import { registerTemplate } from '@noxigui/runtime';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
 

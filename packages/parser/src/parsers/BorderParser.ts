@@ -1,9 +1,7 @@
-import { BorderPanel } from '@noxigui/runtime/elements/BorderPanel.js';
-import { applyGridAttachedProps, parseSizeAttrs, parseColor, parseMargin, applyMargin } from '@noxigui/runtime/helpers.js';
+import { BorderPanel, applyGridAttachedProps, parseSizeAttrs, parseColor, parseMargin, applyMargin } from '@noxigui/runtime';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
-import type { UIElement } from '@noxigui/runtime/core.js';
-import type { RenderContainer } from '@noxigui/runtime/renderer.js';
+import type { UIElement, RenderContainer } from '@noxigui/runtime';
 
 /** Parser for `<Border>` elements. */
 export class BorderParser implements ElementParser {
