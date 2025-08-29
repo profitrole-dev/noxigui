@@ -2,16 +2,16 @@
   "name": "@noxigui/parser",
   "version": "0.1.0",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": "./dist/index.js",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": "./dist/src/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "pretest": "pnpm -F @noxigui/runtime build && pnpm run build",
     "test": "node --test dist/tests/**/*.test.js"
   },
   "dependencies": {
-    "@noxigui/runtime": "file:../runtime"
+    "@noxigui/runtime": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.19.11",

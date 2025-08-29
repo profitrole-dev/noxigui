@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "pixi.js": "^7.4.3",
-    "@noxigui/core": "file:../core",
+    "@noxigui/core": "workspace:*",
     "@noxigui/parser": "workspace:*"
   },
   "devDependencies": {
