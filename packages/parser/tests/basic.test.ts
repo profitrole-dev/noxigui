@@ -2,19 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Parser } from '../src/Parser.js';
 import { Grid, Text, TemplateStore } from '@noxigui/runtime';
-import { DOMParser as XmldomParser } from '@xmldom/xmldom';
-
-class PatchedDOMParser extends XmldomParser {
-  parseFromString(str: string, type: string) {
-    const doc = super.parseFromString(str, type);
-    const patch = (el: any) => {
-      el.children = Array.from(el.childNodes || []).filter((c: any) => c.nodeType === 1);
-      el.children.forEach(patch);
-    };
-    patch(doc.documentElement);
-    return doc;
-  }
-}
 
 const createRenderer = () => {
   return {
@@ -57,7 +44,7 @@ const createRenderer = () => {
 
 test('parse simple grid with text', () => {
   const renderer = createRenderer();
-  const parser = new Parser(renderer, new TemplateStore(), new PatchedDOMParser());
+  const parser = new Parser(renderer, new TemplateStore());
   const { root, container } = parser.parse('<Grid><TextBlock Text="Hello"/></Grid>');
   assert.ok(root instanceof Grid);
   const grid = root as Grid;

@@ -1,9 +1,37 @@
 import { UIElement, TemplateStore } from '@noxigui/runtime';
 import { createParsers as elementParsers } from './parsers/index.js';
 import type { Renderer, RenderContainer } from '@noxigui/runtime';
+import { createRequire } from 'node:module';
 
 export interface XmlParser {
   parseFromString(xml: string, type: string): Document;
+}
+
+const require = createRequire(import.meta.url);
+
+function createDefaultXmlParser(): XmlParser {
+  if (typeof DOMParser !== 'undefined') {
+    return new DOMParser();
+  }
+
+  try {
+    const { DOMParser: XmldomParser } = require('@xmldom/xmldom') as typeof import('@xmldom/xmldom');
+    return {
+      parseFromString(xml: string, type: string) {
+        const doc = new XmldomParser().parseFromString(xml, type);
+        const patch = (el: any) => {
+          el.children = Array.from(el.childNodes || []).filter((c: any) => c.nodeType === 1);
+          el.children.forEach(patch);
+        };
+        if (doc.documentElement) patch(doc.documentElement);
+        return doc as any;
+      },
+    };
+  } catch {
+    throw new Error(
+      'DOMParser is not available. Install @xmldom/xmldom or provide an XmlParser implementation.',
+    );
+  }
 }
 
 /**
@@ -18,7 +46,7 @@ export class Parser {
   constructor(
     public renderer: Renderer,
     public templates: TemplateStore,
-    private xmlParser: XmlParser = new DOMParser(),
+    private xmlParser: XmlParser = createDefaultXmlParser(),
     private parsers = elementParsers(templates),
   ) {}
 

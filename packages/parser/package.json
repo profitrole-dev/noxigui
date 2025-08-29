@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "pretest": "pnpm -F @noxigui/runtime build && pnpm run build",
-    "test": "if ls dist/tests/**/*.test.js 1> /dev/null 2>&1; then node --test dist/tests/**/*.test.js; else echo 'no tests'; fi"
+    "test": "if ls dist/tests/*.test.js 1> /dev/null 2>&1; then node --test dist/tests/*.test.js; else echo 'no tests'; fi"
   },
   "dependencies": {
     "@noxigui/runtime": "workspace:*"

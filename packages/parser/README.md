@@ -15,7 +15,7 @@ import { Parser } from '@noxigui/parser';
 import { TemplateStore } from '@noxigui/runtime';
 
 // supply a renderer, a template store and optionally an XML parser implementation
-const parser = new Parser(renderer, new TemplateStore(), new DOMParser());
+const parser = new Parser(renderer, new TemplateStore());
 const { root, container } = parser.parse('<Grid></Grid>');
 ```
 
@@ -40,14 +40,17 @@ const parser = new Parser(renderer, new TemplateStore(), new DOMParser(), [new M
 
 ### Node.js
 
-In Node environments, provide an XML parser such as `@xmldom/xmldom`:
+The parser requires a `DOMParser` implementation. In browsers the global
+`DOMParser` is used. In Node.js, install `@xmldom/xmldom` to provide a DOM
+implementation or pass your own parser instance:
 
 ```ts
-import { DOMParser } from '@xmldom/xmldom';
-import { Parser } from '@noxigui/parser';
-import { TemplateStore } from '@noxigui/runtime';
+// automatically uses @xmldom/xmldom when no global DOMParser is available
+const parser = new Parser(renderer, new TemplateStore());
 
-const parser = new Parser(renderer, new TemplateStore(), new DOMParser());
+// or supply a custom implementation
+import { DOMParser } from '@xmldom/xmldom';
+const parser2 = new Parser(renderer, new TemplateStore(), new DOMParser());
 ```
 
 Custom parsers can also participate in assembling the PIXI display tree by
