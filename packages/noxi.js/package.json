@@ -8,7 +8,8 @@
   },
   "dependencies": {
     "@noxigui/runtime": "workspace:*",
-    "@noxigui/renderer-pixi": "workspace:*"
+    "@noxigui/renderer-pixi": "workspace:*",
+    "@noxigui/parser": "workspace:*"
   },
   "devDependencies": {
     "typescript": "~5.8.3",

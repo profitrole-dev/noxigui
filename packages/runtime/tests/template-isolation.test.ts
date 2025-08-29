@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { RuntimeInstance } from '../src/index.js';
 import type { Renderer, RenderContainer } from '../src/renderer.js';
+import { Parser } from '@noxigui/parser';
 import { DOMParser as XmldomParser } from '@xmldom/xmldom';
 
 class PatchedDOMParser extends XmldomParser {
@@ -68,8 +69,8 @@ test('templates are isolated between GuiObject instances', () => {
   const xmlA = '<Grid><Resources><Template Key="T"><TextBlock Text="One"/></Template></Resources><Use Template="T"/></Grid>';
   const xmlB = '<Grid><Resources><Template Key="T"><TextBlock Text="Two"/></Template></Resources><Use Template="T"/></Grid>';
 
-  const guiA = RuntimeInstance.create(xmlA, renderer);
-  const guiB = RuntimeInstance.create(xmlB, renderer);
+  const guiA = RuntimeInstance.create(xmlA, renderer, Parser);
+  const guiB = RuntimeInstance.create(xmlB, renderer, Parser);
 
   const textA = (guiA.root as any).children[0];
   const textB = (guiB.root as any).children[0];

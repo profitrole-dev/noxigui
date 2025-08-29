@@ -1,5 +1,6 @@
 // @ts-check
 import { RuntimeInstance } from './packages/runtime/src/index.js';
+import { Parser } from './packages/parser/src/index.js';
 
 /**
  * Create GUI object from markup.
@@ -8,5 +9,5 @@ import { RuntimeInstance } from './packages/runtime/src/index.js';
  * @returns {import('./packages/runtime/src/GuiObject.js').GuiObject}
  */
 export function createGui(xml, renderer) {
-  return RuntimeInstance.create(xml, renderer);
+  return RuntimeInstance.create(xml, renderer, Parser);
 }

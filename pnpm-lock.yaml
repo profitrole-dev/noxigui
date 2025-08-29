@@ -19,6 +19,9 @@ importers:
 
   packages/noxi.js:
     dependencies:
+      '@noxigui/parser':
+        specifier: workspace:*
+        version: link:../parser
       '@noxigui/renderer-pixi':
         specifier: workspace:*
         version: link:../renderer-pixi
@@ -107,13 +110,13 @@ importers:
       '@noxigui/core':
         specifier: workspace:*
         version: link:../core
-      '@noxigui/parser':
-        specifier: workspace:*
-        version: link:../parser
       pixi.js:
         specifier: ^7.4.3
         version: 7.4.3
     devDependencies:
+      '@noxigui/parser':
+        specifier: workspace:*
+        version: link:../parser
       '@types/node':
         specifier: ^20.11.30
         version: 20.19.11
