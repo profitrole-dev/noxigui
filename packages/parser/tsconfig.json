@@ -9,7 +9,10 @@
     "baseUrl": "src",
     "paths": {
       "@noxigui/runtime": ["../../runtime/dist/runtime/src/index.d.ts"]
-    }
+    },
+    "moduleResolution": "node",
+    "types": ["node"],
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src"]
+  "include": ["src", "tests"]
 }
