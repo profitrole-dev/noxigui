@@ -1,15 +1,46 @@
 # NoxiGUI
 
-This repository is a monorepo containing:
+NoxiGUI is a monorepo of packages for building declarative GUIs on top of [PIXI.js](https://pixijs.com/) using a custom XML DSL.
 
-- `@noxigui/runtime` – the core runtime implementation.
-- `@noxigui/playground` – a Vite playground for experimenting with the runtime.
-- `noxi.js` – a convenience package exporting the runtime with the default PIXI renderer.
+## Repository structure
 
-Run `pnpm dev` to start the playground or `pnpm build` to build all packages.
-Run `pnpm -F noxi.js build` to regenerate the published output in `packages/noxi.js/dist/index.js`.
+| Package | Purpose |
+| ------- | ------- |
+| `@noxigui/core` | foundational types and layout system |
+| `@noxigui/runtime` | XML DSL runtime and widget management |
+| `@noxigui/parser` | DSL parser |
+| `@noxigui/renderer-pixi` | renderer backed by PIXI.js |
+| `noxi.js` | wrapper bundling the runtime and PIXI renderer |
+| `@noxigui/playground` | Vite-powered sandbox for experiments |
+
+## Quick start
+
+```bash
+pnpm install       # install dependencies
+pnpm dev           # build packages and start the playground
+pnpm build         # build all packages
+pnpm test          # run tests
+```
+
+To generate the `noxi.js` distribution:
+
+```bash
+pnpm -F noxi.js build
+```
+
+## Example
 
 ```ts
-import Noxi from "noxi.js";
-const gui = Noxi.gui.create(xml); // uses PIXI.js renderer by default
+import Noxi from 'noxi.js';
+
+const gui = Noxi.gui.create(xml); // uses the PIXI.js renderer by default
 ```
+
+## Documentation
+
+Additional materials can be found in the [`docs/`](docs) directory.
+
+## License
+
+[MIT](LICENSE)
+
