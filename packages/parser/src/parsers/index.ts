@@ -15,13 +15,14 @@ import { ResourcesParser } from './ResourcesParser.js';
 import { ContentPresenterParser } from './ContentPresenterParser.js';
 import { UseParser } from './UseParser.js';
 import type { ElementParser } from './ElementParser.js';
+import type { TemplateStore } from '@noxigui/runtime';
 
-export const parsers: ElementParser[] = [
+export const createParsers = (templates: TemplateStore): ElementParser[] => [
   new TextBlockParser(),
   new BorderParser(),
   new GridParser(),
   new ImageParser(),
-  new ResourcesParser(),
+  new ResourcesParser(templates),
   new ContentPresenterParser(),
-  new UseParser(),
+  new UseParser(templates),
 ];
