@@ -6,6 +6,7 @@ export * from './elements/DockPanel.js';
 export * from './elements/StackPanel.js';
 export * from './elements/Image.js';
 export * from './elements/Text.js';
+export * from './elements/ScrollViewer.js';
 export { Grid, Row, Col } from './elements/Grid.js';
 export { measureGrid, arrangeGrid } from './elements/grid/layout.js';
 export * from './helpers.js';
