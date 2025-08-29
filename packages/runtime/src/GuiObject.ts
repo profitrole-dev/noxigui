@@ -1,9 +1,20 @@
 import type { Size, UIElement } from '@noxigui/core';
 import { Grid } from './elements/Grid.js';
-import type { RenderContainer } from './renderer.js';
+import type { Renderer, RenderContainer } from './renderer.js';
+import { Parser } from '@noxigui/parser';
+import { TemplateStore } from './template.js';
 
 export class GuiObject {
-  constructor(private root: UIElement, public container: RenderContainer) {}
+  public root: UIElement;
+  public container: RenderContainer;
+  public templates: TemplateStore;
+
+  constructor(xml: string, renderer: Renderer) {
+    this.templates = new TemplateStore();
+    const { root, container } = new Parser(renderer, this.templates).parse(xml);
+    this.root = root;
+    this.container = container;
+  }
 
   layout(size: Size) {
     this.root.measure(size);

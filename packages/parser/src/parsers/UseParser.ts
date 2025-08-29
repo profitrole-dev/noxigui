@@ -1,9 +1,10 @@
-import { instantiateTemplate } from '@noxigui/runtime';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
+import type { TemplateStore } from '@noxigui/runtime';
 
 /** Parser for `<Use>` elements that instantiate templates. */
 export class UseParser implements ElementParser {
+  constructor(private templates: TemplateStore) {}
   test(node: Element): boolean { return node.tagName === 'Use'; }
   parse(node: Element, p: Parser) {
     const key = node.getAttribute('Template') || '';
@@ -18,7 +19,7 @@ export class UseParser implements ElementParser {
         slotMap.set(name, content);
       }
     }
-    const rootEl = instantiateTemplate(key, props, slotMap);
+    const rootEl = this.templates.instantiate(key, props, slotMap);
 
     const gr = node.getAttribute('Grid.Row');         if (gr)  rootEl.setAttribute('Grid.Row', gr);
     const gc = node.getAttribute('Grid.Column');      if (gc)  rootEl.setAttribute('Grid.Column', gc);

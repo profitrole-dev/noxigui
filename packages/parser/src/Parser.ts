@@ -1,5 +1,5 @@
-import { UIElement } from '@noxigui/runtime';
-import { parsers as elementParsers } from './parsers/index.js';
+import { UIElement, TemplateStore } from '@noxigui/runtime';
+import { createParsers as elementParsers } from './parsers/index.js';
 import type { Renderer, RenderContainer } from '@noxigui/runtime';
 
 export interface XmlParser {
@@ -17,8 +17,9 @@ export class Parser {
    */
   constructor(
     public renderer: Renderer,
+    public templates: TemplateStore,
     private xmlParser: XmlParser = new DOMParser(),
-    private parsers = elementParsers,
+    private parsers = elementParsers(templates),
   ) {}
 
   /**
