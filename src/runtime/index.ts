@@ -1,5 +1,7 @@
 // runtime.ts
 import * as PIXI from 'pixi.js';
+import { UIElement as CoreUIElement } from '../core';
+import type { Size, Rect } from '../core';
 
 // ===== Template registry (простой прототип) =====
 const TemplateRegistry = new Map<string, Element>();
@@ -48,19 +50,7 @@ function instantiateTemplate(key: string, props: Record<string, string>, slotNod
 }
 
 // ===== Виртуальное ядро =====
-type Size = { width: number; height: number };
-type Rect = { x: number; y: number; width: number; height: number };
-
-abstract class UIElement {
-  desired = { width: 0, height: 0 };
-  final: Rect = { x: 0, y: 0, width: 0, height: 0 };
-  margin = { l: 0, t: 0, r: 0, b: 0 };
-  minW = 0; minH = 0;        // MinWidth/MinHeight
-  prefW?: number; prefH?: number; // Width/Height (желательный размер)
-
-  abstract measure(avail: Size): void;
-  abstract arrange(rect: Rect): void;
-}
+abstract class UIElement extends CoreUIElement {}
 
 class ContentPresenter extends UIElement {
   child?: UIElement;
@@ -361,8 +351,8 @@ const Auto = ():Len => ({kind:'auto', v:0});
 const Px   = (n:number):Len => ({kind:'px', v:n});
 const Star = (n=1):Len => ({kind:'star', v:n});
 
-class Row { actual=0; desired=0; constructor(public len:Len){} }
-class Col { actual=0; desired=0; constructor(public len:Len){} }
+class Row { actual=0; desired=0; len:Len; constructor(len:Len){ this.len = len; } }
+class Col { actual=0; desired=0; len:Len; constructor(len:Len){ this.len = len; } }
 
 const rowMap = new WeakMap<UIElement, number>();
 const colMap = new WeakMap<UIElement, number>();
