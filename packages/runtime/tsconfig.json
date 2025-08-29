@@ -10,6 +10,8 @@
     "paths": {
       "@noxigui/core": ["../core/src/index.ts"],
       "@noxigui/core/*": ["../core/src/*"],
+      "@noxigui/parser": ["../../parser/src/index.ts"],
+      "@noxigui/parser/*": ["../../parser/src/*"],
       "@noxigui/runtime": ["./index.ts"],
       "@noxigui/runtime/*": ["./*"]
     },

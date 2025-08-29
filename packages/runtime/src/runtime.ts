@@ -1,4 +1,4 @@
-import { Parser } from '../../parser/src/Parser.js';
+import { Parser } from '@noxigui/parser';
 import { Grid } from './elements/Grid.js';
 import { UIElement } from './core.js';
 import type { Size } from './core.js';

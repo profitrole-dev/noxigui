@@ -21,7 +21,14 @@ const packages = packageDirs
 // Build dependency graph and perform topological sort
 const graph = new Map();
 for (const pkg of packages) {
-  const deps = Object.keys(pkg.deps || {}).filter((dep) => dep.startsWith('@noxigui/'));
+  let deps = Object.keys(pkg.deps || {}).filter((dep) => dep.startsWith('@noxigui/'));
+  // runtime can import parser for optional features but doesn't require it
+  // to be built beforehand. Avoid including this edge in the build graph to
+  // prevent a circular dependency during topological sorting (parser -> runtime
+  // -> parser).
+  if (pkg.name === '@noxigui/runtime') {
+    deps = deps.filter((dep) => dep !== '@noxigui/parser');
+  }
   graph.set(pkg.name, deps);
 }
 
