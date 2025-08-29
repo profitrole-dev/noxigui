@@ -10,3 +10,5 @@ export * from './helpers.js';
 export type { Renderer, RenderImage, RenderText, RenderGraphics, RenderContainer } from './renderer.js';
 export { RuntimeInstance } from './runtime.js';
 export { GuiObject, type ParserCtor } from './GuiObject.js';
+
+export { RuntimeInstance as default } from './runtime.js';
