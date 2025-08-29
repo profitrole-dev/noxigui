@@ -1,5 +1,5 @@
 export interface RenderImage {
-  setTexture(tex?: any): void;
+  setTexture(tex?: unknown): void;
   setPosition(x: number, y: number): void;
   setScale(x: number, y: number): void;
   getNaturalSize(): { width: number; height: number };
@@ -32,7 +32,8 @@ export interface RenderContainer {
 }
 
 export interface Renderer {
-  createImage(tex?: any): RenderImage;
+  getTexture(key: string): unknown;
+  createImage(tex?: unknown): RenderImage;
   createText(text: string, style: { fill: string; fontSize: number }): RenderText;
   createGraphics(): RenderGraphics;
   createContainer(): RenderContainer;
