@@ -19,6 +19,9 @@ importers:
 
   packages/noxi.js:
     dependencies:
+      '@noxigui/renderer-pixi':
+        specifier: workspace:*
+        version: link:../renderer-pixi
       '@noxigui/runtime':
         specifier: workspace:*
         version: link:../runtime

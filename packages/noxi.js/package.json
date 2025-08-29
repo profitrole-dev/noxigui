@@ -7,7 +7,8 @@
     "build": "tsc -p tsconfig.json && mv dist/index.js dist/index.cjs"
   },
   "dependencies": {
-    "@noxigui/runtime": "workspace:*"
+    "@noxigui/runtime": "workspace:*",
+    "@noxigui/renderer-pixi": "workspace:*"
   },
   "devDependencies": {
     "typescript": "~5.8.3",
