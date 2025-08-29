@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "node scripts/build-packages.js && pnpm -F @noxigui/playground dev",
-    "build": "node scripts/build-packages.js && pnpm -F @noxigui/playground build"
+    "build": "node scripts/build-packages.js && pnpm -F @noxigui/playground build",
+    "test": "pnpm -r test"
   }
 }
