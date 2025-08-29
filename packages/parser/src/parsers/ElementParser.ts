@@ -1,4 +1,4 @@
-import type { UIElement, RenderContainer } from '@noxigui/core';
+import type { UIElement, RenderContainer } from '@noxigui/runtime-core';
 import type { Parser } from '../Parser.js';
 
 /**

@@ -1,11 +1,10 @@
 import { Parser } from '@noxigui/parser';
-import { Grid } from './elements/Grid.js';
-import { UIElement } from '@noxigui/core';
-import type { Size, Renderer } from '@noxigui/core';
+import { Grid, UIElement, type Size, type Renderer } from '@noxigui/runtime-core';
 
 export const RuntimeInstance = {
   create(xml: string, renderer: Renderer) {
-    const { root, container } = new Parser(renderer).parse(xml);
+    const { root, container: rootContainer } = new Parser(renderer).parse(xml);
+    const container = rootContainer.getDisplayObject();
 
     const visit = (u: UIElement, f: (g: Grid) => void) => {
       if (u instanceof Grid) f(u);
@@ -21,7 +20,7 @@ export const RuntimeInstance = {
       root.arrange({ x: 0, y: 0, width: size.width, height: size.height });
     };
 
-    const destroy = () => container.getDisplayObject().destroy({ children: true });
+    const destroy = () => container.destroy({ children: true });
 
     return { container, layout, destroy, setGridDebug };
   }
