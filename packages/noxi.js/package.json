@@ -1,10 +1,17 @@
 {
   "name": "noxi.js",
   "version": "0.1.0",
-  "main": "dist/index.cjs",
+  "type": "module",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
-    "build": "tsc -p tsconfig.json && mv dist/index.js dist/index.cjs"
+    "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@noxigui/runtime": "workspace:*",
