@@ -12,3 +12,4 @@ export * from './helpers.js';
 export type { Renderer, RenderImage, RenderText, RenderGraphics, RenderContainer } from './renderer.js';
 export { Noxi } from './runtime.js';
 export { GuiObject } from './GuiObject.js';
+export * from './elements/ScrollViewer.js';

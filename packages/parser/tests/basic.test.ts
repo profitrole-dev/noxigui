@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Parser } from '../src/Parser.js';
-import { Grid, Text, TemplateStore } from '@noxigui/runtime';
+import { Grid, Text, TemplateStore, ScrollViewer } from '@noxigui/runtime';
 import { DOMParser as XmldomParser } from '@xmldom/xmldom';
 
 class PatchedDOMParser extends XmldomParser {
@@ -65,4 +65,14 @@ test('parse simple grid with text', () => {
   const child = grid.children[0];
   assert.ok(child instanceof Text);
   assert.ok(container.getDisplayObject().children.length >= 1);
+});
+
+test('parse scrollviewer with child', () => {
+  const renderer = createRenderer();
+  const parser = new Parser(renderer, new TemplateStore(), new PatchedDOMParser());
+  const { root } = parser.parse('<ScrollViewer CanContentScroll="True"><TextBlock Text="Hello"/></ScrollViewer>');
+  assert.ok(root instanceof ScrollViewer);
+  const sv = root as ScrollViewer;
+  assert.equal(sv.canContentScroll, true);
+  assert.ok(sv.content instanceof Text);
 });
