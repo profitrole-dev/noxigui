@@ -75,6 +75,10 @@ importers:
       pixi.js:
         specifier: ^7.4.0
         version: 7.4.3
+    devDependencies:
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
 
   packages/runtime:
     dependencies:

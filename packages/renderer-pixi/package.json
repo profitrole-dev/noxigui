@@ -9,5 +9,8 @@
   "dependencies": {
     "pixi.js": "^7.4.0",
     "@noxigui/runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3"
   }
 }
