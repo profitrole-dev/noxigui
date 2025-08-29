@@ -20,6 +20,7 @@ export class ScrollViewerParser implements ElementParser {
       group.setSortableChildren(true);
       into.addChild(group.getDisplayObject());
       if (el.child) collect(group, el.child);
+      group.addChild(el.vBar.getDisplayObject());
       return true;
     }
     return false;

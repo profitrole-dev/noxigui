@@ -4,6 +4,7 @@ import type { Renderer, RenderContainer, RenderGraphics } from '../renderer.js';
 export class ScrollViewer extends UIElement {
   container: RenderContainer;
   mask: RenderGraphics;
+  vBar: RenderGraphics;
   child?: UIElement;
   horizontalOffset = 0;
   verticalOffset = 0;
@@ -18,6 +19,8 @@ export class ScrollViewer extends UIElement {
     this.mask = renderer.createGraphics();
     this.container.addChild(this.mask.getDisplayObject());
     this.container.setMask(this.mask.getDisplayObject());
+    this.vBar = renderer.createGraphics();
+    this.container.addChild(this.vBar.getDisplayObject());
     this.child = child;
   }
 
@@ -31,14 +34,40 @@ export class ScrollViewer extends UIElement {
   }
 
   private updateChild() {
-    if (!this.child) return;
     this.clampOffsets();
-    this.child.arrange({
-      x: -this.horizontalOffset,
-      y: -this.verticalOffset,
-      width: this.extentWidth,
-      height: this.extentHeight,
-    });
+    if (this.child) {
+      this.child.arrange({
+        x: -this.horizontalOffset,
+        y: -this.verticalOffset,
+        width: this.extentWidth,
+        height: this.extentHeight,
+      });
+    }
+    this.updateScrollBars();
+  }
+
+  private updateScrollBars() {
+    const needV = this.extentHeight > this.viewportHeight;
+    const barObj: any = this.vBar.getDisplayObject();
+    if (needV) {
+      const trackW = 6;
+      const maxOffset = this.extentHeight - this.viewportHeight;
+      const thumbH = Math.max((this.viewportHeight * this.viewportHeight) / this.extentHeight, 10);
+      const thumbY = maxOffset > 0 ? (this.verticalOffset / maxOffset) * (this.viewportHeight - thumbH) : 0;
+      this.vBar.clear();
+      this.vBar
+        .beginFill(0x666666)
+        .drawRect(this.viewportWidth - trackW, 0, trackW, this.viewportHeight)
+        .endFill();
+      this.vBar
+        .beginFill(0x999999)
+        .drawRect(this.viewportWidth - trackW, thumbY, trackW, thumbH)
+        .endFill();
+      barObj.visible = true;
+    } else {
+      this.vBar.clear();
+      barObj.visible = false;
+    }
   }
 
   measure(avail: Size) {
@@ -69,8 +98,13 @@ export class ScrollViewer extends UIElement {
     this.viewportWidth = inner.width;
     this.viewportHeight = inner.height;
     this.container.setPosition(inner.x, inner.y);
+    this.container.setSortableChildren(true);
+    this.container.setMask(this.mask.getDisplayObject());
     this.mask.clear();
-    this.mask.beginFill(0xffffff).drawRect(0, 0, inner.width, inner.height).endFill();
+    this.mask
+      .beginFill(0xffffff)
+      .drawRect(0, 0, inner.width, inner.height)
+      .endFill();
     this.updateChild();
   }
 
