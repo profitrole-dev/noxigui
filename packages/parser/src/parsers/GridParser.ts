@@ -9,7 +9,7 @@ import type { RenderContainer } from '../../../runtime/src/renderer.js';
 export class GridParser implements ElementParser {
   test(node: Element): boolean { return node.tagName === 'Grid'; }
   parse(node: Element, p: Parser) {
-    const g = new Grid();
+    const g = new Grid(p.renderer);
     const rgAttr = node.getAttribute('RowGap'); if (rgAttr != null) g.rowGap = parseFloat(rgAttr) || 0;
     const cgAttr = node.getAttribute('ColumnGap'); if (cgAttr != null) g.colGap = parseFloat(cgAttr) || 0;
     applyMargin(node, g);
@@ -38,12 +38,13 @@ export class GridParser implements ElementParser {
   collect(into: RenderContainer, el: UIElement, collect: (into: RenderContainer, el: UIElement) => void) {
     if (el instanceof Grid) {
       for (const ch of el.children) collect(into, ch);
-      el.debugG.zIndex = 100000;
-      const parent = (el.debugG as any).parent;
+      const gObj = el.debugG.getDisplayObject();
+      gObj.zIndex = 100000;
+      const parent = gObj.parent;
       const intoObj = into.getDisplayObject();
       if (parent !== intoObj) {
-        parent?.removeChild?.(el.debugG);
-        into.addChild(el.debugG);
+        parent?.removeChild?.(gObj);
+        into.addChild(gObj);
       }
       return true;
     }

@@ -1,7 +1,7 @@
-import * as PIXI from 'pixi.js';
 import { UIElement } from '../core.js';
 import type { Size, Rect } from '../core.js';
 import type { Len } from '../helpers.js';
+import type { Renderer, RenderGraphics } from '../renderer.js';
 import { BorderPanel } from './BorderPanel.js';
 
 export class Row { actual = 0; desired = 0; constructor(public len: Len) {} }
@@ -20,7 +20,12 @@ export class Grid extends UIElement {
   colGap = 0;
 
   debug = false;
-  debugG = new PIXI.Graphics();
+  debugG: RenderGraphics;
+
+  constructor(renderer: Renderer) {
+    super();
+    this.debugG = renderer.createGraphics();
+  }
 
   add(ch: UIElement) { this.children.push(ch); }
   static setRow(el: UIElement, i: number) { rowMap.set(el, i|0); }
@@ -193,7 +198,7 @@ export class Grid extends UIElement {
   }
 
   private drawDebug(xs: number[], ys: number[]) {
-    const g = this.debugG;
+    const g: any = this.debugG.getDisplayObject();
     g.visible = this.debug;
     g.clear();
     if (!this.debug) return;
