@@ -15,7 +15,9 @@
       "@noxigui/runtime": ["./index.ts"],
       "@noxigui/runtime/*": ["./*"]
     },
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "types": ["node"],
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src"]
+  "include": ["src", "tests"]
 }

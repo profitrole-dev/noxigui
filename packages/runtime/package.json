@@ -11,7 +11,9 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "test": "tsc -p tsconfig.json && node --test dist/runtime/tests/**/*.test.js",
+    "prepare": "pnpm run build"
   },
   "dependencies": {
     "pixi.js": "^7.4.3",
@@ -19,6 +21,7 @@
     "@noxigui/parser": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "@types/node": "^20.11.30"
   }
 }
