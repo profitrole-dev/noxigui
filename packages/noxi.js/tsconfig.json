@@ -5,7 +5,16 @@
     "declaration": true,
     "declarationMap": true,
     "allowImportingTsExtensions": false,
-    "types": ["node"]
+    "types": ["node"],
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "src",
+    "paths": {
+      "@noxigui/runtime": ["../runtime/dist/src/index.d.ts"],
+      "@noxigui/runtime/*": ["../runtime/dist/src/*"],
+      "@noxigui/renderer-pixi": ["../renderer-pixi/dist/src/index.d.ts"],
+      "@noxigui/renderer-pixi/*": ["../renderer-pixi/dist/src/*"]
+    },
+    "moduleResolution": "node"
   },
-  "include": ["src"]
+  "include": ["src", "tests"]
 }

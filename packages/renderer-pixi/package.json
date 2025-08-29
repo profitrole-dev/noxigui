@@ -1,16 +1,25 @@
 {
   "name": "@noxigui/renderer-pixi",
   "version": "0.1.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "test": "tsc -p tsconfig.json && node --test dist/tests/*.test.js"
   },
   "dependencies": {
     "pixi.js": "^7.4.0",
     "@noxigui/runtime": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "@types/node": "^20.11.30"
   }
 }
