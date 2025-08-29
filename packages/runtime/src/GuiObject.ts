@@ -1,15 +1,20 @@
 import type { Size, UIElement } from '@noxigui/core';
 import { Grid } from './elements/Grid.js';
 import type { Renderer, RenderContainer } from './renderer.js';
-import { Parser } from '@noxigui/parser';
 import { TemplateStore } from './template.js';
+
+export interface ParserCtor {
+  new (renderer: Renderer, templates: TemplateStore): {
+    parse(xml: string): { root: UIElement; container: RenderContainer };
+  };
+}
 
 export class GuiObject {
   public root: UIElement;
   public container: RenderContainer;
   public templates: TemplateStore;
 
-  constructor(xml: string, renderer: Renderer) {
+  constructor(xml: string, renderer: Renderer, Parser: ParserCtor) {
     this.templates = new TemplateStore();
     const { root, container } = new Parser(renderer, this.templates).parse(xml);
     this.root = root;

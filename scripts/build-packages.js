@@ -13,7 +13,7 @@ const packages = packageDirs
     const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
     return {
       name: pkgJson.name,
-      deps: Object.assign({}, pkgJson.dependencies, pkgJson.devDependencies),
+      deps: pkgJson.dependencies || {},
     };
   })
   .filter((pkg) => pkg.name !== '@noxigui/playground');
@@ -23,14 +23,7 @@ const packageNames = new Set(packages.map((p) => p.name));
 // Build dependency graph and perform topological sort
 const graph = new Map();
 for (const pkg of packages) {
-  let deps = Object.keys(pkg.deps || {}).filter((dep) => packageNames.has(dep));
-  // runtime can import parser for optional features but doesn't require it
-  // to be built beforehand. Avoid including this edge in the build graph to
-  // prevent a circular dependency during topological sorting (parser -> runtime
-  // -> parser).
-  if (pkg.name === '@noxigui/runtime') {
-    deps = deps.filter((dep) => dep !== '@noxigui/parser');
-  }
+  const deps = Object.keys(pkg.deps || {}).filter((dep) => packageNames.has(dep));
   graph.set(pkg.name, deps);
 }
 

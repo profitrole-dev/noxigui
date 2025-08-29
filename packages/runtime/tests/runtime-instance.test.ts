@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { RuntimeInstance, type GuiObject } from '../src/index.js';
 import type { Renderer, RenderGraphics, RenderContainer } from '../src/renderer.js';
+import { Parser } from '@noxigui/parser';
 import { DOMParser as XmldomParser } from '@xmldom/xmldom';
 
 class PatchedDOMParser extends XmldomParser {
@@ -58,7 +59,7 @@ const renderer: Renderer = {
 
 test('RuntimeInstance.create returns GuiObject', () => {
   const xml = '<Grid />';
-  const gui: GuiObject = RuntimeInstance.create(xml, renderer);
+  const gui: GuiObject = RuntimeInstance.create(xml, renderer, Parser);
   assert.equal(gui.container, containerObj);
   gui.layout({ width: 100, height: 100 });
   gui.setGridDebug(true);
