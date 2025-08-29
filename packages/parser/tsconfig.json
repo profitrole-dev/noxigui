@@ -5,7 +5,11 @@
     "declaration": true,
     "declarationMap": true,
     "allowImportingTsExtensions": false,
-    "erasableSyntaxOnly": false
+    "erasableSyntaxOnly": false,
+    "baseUrl": "src",
+    "paths": {
+      "@noxigui/runtime": ["../../runtime/dist/runtime/src/index.d.ts"]
+    }
   },
   "include": ["src"]
 }

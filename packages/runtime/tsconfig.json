@@ -9,7 +9,9 @@
     "baseUrl": "src",
     "paths": {
       "@noxigui/core": ["../core/src/index.ts"],
-      "@noxigui/core/*": ["../core/src/*"]
+      "@noxigui/core/*": ["../core/src/*"],
+      "@noxigui/runtime": ["./index.ts"],
+      "@noxigui/runtime/*": ["./*"]
     },
     "moduleResolution": "node"
   },
