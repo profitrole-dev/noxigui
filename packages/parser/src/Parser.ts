@@ -1,24 +1,27 @@
 import { UIElement, TemplateStore } from '@noxigui/runtime';
 import { createParsers as elementParsers } from './parsers/index.js';
 import type { Renderer, RenderContainer } from '@noxigui/runtime';
-import { createRequire } from 'node:module';
 
 export interface XmlParser {
   parseFromString(xml: string, type: string): Document;
 }
 
-const require = createRequire(import.meta.url);
+let XmldomParserCtor: typeof import('@xmldom/xmldom').DOMParser | undefined;
+if (typeof DOMParser === 'undefined') {
+  try {
+    ({ DOMParser: XmldomParserCtor } = await import('@xmldom/xmldom'));
+  } catch {}
+}
 
 function createDefaultXmlParser(): XmlParser {
   if (typeof DOMParser !== 'undefined') {
     return new DOMParser();
   }
 
-  try {
-    const { DOMParser: XmldomParser } = require('@xmldom/xmldom') as typeof import('@xmldom/xmldom');
+  if (XmldomParserCtor) {
     return {
       parseFromString(xml: string, type: string) {
-        const doc = new XmldomParser().parseFromString(xml, type);
+        const doc = new XmldomParserCtor().parseFromString(xml, type);
         const patch = (el: any) => {
           el.children = Array.from(el.childNodes || []).filter((c: any) => c.nodeType === 1);
           el.children.forEach(patch);
@@ -27,11 +30,11 @@ function createDefaultXmlParser(): XmlParser {
         return doc as any;
       },
     };
-  } catch {
-    throw new Error(
-      'DOMParser is not available. Install @xmldom/xmldom or provide an XmlParser implementation.',
-    );
   }
+
+  throw new Error(
+    'DOMParser is not available. Install @xmldom/xmldom or provide an XmlParser implementation.',
+  );
 }
 
 /**
