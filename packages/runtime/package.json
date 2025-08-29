@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "pixi.js": "^7.4.3",
-    "@noxigui/core": "file:../core"
+    "@noxigui/core": "file:../core",
+    "@noxigui/parser": "workspace:*"
   },
   "devDependencies": {
     "typescript": "~5.8.3"

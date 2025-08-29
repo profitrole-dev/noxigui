@@ -21,7 +21,7 @@ importers:
     dependencies:
       '@noxigui/runtime':
         specifier: file:../runtime
-        version: link:../runtime
+        version: file:packages/runtime
     devDependencies:
       typescript:
         specifier: ~5.8.3
@@ -34,7 +34,7 @@ importers:
         version: link:../renderer-pixi
       '@noxigui/runtime':
         specifier: file:../runtime
-        version: link:../runtime
+        version: file:packages/runtime
       pixi.js:
         specifier: ^7.4.3
         version: 7.4.3
@@ -81,6 +81,9 @@ importers:
       '@noxigui/core':
         specifier: file:../core
         version: link:../core
+      '@noxigui/parser':
+        specifier: workspace:*
+        version: link:../parser
       pixi.js:
         specifier: ^7.4.3
         version: 7.4.3
@@ -346,6 +349,12 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.30':
     resolution: {integrity: sha512-GQ7Nw5G2lTu/BtHTKfXhKHok2WGetd4XYcVKGx00SjAk8GMwgJM3zr6zORiPGuOE+/vkc90KtTosSSvaCjKb2Q==}
+
+  '@noxigui/core@file:packages/core':
+    resolution: {directory: packages/core, type: directory}
+
+  '@noxigui/runtime@file:packages/runtime':
+    resolution: {directory: packages/runtime, type: directory}
 
   '@pixi/accessibility@7.4.3':
     resolution: {integrity: sha512-tCr0yeWpMe0yucFvEPidy5a7gVJGpTjqGrDpSEBYT/kbScfUwcoX49RrckCCCiXDlyO4WRh9lVVuHXTvqRLIMg==}
@@ -1183,6 +1192,14 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@noxigui/core@file:packages/core': {}
+
+  '@noxigui/runtime@file:packages/runtime':
+    dependencies:
+      '@noxigui/core': file:packages/core
+      '@noxigui/parser': link:packages/parser
+      pixi.js: 7.4.3
 
   '@pixi/accessibility@7.4.3(@pixi/core@7.4.3)(@pixi/display@7.4.3(@pixi/core@7.4.3))(@pixi/events@7.4.3(@pixi/core@7.4.3)(@pixi/display@7.4.3(@pixi/core@7.4.3)))':
     dependencies:
