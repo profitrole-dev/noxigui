@@ -26,14 +26,21 @@ const createRenderer = (): Renderer => ({
     } as any;
   },
   createContainer() {
-    const obj = { children: [] as any[], handlers: {} as Record<string, (e: any) => void> };
+    const obj = {
+      children: [] as any[],
+      handlers: {} as Record<string, (e: any) => void>,
+      addEventListener(type: string, cb: (e: any) => void) {
+        (this as any).handlers[type] = cb;
+      },
+    };
     return {
       addChild(child: any) { obj.children.push(child); },
       removeChild(child: any) { const i = obj.children.indexOf(child); if (i >= 0) obj.children.splice(i,1); },
       setPosition() {},
       setSortableChildren() {},
       setMask() {},
-       addEventListener(type: string, cb: (e: any) => void) { obj.handlers[type] = cb; },
+      addEventListener(type: string, cb: (e: any) => void) { obj.handlers[type] = cb; },
+      setEventMode() {},
       getDisplayObject() { return obj; },
     } as any;
   },
@@ -75,13 +82,14 @@ test('scroll offsets clamp to scrollable range', () => {
   assert.equal(ch.final.y, -sv.scrollableHeight);
 });
 
-test('ScrollTo invalidates arrange', () => {
+test('ScrollTo applies immediately', () => {
   const sv = new ScrollViewer(createRenderer());
   sv.setContent(new Dummy(100, 200));
   sv.measure({ width: 100, height: 100 });
   sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
   sv.ScrollToVerticalOffset(10);
-  assert.equal(sv.arrangeDirty, true);
+  assert.equal(sv.verticalOffset, 10);
+  assert.equal(sv.arrangeDirty, false);
 });
 
 test('computed scrollbar visibility', () => {
@@ -120,7 +128,7 @@ test('CanContentScroll with IScrollInfo child', () => {
   sv.measure({ width: 100, height: 100 });
   sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
   assert.equal(sv.extentHeight, 10);
-  assert.equal(sv.viewportHeight, 4);
+  assert.equal(sv.viewportHeight, 100);
   sv.LineDown();
   sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
   assert.equal(sv.verticalOffset, 1);
