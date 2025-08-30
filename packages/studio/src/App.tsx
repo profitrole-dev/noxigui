@@ -42,26 +42,26 @@ export default function App() {
   };
 
   return (
-    <div className="w-screen h-screen flex bg-neutral-950 text-neutral-200">
+    <div className="w-screen h-screen flex bg-base-100 text-base-content">
       {/* Left Toolbar */}
-      <div className="w-14 border-r border-neutral-800 flex flex-col gap-2 p-2 bg-neutral-900">
-        <button onClick={() => setTab("Code")} title="Code" className="toolbar-button">
+      <div className="w-14 border-r border-base-300 flex flex-col gap-2 p-2 bg-base-200">
+        <button onClick={() => setTab("Code")} title="Code" className="btn btn-square btn-ghost btn-sm">
           <CodeBracketIcon className="w-5 h-5" />
         </button>
-        <button onClick={() => setTab("Data")} title="Data" className="toolbar-button">
+        <button onClick={() => setTab("Data")} title="Data" className="btn btn-square btn-ghost btn-sm">
           <RectangleStackIcon className="w-5 h-5" />
         </button>
-        <button onClick={() => setTab("Assets")} title="Assets" className="toolbar-button">
+        <button onClick={() => setTab("Assets")} title="Assets" className="btn btn-square btn-ghost btn-sm">
           <PhotoIcon className="w-5 h-5" />
         </button>
-        <button onClick={onRun} title="Run" className="toolbar-button">
+        <button onClick={onRun} title="Run" className="btn btn-square btn-ghost btn-sm">
           <PlayIcon className="w-5 h-5" />
         </button>
         <div className="mt-auto flex flex-col gap-2">
-          <button onClick={onImport} title="Import" className="toolbar-button">
+          <button onClick={onImport} title="Import" className="btn btn-square btn-ghost btn-sm">
             <ArrowDownTrayIcon className="w-5 h-5" />
           </button>
-          <button onClick={onExport} title="Export" className="toolbar-button">
+          <button onClick={onExport} title="Export" className="btn btn-square btn-ghost btn-sm">
             <ArrowUpTrayIcon className="w-5 h-5" />
           </button>
         </div>
@@ -69,17 +69,17 @@ export default function App() {
 
       {/* Main area */}
       <div className="flex-1 grid grid-rows-[auto_1fr]">
-        <div className="h-10 border-b border-neutral-800 flex items-center px-3 justify-end bg-neutral-900">
+        <div className="h-10 border-b border-base-300 flex items-center px-3 justify-end bg-base-200">
           <div className="flex items-center gap-2">
             <div className="text-sm opacity-80">{project.name}</div>
-            <button className="btn-primary" onClick={newProject}>
+            <button className="btn btn-primary btn-sm" onClick={newProject}>
               New
             </button>
           </div>
         </div>
 
         <div className="grid grid-cols-2">
-          <div className="border-r border-neutral-800 overflow-hidden">
+          <div className="border-r border-base-300 overflow-hidden">
             {activeTab === "Code" && <CodeTab />}
             {activeTab === "Data" && <DataTab />}
             {activeTab === "Assets" && <AssetsTab />}
