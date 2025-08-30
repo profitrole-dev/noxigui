@@ -1,12 +1,13 @@
 import { ScrollViewer, applyGridAttachedProps, parseSizeAttrs, applyMargin } from '@noxigui/runtime';
 import type { ElementParser } from './ElementParser.js';
 import type { Parser } from '../Parser.js';
+import type { UIElement, RenderContainer } from '@noxigui/runtime';
 
 export class ScrollViewerParser implements ElementParser {
   test(node: Element) { return node.tagName === 'ScrollViewer'; }
 
   parse(node: Element, p: Parser) {
-    const sv = new ScrollViewer();
+    const sv = new ScrollViewer(p.renderer);
 
     parseSizeAttrs(node, sv);
     applyMargin(node, sv);
@@ -31,5 +32,15 @@ export class ScrollViewerParser implements ElementParser {
     }
 
     return sv;
+  }
+
+  collect(into: RenderContainer, el: UIElement, collect: (into: RenderContainer, el: UIElement) => void) {
+    if (el instanceof ScrollViewer) {
+      const group = el.container;
+      into.addChild(group.getDisplayObject());
+      collect(group, el.presenter);
+      return true;
+    }
+    return false;
   }
 }
