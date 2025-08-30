@@ -49,12 +49,7 @@ export default function App() {
 
       {/* Main area */}
       <div className="flex-1 grid grid-rows-[auto_1fr]">
-        <div className="h-10 border-b border-neutral-800 flex items-center px-3 justify-between">
-          <div className="flex gap-3">
-            <TabButton label="Code" active={activeTab === "Code"} onClick={() => setTab("Code")} />
-            <TabButton label="Data" active={activeTab === "Data"} onClick={() => setTab("Data")} />
-            <TabButton label="Assets" active={activeTab === "Assets"} onClick={() => setTab("Assets")} />
-          </div>
+        <div className="h-10 border-b border-neutral-800 flex items-center px-3 justify-end">
           <div className="flex items-center gap-2">
             <div className="text-sm opacity-80">{project.name}</div>
             <button
@@ -80,15 +75,3 @@ export default function App() {
     </div>
   );
 }
-
-function TabButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      className={`px-3 py-1 rounded ${active ? "bg-neutral-800" : "hover:bg-neutral-900"}`}
-      onClick={onClick}
-    >
-      {label}
-    </button>
-  );
-}
-
