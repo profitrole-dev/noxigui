@@ -5,52 +5,137 @@ import * as PIXI from 'pixi.js';
 import Noxi from 'noxi.js';
 
 const initialSchema = `
-<Grid Margin="16" RowGap="12" ColumnGap="12">
+<!-- ROOT: game-oriented scene, main centered vertically -->
+<Grid RowGap="12" ColumnGap="12" Margin="16">
   <Grid.RowDefinitions>
-    <RowDefinition Height="Auto"/>
-    <RowDefinition Height="*"/>
+    <RowDefinition Height="*"/>    <!-- TOP spacer -->
+    <RowDefinition Height="Auto"/> <!-- MAIN content (centered) -->
+    <RowDefinition Height="*"/>    <!-- BOTTOM spacer -->
   </Grid.RowDefinitions>
 
-  <!-- добавили три колонки -->
-  <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="*"/>
-    <ColumnDefinition Width="*"/>
-    <ColumnDefinition Width="*"/>
-  </Grid.ColumnDefinitions>
-
+  <!-- Templates -->
   <Resources>
     <Template Key="Card">
-      <Border Padding="8" Background="#1f1f1f" ClipToBounds="True">
-        <Grid RowGap="8">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <ContentPresenter Slot="Media" Grid.Row="0"/>
-          <TextBlock Grid.Row="1" Text="{Title}" FontSize="{TitleSize}" Foreground="#fff"/>
-        </Grid>
+      <Border Padding="8" Background="#1f1f1f" CornerRadius="10" ClipToBounds="True">
+        <StackPanel Spacing="8">
+          <Image Stretch="Uniform" Height="96"/>
+          <TextBlock Text="{Title}" FontSize="14" HorizontalAlignment="Center"/>
+        </StackPanel>
       </Border>
     </Template>
   </Resources>
 
-  <!-- ряд карточек -->
-  <Use Grid.Row="1" Grid.Column="0" Template="Card" Title="UniformToFill" TitleSize="16">
-    <Slot Name="Media">
-      <Image Source="monster" Stretch="UniformToFill"/>
-    </Slot>
-  </Use>
+  <!-- MAIN -->
+  <Grid Grid.Row="1" RowGap="12" ColumnGap="12">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
 
-  <Use Grid.Row="1" Grid.Column="1" Template="Card" Title="Centered" TitleSize="16">
-    <Slot Name="Media">
-      <Image Source="monster" Stretch="Uniform" HorizontalAlignment="Center"/>
-    </Slot>
-  </Use>
+    <!-- r0 c0: monster image -->
+    <Border Grid.Row="0" Grid.Column="0" Background="#141414" CornerRadius="8" Padding="8" ClipToBounds="True">
+      <Image Source="monster" Stretch="Uniform" Height="240" HorizontalAlignment="Center"/>
+    </Border>
 
-  <Use Grid.Row="1" Grid.Column="2" Template="Card" Title="Fill" TitleSize="16">
-    <Slot Name="Media">
-      <Image Source="monster" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-    </Slot>
-  </Use>
+    <!-- r0 c1: character stats -->
+    <Border Grid.Row="0" Grid.Column="1" Background="#141414" CornerRadius="8" Padding="12">
+      <StackPanel Spacing="8">
+        <TextBlock Text="Hero Stats" FontSize="20"/>
+        <TextBlock Text="Health: 120 / 120"/>
+        <TextBlock Text="Strength: 18"/>
+        <TextBlock Text="Agility: 14"/>
+        <TextBlock Text="Intelligence: 10"/>
+        <TextBlock Text="Stamina: 16"/>
+        <TextBlock Text="Defense: 12"/>
+        <TextBlock Text="Crit Chance: 7%"/>
+        <TextBlock Text="Move Speed: 5.2"/>
+      </StackPanel>
+    </Border>
+
+    <!-- r1 c0..1: inventory panel with header (categories) + scroll -->
+    <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+            Background="#141414" CornerRadius="8" Padding="12" ClipToBounds="True">
+      <!-- Header + Scroll layout -->
+      <Grid RowGap="12">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/> <!-- categories header -->
+          <RowDefinition Height="*"/>   <!-- scroll area -->
+        </Grid.RowDefinitions>
+
+        <!-- Categories header (will become tabs later) -->
+        <Grid Grid.Row="0" ColumnGap="8">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <Border Grid.Column="0" Padding="8,6" Background="#232323" CornerRadius="6">
+            <TextBlock Text="Clothing" HorizontalAlignment="Center"/>
+          </Border>
+          <Border Grid.Column="1" Padding="8,6" Background="#232323" CornerRadius="6">
+            <TextBlock Text="Resources" HorizontalAlignment="Center"/>
+          </Border>
+          <Border Grid.Column="2" Padding="8,6" Background="#232323" CornerRadius="6">
+            <TextBlock Text="Bows" HorizontalAlignment="Center"/>
+          </Border>
+          <Border Grid.Column="3" Padding="8,6" Background="#232323" CornerRadius="6">
+            <TextBlock Text="Swords" HorizontalAlignment="Center"/>
+          </Border>
+          <Border Grid.Column="4" Padding="8,6" Background="#232323" CornerRadius="6">
+            <TextBlock Text="Food" HorizontalAlignment="Center"/>
+          </Border>
+        </Grid>
+
+        <!-- Scroll area -->
+        <ScrollViewer Grid.Row="1"
+                      Height="350"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto"
+                      PanningMode="VerticalOnly">
+          <StackPanel Spacing="12">
+            <!-- 30 resource cards from template -->
+            <Use Template="Card" Title="Iron Ore"/>
+            <Use Template="Card" Title="Copper Ore"/>
+            <Use Template="Card" Title="Silver Ore"/>
+            <Use Template="Card" Title="Gold Ore"/>
+            <Use Template="Card" Title="Mithril Ore"/>
+            <Use Template="Card" Title="Adamantite Ore"/>
+            <Use Template="Card" Title="Coal"/>
+            <Use Template="Card" Title="Wood Log"/>
+            <Use Template="Card" Title="Hardwood"/>
+            <Use Template="Card" Title="Fiber"/>
+            <Use Template="Card" Title="Herbs"/>
+            <Use Template="Card" Title="Mushrooms"/>
+            <Use Template="Card" Title="Leather"/>
+            <Use Template="Card" Title="Hide"/>
+            <Use Template="Card" Title="Bone"/>
+            <Use Template="Card" Title="Cloth"/>
+            <Use Template="Card" Title="Thread"/>
+            <Use Template="Card" Title="Feather"/>
+            <Use Template="Card" Title="Crystal Shard"/>
+            <Use Template="Card" Title="Runestone"/>
+            <Use Template="Card" Title="Water Flask"/>
+            <Use Template="Card" Title="Oil"/>
+            <Use Template="Card" Title="Powder"/>
+            <Use Template="Card" Title="Gunpowder"/>
+            <Use Template="Card" Title="Gemstone"/>
+            <Use Template="Card" Title="Ruby"/>
+            <Use Template="Card" Title="Sapphire"/>
+            <Use Template="Card" Title="Emerald"/>
+            <Use Template="Card" Title="Topaz"/>
+            <Use Template="Card" Title="Diamond"/>
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+    </Border>
+  </Grid>
 </Grid>`;
 
 export default function App() {

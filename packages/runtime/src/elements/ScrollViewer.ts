@@ -72,7 +72,7 @@ export class ScrollViewer extends UIElement {
     this.container = renderer.createContainer();
 
     // Make the container participate in hit testing if adapter exposes methods
-    (this.container as any).setEventMode?.('dynamic');
+    this.container.setEventMode('static');
 
     // Mount presenter's display object into this container once
     const childDO =
@@ -94,10 +94,6 @@ export class ScrollViewer extends UIElement {
     this.scrollInfo = this.canContentScroll && typeof maybe.setHorizontalOffset === 'function'
       ? (ch as any as IScrollInfo)
       : undefined;
-
-    // If your framework has layout invalidation, call it here.
-    // this.invalidateMeasure?.();
-    // this.invalidateArrange?.();
   }
   get content() { return this.presenter.child; }
 
