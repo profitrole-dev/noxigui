@@ -94,6 +94,8 @@ class PixiRenderContainer implements RenderContainer {
   c: PIXI.Container;
   constructor() {
     this.c = new PIXI.Container();
+    // enable event dispatch so wheel listeners can be attached
+    // (this.c as any).eventMode = 'static';
   }
   addChild(child: any) {
     this.c.addChild(child);
@@ -110,8 +112,23 @@ class PixiRenderContainer implements RenderContainer {
   setMask(mask: any | null) {
     this.c.mask = mask;
   }
+  addEventListener(type: string, handler: (evt: any) => void) {
+    // PIXI containers act as event emitters
+    this.c.addListener(type, handler);
+  }
   getDisplayObject() {
     return this.c;
+  }
+
+  setEventMode(mode: 'auto'|'static'|'dynamic') {
+    (this.c as any).eventMode = mode;
+  }
+  setHitArea(x: number, y: number, w: number, h: number) {
+    this.c.hitArea = new PIXI.Rectangle(x, y, Math.max(0, w), Math.max(0, h));
+  }
+
+  removeEventListener(type: string, handler: (evt:any)=>void, ctx?: any) {
+    this.c.removeListener(type, handler, ctx);
   }
 }
 

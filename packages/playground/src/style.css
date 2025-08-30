@@ -17,4 +17,8 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
+
+  overscroll-behavior: none;      /* современный стандарт */
+  overflow: hidden;               /* убираем системный скролл */
+  -webkit-overflow-scrolling: auto; /* отключает инерционный скролл в iOS */
 }

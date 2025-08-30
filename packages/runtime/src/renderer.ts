@@ -1,3 +1,4 @@
+
 export interface RenderImage {
   setTexture(tex?: unknown): void;
   setPosition(x: number, y: number): void;
@@ -28,7 +29,12 @@ export interface RenderContainer {
   setPosition(x: number, y: number): void;
   setSortableChildren(value: boolean): void;
   setMask(mask: any | null): void;
+  /** Optional event hookup used by interactive elements */
+  addEventListener(type: string, handler: (evt: any) => void): void;
   getDisplayObject(): any;
+  setEventMode(mode: 'auto'|'static'|'dynamic'): void;
+  setHitArea(x: number, y: number, w: number, h: number): void;
+  removeEventListener(type: string, handler: (evt:any)=>void, ctx?: any):void;
 }
 
 export interface Renderer {

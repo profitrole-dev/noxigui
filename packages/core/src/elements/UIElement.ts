@@ -19,10 +19,18 @@ export abstract class UIElement {
   minW = 0; minH = 0;
   prefW?: number; prefH?: number;
 
+  /** Flag set when a new arrange pass is required. */
+  arrangeDirty = false;
+
   protected registry: RuleRegistry;
 
   constructor(registry: RuleRegistry = defaultRegistry) {
     this.registry = registry;
+  }
+
+  /** Marks this element as needing an arrange pass. */
+  invalidateArrange() {
+    this.arrangeDirty = true;
   }
 
   protected measureAxis(axis: 'x' | 'y', avail: number, intrinsic: number): number {
@@ -55,6 +63,7 @@ export abstract class UIElement {
     const width = Math.max(0, rect.width - this.margin.l - this.margin.r);
     const height = Math.max(0, rect.height - this.margin.t - this.margin.b);
     this.final = { x, y, width, height };
+    this.arrangeDirty = false;
     return this.final;
   }
 
