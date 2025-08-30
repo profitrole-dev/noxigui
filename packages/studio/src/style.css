@@ -3,6 +3,8 @@
 @tailwind utilities;
 
 :root {
+  --header-height: 48px;
+  --sidebar-width: 56px;
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -20,3 +22,5 @@ html, body, #root {
   overflow: hidden;
   -webkit-overflow-scrolling: auto;
 }
+
+

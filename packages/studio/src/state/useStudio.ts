@@ -10,7 +10,7 @@ export const defaultProject: Project = {
   assets: [],
 };
 
-type Tab = "Code" | "Data" | "Assets";
+export type Tab = "Code" | "Data" | "Assets";
 type Dirty = { layout: boolean; data: boolean; assets: boolean };
 type StudioState = {
   project: Project;
