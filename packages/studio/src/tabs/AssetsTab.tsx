@@ -28,7 +28,7 @@ export function AssetsTab() {
           <div key={a.alias} className="flex flex-col gap-2 items-center">
             <img
               src={a.src}
-              className="w-24 h-24 object-contain bg-neutral-900 rounded"
+              className="w-24 h-24 object-contain bg-base-300 rounded"
             />
             <div className="text-xs opacity-80">{a.alias}</div>
           </div>

@@ -13,7 +13,7 @@ export function DataTab() {
           setData(JSON.parse(v));
         } catch {}
       }}
-      options={{ minimap: { enabled: false }, fontSize: 14 }}
+      options={{ minimap: { enabled: false }, fontSize: 14, theme: "vs-dark" }}
       width="100%"
       height="100%"
     />

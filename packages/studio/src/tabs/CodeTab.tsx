@@ -9,7 +9,7 @@ export function CodeTab() {
       language="xml"
       value={project.layout}
       onChange={(v) => setLayout(v)}
-      options={{ minimap: { enabled: false }, fontSize: 14 }}
+      options={{ minimap: { enabled: false }, fontSize: 14, theme: "vs-dark" }}
       width="100%"
       height="100%"
     />
