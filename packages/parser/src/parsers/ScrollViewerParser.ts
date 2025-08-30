@@ -4,11 +4,11 @@ import type { Parser } from '../Parser.js';
 import type { UIElement, RenderContainer } from '@noxigui/runtime';
 
 export class ScrollViewerParser implements ElementParser {
-  test(node: Element) { return node.tagName === 'ScrollViewer'; }
+  test(node: Element) {console.log("Test ScrollViewer"); return node.tagName === 'ScrollViewer'; }
 
   parse(node: Element, p: Parser) {
     const sv = new ScrollViewer(p.renderer);
-
+    console.log("ScrollViewer is created")
     parseSizeAttrs(node, sv);
     applyMargin(node, sv);
     applyGridAttachedProps(node, sv);

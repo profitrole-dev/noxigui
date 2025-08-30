@@ -68,7 +68,10 @@ export default function App() {
     const app = new PIXI.Application({
       resizeTo: pixiRef.current,
       backgroundColor: 0x222222,
-      antialias: true
+      antialias: true,
+      eventFeatures: {
+        wheel: true
+      }
     });
 
     pixiRef.current.appendChild(app.view as HTMLCanvasElement);

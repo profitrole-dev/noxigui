@@ -3,6 +3,7 @@ import { ContentPresenter } from '../core.js';
 import type { Renderer, RenderContainer, RenderGraphics } from '../renderer.js';
 
 export type ScrollBarVisibility = 'Disabled'|'Hidden'|'Auto'|'Visible';
+
 export interface ScrollChangedArgs {
   horizontalOffset: number;
   verticalOffset: number;
@@ -43,12 +44,16 @@ export class ScrollViewer extends UIElement {
   computedVerticalScrollBarVisibility: 'Disabled'|'Hidden'|'Visible' = 'Hidden';
   panningMode: 'None'|'Both'|'HorizontalOnly'|'VerticalOnly' = 'None';
 
-  // content & visuals
+  // visuals
   presenter = new ContentPresenter();
   container: RenderContainer;
   private maskG: RenderGraphics | null = null;
   private renderer: Renderer;
   private scrollInfo?: IScrollInfo;
+
+  // internal
+  private presenterAttached = false;
+  private arrangedOnce = false;
 
   // events
   readonly scrollChanged = new Set<(e: ScrollChangedArgs) => void>();
@@ -65,8 +70,22 @@ export class ScrollViewer extends UIElement {
     super();
     this.renderer = renderer;
     this.container = renderer.createContainer();
-    // auto-handle wheel scrolling if renderer supports event listeners
+
+    // Make the container participate in hit testing if adapter exposes methods
+    (this.container as any).setEventMode?.('dynamic');
+
+    // Mount presenter's display object into this container once
+    const childDO =
+      (this.presenter as any).container?.getDisplayObject?.() ??
+      (this.presenter as any).getDisplayObject?.();
+    if (childDO) {
+      this.container.addChild(childDO);
+      this.presenterAttached = true;
+    }
+
+    // Subscribe to wheel (prefer adapter's API; fallback to raw display object if needed)
     this.container.addEventListener?.('wheel', (evt: any) => this.onWheel(evt));
+    this.container.getDisplayObject?.().addEventListener?.('wheel', (evt: any) => this.onWheel(evt));
   }
 
   setContent(ch: UIElement) {
@@ -75,6 +94,10 @@ export class ScrollViewer extends UIElement {
     this.scrollInfo = this.canContentScroll && typeof maybe.setHorizontalOffset === 'function'
       ? (ch as any as IScrollInfo)
       : undefined;
+
+    // If your framework has layout invalidation, call it here.
+    // this.invalidateMeasure?.();
+    // this.invalidateArrange?.();
   }
   get content() { return this.presenter.child; }
 
@@ -97,6 +120,18 @@ export class ScrollViewer extends UIElement {
     }
   }
 
+  private computeVisibilities() {
+    const resolve = (mode: ScrollBarVisibility, need: boolean): 'Disabled'|'Hidden'|'Visible' => {
+      if (mode === 'Auto') return need ? 'Visible' : 'Hidden';
+      if (mode === 'Disabled') return 'Disabled';
+      return mode; // Hidden | Visible
+    };
+    const needH = this.extentWidth > this.viewportWidth;
+    const needV = this.extentHeight > this.viewportHeight;
+    this.computedHorizontalScrollBarVisibility = resolve(this.horizontalScrollBarVisibility, needH);
+    this.computedVerticalScrollBarVisibility   = resolve(this.verticalScrollBarVisibility, needV);
+  }
+
   measure(avail: Size) {
     const innerW = Math.max(0, avail.width - this.margin.l - this.margin.r);
     const innerH = Math.max(0, avail.height - this.margin.t - this.margin.b);
@@ -108,41 +143,28 @@ export class ScrollViewer extends UIElement {
         const si = this.scrollInfo;
         this.extentWidth = si.extentWidth;
         this.extentHeight = si.extentHeight;
-        this.viewportWidth = Math.min(innerW, si.viewportWidth);
-        this.viewportHeight = Math.min(innerH, si.viewportHeight);
       } else {
         this.extentWidth = ch.desired.width;
         this.extentHeight = ch.desired.height;
-        this.viewportWidth = Math.min(innerW, this.extentWidth);
-        this.viewportHeight = Math.min(innerH, this.extentHeight);
       }
+      // viewport decided by available size
+      this.viewportWidth = Math.min(innerW, this.extentWidth);
+      this.viewportHeight = Math.min(innerH, this.extentHeight);
     } else {
       this.extentWidth = this.extentHeight = 0;
       this.viewportWidth = Math.min(innerW, 0);
       this.viewportHeight = Math.min(innerH, 0);
     }
 
-    // scrollbar visibility resolution (two-pass, thickness currently 0)
-    const resolve = (mode: ScrollBarVisibility, need: boolean): 'Disabled'|'Hidden'|'Visible' => {
-      if (mode === 'Auto') return need ? 'Visible' : 'Hidden';
-      if (mode === 'Disabled') return 'Disabled';
-      return mode;
-    };
-
-    let needH = this.extentWidth > this.viewportWidth;
-    let needV = this.extentHeight > this.viewportHeight;
-    this.computedHorizontalScrollBarVisibility = resolve(this.horizontalScrollBarVisibility, needH);
-    this.computedVerticalScrollBarVisibility = resolve(this.verticalScrollBarVisibility, needV);
-
-    // second pass assuming bars may take space (bar size 0 for now)
+    // visibilities (two-pass, bars occupy 0 for now)
+    this.computeVisibilities();
     const hBar = this.computedHorizontalScrollBarVisibility === 'Visible' ? 0 : 0;
-    const vBar = this.computedVerticalScrollBarVisibility === 'Visible' ? 0 : 0;
-    this.viewportWidth = Math.min(innerW - vBar, this.extentWidth);
-    this.viewportHeight = Math.min(innerH - hBar, this.extentHeight);
-    needH = this.extentWidth > this.viewportWidth;
-    needV = this.extentHeight > this.viewportHeight;
-    this.computedHorizontalScrollBarVisibility = resolve(this.horizontalScrollBarVisibility, needH);
-    this.computedVerticalScrollBarVisibility = resolve(this.verticalScrollBarVisibility, needV);
+    const vBar = this.computedVerticalScrollBarVisibility   === 'Visible' ? 0 : 0;
+
+    this.viewportWidth  = Math.min(Math.max(0, innerW - vBar), this.extentWidth);
+    this.viewportHeight = Math.min(Math.max(0, innerH - hBar), this.extentHeight);
+
+    this.computeVisibilities();
 
     this.scrollableWidth = Math.max(0, this.extentWidth - this.viewportWidth);
     this.scrollableHeight = Math.max(0, this.extentHeight - this.viewportHeight);
@@ -157,18 +179,30 @@ export class ScrollViewer extends UIElement {
 
   arrange(rect: Rect) {
     const inner = this.arrangeSelf(rect);
-    if (this.scrollInfo) {
-      this.viewportWidth = this.scrollInfo.viewportWidth;
-      this.viewportHeight = this.scrollInfo.viewportHeight;
-    } else {
-      this.viewportWidth = inner.width;
-      this.viewportHeight = inner.height;
-    }
+
+    // viewport = arranged size
+    this.viewportWidth = inner.width;
+    this.viewportHeight = inner.height;
+
     this.scrollableWidth = Math.max(0, this.extentWidth - this.viewportWidth);
     this.scrollableHeight = Math.max(0, this.extentHeight - this.viewportHeight);
     this.clampOffsets();
 
+    // ensure visuals are in our container
+    if (!this.presenterAttached) {
+      const childDO =
+        (this.presenter as any).container?.getDisplayObject?.() ??
+        (this.presenter as any).getDisplayObject?.();
+      if (childDO) {
+        this.container.addChild(childDO);
+        this.presenterAttached = true;
+      }
+    }
+
+    // position, hitArea, mask
     this.container.setPosition(inner.x, inner.y);
+    (this.container as any).setHitArea?.(0, 0, this.viewportWidth, this.viewportHeight);
+
     if (!this.maskG) {
       this.maskG = this.renderer.createGraphics();
       this.container.addChild(this.maskG.getDisplayObject());
@@ -177,6 +211,7 @@ export class ScrollViewer extends UIElement {
     this.maskG.clear();
     this.maskG.beginFill(0xffffff).drawRect(0, 0, this.viewportWidth, this.viewportHeight).endFill();
 
+    // translate content by offsets
     this.presenter.arrange({
       x: -this._hx,
       y: -this._vy,
@@ -184,6 +219,9 @@ export class ScrollViewer extends UIElement {
       height: this.extentHeight,
     });
 
+    this.arrangedOnce = true;
+
+    // raise ScrollChanged if something updated
     const args: ScrollChangedArgs = {
       horizontalOffset: this._hx,
       verticalOffset: this._vy,
@@ -206,70 +244,54 @@ export class ScrollViewer extends UIElement {
     }
   }
 
+  // immediate re-apply of the scroll transform (no global layout req.)
+  private applyScrollTransformNow() {
+    if (!this.arrangedOnce) return;
+    this.presenter.arrange({
+      x: -this._hx,
+      y: -this._vy,
+      width: this.extentWidth,
+      height: this.extentHeight,
+    });
+  }
+
   // scrolling APIs
   ScrollToHorizontalOffset(v: number) {
     if (this.scrollInfo) this.scrollInfo.setHorizontalOffset(v);
     else this._hx = v;
     this.clampOffsets();
-    this.invalidateArrange();
+    // this.invalidateArrange?.();
+    this.applyScrollTransformNow();
   }
   ScrollToVerticalOffset(v: number) {
     if (this.scrollInfo) this.scrollInfo.setVerticalOffset(v);
     else this._vy = v;
     this.clampOffsets();
-    this.invalidateArrange();
+    // this.invalidateArrange?.();
+    this.applyScrollTransformNow();
   }
-  LineUp() {
-    if (this.scrollInfo) this.scrollInfo.lineUp();
-    else this.ScrollToVerticalOffset(this._vy - 16);
-    this.invalidateArrange();
-  }
-  LineDown() {
-    if (this.scrollInfo) this.scrollInfo.lineDown();
-    else this.ScrollToVerticalOffset(this._vy + 16);
-    this.invalidateArrange();
-  }
-  LineLeft() {
-    if (this.scrollInfo) this.scrollInfo.lineLeft();
-    else this.ScrollToHorizontalOffset(this._hx - 16);
-    this.invalidateArrange();
-  }
-  LineRight() {
-    if (this.scrollInfo) this.scrollInfo.lineRight();
-    else this.ScrollToHorizontalOffset(this._hx + 16);
-    this.invalidateArrange();
-  }
-  PageUp() {
-    if (this.scrollInfo) this.scrollInfo.pageUp();
-    else this.ScrollToVerticalOffset(this._vy - this.viewportHeight);
-    this.invalidateArrange();
-  }
-  PageDown() {
-    if (this.scrollInfo) this.scrollInfo.pageDown();
-    else this.ScrollToVerticalOffset(this._vy + this.viewportHeight);
-    this.invalidateArrange();
-  }
-  PageLeft() {
-    if (this.scrollInfo) this.scrollInfo.pageLeft();
-    else this.ScrollToHorizontalOffset(this._hx - this.viewportWidth);
-    this.invalidateArrange();
-  }
-  PageRight() {
-    if (this.scrollInfo) this.scrollInfo.pageRight();
-    else this.ScrollToHorizontalOffset(this._hx + this.viewportWidth);
-    this.invalidateArrange();
-  }
-  MouseWheelUp() { this.ScrollToVerticalOffset(this._vy - 48); }
+  LineUp()    { if (this.scrollInfo) this.scrollInfo.lineUp();    else this.ScrollToVerticalOffset(this._vy - 16); }
+  LineDown()  { if (this.scrollInfo) this.scrollInfo.lineDown();  else this.ScrollToVerticalOffset(this._vy + 16); }
+  LineLeft()  { if (this.scrollInfo) this.scrollInfo.lineLeft();  else this.ScrollToHorizontalOffset(this._hx - 16); }
+  LineRight() { if (this.scrollInfo) this.scrollInfo.lineRight(); else this.ScrollToHorizontalOffset(this._hx + 16); }
+  PageUp()    { if (this.scrollInfo) this.scrollInfo.pageUp();    else this.ScrollToVerticalOffset(this._vy - this.viewportHeight); }
+  PageDown()  { if (this.scrollInfo) this.scrollInfo.pageDown();  else this.ScrollToVerticalOffset(this._vy + this.viewportHeight); }
+  PageLeft()  { if (this.scrollInfo) this.scrollInfo.pageLeft();  else this.ScrollToHorizontalOffset(this._hx - this.viewportWidth); }
+  PageRight() { if (this.scrollInfo) this.scrollInfo.pageRight(); else this.ScrollToHorizontalOffset(this._hx + this.viewportWidth); }
+  MouseWheelUp()   { this.ScrollToVerticalOffset(this._vy - 48); }
   MouseWheelDown() { this.ScrollToVerticalOffset(this._vy + 48); }
 
-  onWheel(evt: { deltaX?: number; deltaY: number; shiftKey?: boolean }) {
-    const dy = evt.deltaY;
-    if (evt.shiftKey) {
-      this.ScrollToHorizontalOffset(this._hx + dy);
-    } else {
-      this.ScrollToVerticalOffset(this._vy + dy);
-    }
+  // Pixi v7 FederatedWheelEvent compatible
+  onWheel(evt: { deltaX?: number; deltaY: number; deltaMode?: number; shiftKey?: boolean }) {
+    // normalize: 0=pixel, 1=line(~16px), 2=page(viewport)
+    const unit = evt.deltaMode === 1 ? 16 : evt.deltaMode === 2 ? this.viewportHeight : 1;
+    const dx = (evt.deltaX ?? 0) * unit;
+    const dy = (evt.deltaY ?? 0) * unit;
+
+    if (evt.shiftKey) this.ScrollToHorizontalOffset(this._hx + (dy || dx));
+    else this.ScrollToVerticalOffset(this._vy + dy);
   }
+
   onKeyDown(key: string) {
     switch (key) {
       case 'ArrowUp': this.LineUp(); break;
@@ -293,8 +315,8 @@ export class ScrollViewer extends UIElement {
       else this._vy = v;
     }
     this.clampOffsets();
-    this.invalidateArrange();
+    // this.invalidateArrange?.();
+    this.applyScrollTransformNow();
     return true;
   }
 }
-

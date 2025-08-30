@@ -113,8 +113,9 @@ class PixiRenderContainer implements RenderContainer {
     this.c.mask = mask;
   }
   addEventListener(type: string, handler: (evt: any) => void) {
+    console.log(`Listener ${type} is added to container`);
     // PIXI containers act as event emitters
-    (this.c as any).on?.(type, handler);
+    (this.c as any).addListener(type, handler);
   }
   getDisplayObject() {
     return this.c;
