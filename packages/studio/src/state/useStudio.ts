@@ -10,7 +10,7 @@ export const defaultProject: Project = {
   assets: [],
 };
 
-type Tab = "Code" | "Data" | "Assets";
+type Tab = "Layout" | "Data" | "ViewModels" | "Assets";
 type Dirty = { layout: boolean; data: boolean; assets: boolean };
 type StudioState = {
   project: Project;
@@ -57,7 +57,7 @@ export const useStudio = create<StudioState>((set, get) => {
 
   return {
     project: initial,
-    activeTab: "Code",
+    activeTab: "Layout",
     dirty: { layout: false, data: false, assets: false },
     setTab: (t) => set({ activeTab: t }),
     loadProject: (raw) => {

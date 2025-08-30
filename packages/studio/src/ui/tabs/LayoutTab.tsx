@@ -1,8 +1,8 @@
 import React from "react";
 import MonacoEditor from "react-monaco-editor";
-import { useStudio } from "../state/useStudio";
+import {useStudio} from "../../state/useStudio.ts";
 
-export function CodeTab() {
+export function LayoutTab() {
   const { project, setLayout } = useStudio();
   return (
     <MonacoEditor

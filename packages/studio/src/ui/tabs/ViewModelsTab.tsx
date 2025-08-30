@@ -1,8 +1,9 @@
 import React from "react";
 import MonacoEditor from "react-monaco-editor";
-import { useStudio } from "../state/useStudio";
+import {useStudio} from "../../state/useStudio.ts";
 
-export function DataTab() {
+
+export function ViewModelsTab() {
   const { project, setData } = useStudio();
   return (
     <MonacoEditor
