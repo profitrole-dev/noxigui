@@ -65,6 +65,8 @@ export class ScrollViewer extends UIElement {
     super();
     this.renderer = renderer;
     this.container = renderer.createContainer();
+    // auto-handle wheel scrolling if renderer supports event listeners
+    this.container.addEventListener?.('wheel', (evt: any) => this.onWheel(evt));
   }
 
   setContent(ch: UIElement) {

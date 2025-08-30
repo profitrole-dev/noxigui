@@ -26,13 +26,14 @@ const createRenderer = (): Renderer => ({
     } as any;
   },
   createContainer() {
-    const obj = { children: [] as any[] };
+    const obj = { children: [] as any[], handlers: {} as Record<string, (e: any) => void> };
     return {
       addChild(child: any) { obj.children.push(child); },
       removeChild(child: any) { const i = obj.children.indexOf(child); if (i >= 0) obj.children.splice(i,1); },
       setPosition() {},
       setSortableChildren() {},
       setMask() {},
+       addEventListener(type: string, cb: (e: any) => void) { obj.handlers[type] = cb; },
       getDisplayObject() { return obj; },
     } as any;
   },
@@ -124,4 +125,16 @@ test('CanContentScroll with IScrollInfo child', () => {
   sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
   assert.equal(sv.verticalOffset, 1);
   assert.equal(si.verticalOffset, 1);
+});
+
+test('wheel events scroll automatically', () => {
+  const sv = new ScrollViewer(createRenderer());
+  sv.setContent(new Dummy(100, 300));
+  sv.measure({ width: 100, height: 100 });
+  sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
+  const obj: any = sv.container.getDisplayObject();
+  obj.handlers['wheel']({ deltaY: 20 });
+  // apply arrange pass after event
+  sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
+  assert.equal(sv.verticalOffset, 20);
 });

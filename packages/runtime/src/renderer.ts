@@ -28,6 +28,8 @@ export interface RenderContainer {
   setPosition(x: number, y: number): void;
   setSortableChildren(value: boolean): void;
   setMask(mask: any | null): void;
+  /** Optional event hookup used by interactive elements */
+  addEventListener?(type: string, handler: (evt: any) => void): void;
   getDisplayObject(): any;
 }
 

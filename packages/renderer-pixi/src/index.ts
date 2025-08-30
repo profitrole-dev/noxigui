@@ -94,6 +94,8 @@ class PixiRenderContainer implements RenderContainer {
   c: PIXI.Container;
   constructor() {
     this.c = new PIXI.Container();
+    // enable event dispatch so wheel listeners can be attached
+    (this.c as any).eventMode = 'static';
   }
   addChild(child: any) {
     this.c.addChild(child);
@@ -109,6 +111,10 @@ class PixiRenderContainer implements RenderContainer {
   }
   setMask(mask: any | null) {
     this.c.mask = mask;
+  }
+  addEventListener(type: string, handler: (evt: any) => void) {
+    // PIXI containers act as event emitters
+    (this.c as any).on?.(type, handler);
   }
   getDisplayObject() {
     return this.c;
