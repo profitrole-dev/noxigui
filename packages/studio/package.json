@@ -16,7 +16,8 @@
     "zod": "^4.1.5",
     "zustand": "^5.0.8",
     "pixi.js": "^7.4.0",
-    "noxi.js": "workspace:*"
+    "noxi.js": "workspace:*",
+    "@heroicons/react": "^2.1.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.12",

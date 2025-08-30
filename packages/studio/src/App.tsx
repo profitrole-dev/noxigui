@@ -4,6 +4,14 @@ import { CodeTab } from "./tabs/CodeTab";
 import { DataTab } from "./tabs/DataTab";
 import { AssetsTab } from "./tabs/AssetsTab";
 import { Renderer } from "./Renderer";
+import {
+  CodeBracketIcon,
+  RectangleStackIcon,
+  PhotoIcon,
+  PlayIcon,
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
+} from "@heroicons/react/24/outline";
 
 export default function App() {
   const { project, activeTab, setTab, exportProject, loadProject, newProject } = useStudio();
@@ -36,26 +44,35 @@ export default function App() {
   return (
     <div className="w-screen h-screen flex bg-neutral-950 text-neutral-200">
       {/* Left Toolbar */}
-      <div className="w-14 border-r border-neutral-800 flex flex-col gap-2 p-2">
-        <button onClick={() => setTab("Code")} title="Code">{"</>"}</button>
-        <button onClick={() => setTab("Data")} title="Data">{"{ }"}</button>
-        <button onClick={() => setTab("Assets")} title="Assets">🖼️</button>
-        <button onClick={onRun} title="Run">▶️</button>
+      <div className="w-14 border-r border-neutral-800 flex flex-col gap-2 p-2 bg-neutral-900">
+        <button onClick={() => setTab("Code")} title="Code" className="toolbar-button">
+          <CodeBracketIcon className="w-5 h-5" />
+        </button>
+        <button onClick={() => setTab("Data")} title="Data" className="toolbar-button">
+          <RectangleStackIcon className="w-5 h-5" />
+        </button>
+        <button onClick={() => setTab("Assets")} title="Assets" className="toolbar-button">
+          <PhotoIcon className="w-5 h-5" />
+        </button>
+        <button onClick={onRun} title="Run" className="toolbar-button">
+          <PlayIcon className="w-5 h-5" />
+        </button>
         <div className="mt-auto flex flex-col gap-2">
-          <button onClick={onImport} title="Import">📥</button>
-          <button onClick={onExport} title="Export">📤</button>
+          <button onClick={onImport} title="Import" className="toolbar-button">
+            <ArrowDownTrayIcon className="w-5 h-5" />
+          </button>
+          <button onClick={onExport} title="Export" className="toolbar-button">
+            <ArrowUpTrayIcon className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
       {/* Main area */}
       <div className="flex-1 grid grid-rows-[auto_1fr]">
-        <div className="h-10 border-b border-neutral-800 flex items-center px-3 justify-end">
+        <div className="h-10 border-b border-neutral-800 flex items-center px-3 justify-end bg-neutral-900">
           <div className="flex items-center gap-2">
             <div className="text-sm opacity-80">{project.name}</div>
-            <button
-              className="px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-sm"
-              onClick={newProject}
-            >
+            <button className="btn-primary" onClick={newProject}>
               New
             </button>
           </div>

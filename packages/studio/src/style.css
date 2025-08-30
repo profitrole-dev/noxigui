@@ -3,13 +3,16 @@
 @tailwind utilities;
 
 :root {
+  --color-bg: #1e1e2e;
+  --color-surface: #272838;
+  --color-accent: #6366f1;
+
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #e5e7eb;
+  background-color: var(--color-bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -25,4 +28,36 @@ html, body, #root {
   overscroll-behavior: none;
   overflow: hidden;
   -webkit-overflow-scrolling: auto;
+}
+
+@layer components {
+  .toolbar-button {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    color: rgb(163 163 163);
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .toolbar-button:hover {
+    background-color: rgb(38 38 38);
+    color: white;
+  }
+
+  .btn-primary {
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background-color: var(--color-accent);
+    color: white;
+    transition: filter 0.2s;
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.1);
+  }
 }
