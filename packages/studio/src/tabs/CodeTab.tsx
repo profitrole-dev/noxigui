@@ -1,17 +1,14 @@
 import React from "react";
-import MonacoEditor from "react-monaco-editor";
 import { useStudio } from "../state/useStudio";
 
 export function CodeTab() {
   const { project, setLayout } = useStudio();
   return (
-    <MonacoEditor
-      language="xml"
+    <textarea
+      className="w-full h-full p-3 bg-base-100 text-base-content font-mono text-sm"
       value={project.layout}
-      onChange={(v) => setLayout(v)}
-      options={{ minimap: { enabled: false }, fontSize: 14, theme: "vs-dark" }}
-      width="100%"
-      height="100%"
+      onChange={(e) => setLayout(e.target.value)}
+      spellCheck={false}
     />
   );
 }

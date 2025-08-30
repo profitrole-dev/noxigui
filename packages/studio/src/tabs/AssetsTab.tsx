@@ -1,42 +1,41 @@
 import React from "react";
 import { useStudio } from "../state/useStudio";
-import type { DragEvent } from "react";
 
 export function AssetsTab() {
   const { project, setAssets } = useStudio();
 
-  const onDrop = async (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    const entries = await Promise.all(
-      files.map(async (f) => {
-        const url = URL.createObjectURL(f);
-        return { alias: f.name.replace(/\.[^/.]+$/, ""), src: url };
-      })
-    );
-    setAssets([...(project.assets || []), ...entries]);
+  const update = (index: number, key: "alias" | "src", value: string) => {
+    const list = [...(project.assets || [])];
+    list[index] = { ...list[index], [key]: value };
+    setAssets(list);
+  };
+
+  const add = () => {
+    setAssets([...(project.assets || []), { alias: "", src: "" }]);
   };
 
   return (
-    <div
-      className="h-full w-full p-3"
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={onDrop}
-    >
-      <div className="grid grid-cols-4 gap-8">
-        {(project.assets || []).map((a) => (
-          <div key={a.alias} className="flex flex-col gap-2 items-center">
-            <img
-              src={a.src}
-              className="w-24 h-24 object-contain bg-base-300 rounded"
-            />
-            <div className="text-xs opacity-80">{a.alias}</div>
-          </div>
-        ))}
-      </div>
-      <div className="mt-4 text-sm opacity-60">Drag & drop images here…</div>
+    <div className="p-3 flex flex-col gap-2">
+      {(project.assets || []).map((asset, i) => (
+        <div key={i} className="flex gap-2">
+          <input
+            className="input input-bordered input-sm w-32"
+            placeholder="alias"
+            value={asset.alias}
+            onChange={(e) => update(i, "alias", e.target.value)}
+          />
+          <input
+            className="input input-bordered input-sm flex-1"
+            placeholder="link"
+            value={asset.src}
+            onChange={(e) => update(i, "src", e.target.value)}
+          />
+        </div>
+      ))}
+      <button className="btn btn-sm w-fit mt-2" onClick={add}>
+        Add asset
+      </button>
     </div>
   );
 }
-
 
