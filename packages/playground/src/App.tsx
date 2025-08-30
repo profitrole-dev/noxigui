@@ -5,8 +5,9 @@ import * as PIXI from 'pixi.js';
 import Noxi from 'noxi.js';
 
 const initialSchema = `
+
 <!-- ROOT: game-oriented scene, main centered vertically -->
-<Grid RowGap="12" ColumnGap="12" Margin="16">
+<Grid RowGap="12" ColumnGap="12" Margin="60">
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>    <!-- TOP spacer -->
     <RowDefinition Height="Auto"/> <!-- MAIN content (centered) -->
@@ -16,10 +17,10 @@ const initialSchema = `
   <!-- Templates -->
   <Resources>
     <Template Key="Card">
-      <Border Padding="8" Background="#1f1f1f" CornerRadius="10" ClipToBounds="True">
+      <Border Padding="8" Background="#E4C88E" CornerRadius="10" ClipToBounds="True">
         <StackPanel Spacing="8">
-          <Image Stretch="Uniform" Height="96"/>
-          <TextBlock Text="{Title}" FontSize="14" HorizontalAlignment="Center"/>
+          <Image Stretch="Uniform" Height="96" Source="{Source}"/>
+          <TextBlock Text="{Title}" FontSize="14" HorizontalAlignment="Center" Foreground="black"/>
         </StackPanel>
       </Border>
     </Template>
@@ -38,7 +39,7 @@ const initialSchema = `
 
     <!-- r0 c0: monster image -->
     <Border Grid.Row="0" Grid.Column="0" Background="#141414" CornerRadius="8" Padding="8" ClipToBounds="True">
-      <Image Source="monster" Stretch="Uniform" Height="240" HorizontalAlignment="Center"/>
+      <Image Source="hero" Stretch="Uniform" Height="240" HorizontalAlignment="Center"/>
     </Border>
 
     <!-- r0 c1: character stats -->
@@ -94,25 +95,26 @@ const initialSchema = `
         </Grid>
 
         <!-- Scroll area -->
+        <!-- Scroll area -->
         <ScrollViewer Grid.Row="1"
                       Height="350"
                       HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto"
                       PanningMode="VerticalOnly">
-          <StackPanel Spacing="12">
+          <WrapPanel Orientation="Horizontal" GapX="8" GapY="12" ItemWidth="115">
             <!-- 30 resource cards from template -->
-            <Use Template="Card" Title="Iron Ore"/>
-            <Use Template="Card" Title="Copper Ore"/>
-            <Use Template="Card" Title="Silver Ore"/>
-            <Use Template="Card" Title="Gold Ore"/>
-            <Use Template="Card" Title="Mithril Ore"/>
-            <Use Template="Card" Title="Adamantite Ore"/>
-            <Use Template="Card" Title="Coal"/>
-            <Use Template="Card" Title="Wood Log"/>
-            <Use Template="Card" Title="Hardwood"/>
-            <Use Template="Card" Title="Fiber"/>
-            <Use Template="Card" Title="Herbs"/>
-            <Use Template="Card" Title="Mushrooms"/>
+            <Use Template="Card" Title="Iron Ore" Source="iron_ore"/>
+            <Use Template="Card" Title="Copper Ore" Source="copper_ore"/>
+            <Use Template="Card" Title="Silver Ore" Source="silver_ore"/>
+            <Use Template="Card" Title="Gold Ore" Source="gold_ore"/>
+            <Use Template="Card" Title="Mithril Ore" Source="mithril_ore"/>
+            <Use Template="Card" Title="Adamantite Ore" Source="adamantite_ore"/>
+            <Use Template="Card" Title="Coal" Source="coal"/>
+            <Use Template="Card" Title="Wood Log" Source="wood_log"/>
+            <Use Template="Card" Title="Hardwood" Source="hardwood"/>
+            <Use Template="Card" Title="Fiber" Source="fiber"/>
+            <Use Template="Card" Title="Herbs" Source="herbs"/>
+            <Use Template="Card" Title="Mushrooms" Source="mushrooms"/>
             <Use Template="Card" Title="Leather"/>
             <Use Template="Card" Title="Hide"/>
             <Use Template="Card" Title="Bone"/>
@@ -131,7 +133,7 @@ const initialSchema = `
             <Use Template="Card" Title="Emerald"/>
             <Use Template="Card" Title="Topaz"/>
             <Use Template="Card" Title="Diamond"/>
-          </StackPanel>
+          </WrapPanel>
         </ScrollViewer>
       </Grid>
     </Border>
@@ -177,11 +179,26 @@ export default function App() {
 
     const loadAssets = async () => {
       PIXI.Assets.add([
-        { alias: 'monster', src: '/monster.png' }
+        { alias: 'monster', src: '/monster.png' },
+        { alias: 'hero', src: '/hero.png' },
+        { alias: 'adamantite_ore', src: 'resources/adamantite_ore.png' },
+        { alias: 'coal', src: 'resources/coal.png' },
+        { alias: 'copper_ore', src: 'resources/copper_ore.png' },
+        { alias: 'gold_ore', src: 'resources/gold_ore.png' },
+        { alias: 'iron_ore', src: 'resources/iron_ore.png' },
+        { alias: 'mithril_ore', src: 'resources/mithril_ore.png' },
+        { alias: 'silver_ore', src: 'resources/silver_ore.png' },
+        { alias: 'wood_log', src: 'resources/wood_log.png' },
+        { alias: 'hardwood', src: 'resources/hardwood.png' },
+        { alias: 'fiber', src: 'resources/fiber.png' },
+        { alias: 'herbs', src: 'resources/herbs.png' },
+        { alias: 'mushrooms', src: 'resources/mushrooms.png' },
       ]);
 
       await PIXI.Assets.load([
-        'monster',
+        'monster', 'hero','adamantite_ore', 'coal', 'copper_ore',
+        'gold_ore', 'iron_ore', 'mithril_ore', 'silver_ore', 'wood_log',
+        'hardwood', 'fiber', 'herbs', 'mushrooms'
       ]);
 
       if (!cancelled) setAssetsReady(true);

@@ -134,25 +134,30 @@ export class ScrollViewer extends UIElement {
 
     const ch = this.presenter.child;
     if (ch) {
-      ch.measure({ width: Infinity, height: Infinity });
+      // КЛЮЧ: меряем с конечной шириной, бесконечной высотой (для вертикального скролла)
+      // Раньше было: ch.measure({ width: Infinity, height: Infinity });
+      ch.measure({ width: innerW, height: Infinity });
+
       if (this.scrollInfo) {
         const si = this.scrollInfo;
-        this.extentWidth = si.extentWidth;
+        // если контент реализует IScrollInfo, он тоже должен учитывать innerW внутри себя
+        this.extentWidth  = si.extentWidth;
         this.extentHeight = si.extentHeight;
       } else {
-        this.extentWidth = ch.desired.width;
+        this.extentWidth  = ch.desired.width;
         this.extentHeight = ch.desired.height;
       }
-      // viewport decided by available size
-      this.viewportWidth = Math.min(innerW, this.extentWidth);
+
+      // viewport = доступное, но не больше контента
+      this.viewportWidth  = Math.min(innerW, this.extentWidth);
       this.viewportHeight = Math.min(innerH, this.extentHeight);
     } else {
       this.extentWidth = this.extentHeight = 0;
-      this.viewportWidth = Math.min(innerW, 0);
+      this.viewportWidth  = Math.min(innerW, 0);
       this.viewportHeight = Math.min(innerH, 0);
     }
 
-    // visibilities (two-pass, bars occupy 0 for now)
+    // дальше — как было
     this.computeVisibilities();
     const hBar = this.computedHorizontalScrollBarVisibility === 'Visible' ? 0 : 0;
     const vBar = this.computedVerticalScrollBarVisibility   === 'Visible' ? 0 : 0;
@@ -162,13 +167,13 @@ export class ScrollViewer extends UIElement {
 
     this.computeVisibilities();
 
-    this.scrollableWidth = Math.max(0, this.extentWidth - this.viewportWidth);
+    this.scrollableWidth  = Math.max(0, this.extentWidth  - this.viewportWidth);
     this.scrollableHeight = Math.max(0, this.extentHeight - this.viewportHeight);
 
     const intrinsicW = this.viewportWidth + this.margin.l + this.margin.r;
     const intrinsicH = this.viewportHeight + this.margin.t + this.margin.b;
     this.desired = {
-      width: this.measureAxis('x', avail.width, intrinsicW),
+      width:  this.measureAxis('x', avail.width, intrinsicW),
       height: this.measureAxis('y', avail.height, intrinsicH),
     };
   }
