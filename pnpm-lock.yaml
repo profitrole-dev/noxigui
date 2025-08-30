@@ -126,6 +126,12 @@ importers:
       monaco-editor:
         specifier: ^0.52.2
         version: 0.52.2
+      noxi.js:
+        specifier: workspace:*
+        version: link:../noxi.js
+      pixi.js:
+        specifier: ^7.4.0
+        version: 7.4.3
       react:
         specifier: ^19.1.0
         version: 19.1.1

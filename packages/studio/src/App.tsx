@@ -3,6 +3,7 @@ import { useStudio } from "./state/useStudio";
 import { CodeTab } from "./tabs/CodeTab";
 import { DataTab } from "./tabs/DataTab";
 import { AssetsTab } from "./tabs/AssetsTab";
+import { Renderer } from "./Renderer";
 
 export default function App() {
   const { project, activeTab, setTab, exportProject, loadProject, newProject } = useStudio();
@@ -72,8 +73,7 @@ export default function App() {
             {activeTab === "Assets" && <AssetsTab />}
           </div>
           <div className="overflow-hidden">
-            {/* Pixi renderer panel placeholder */}
-            <div id="renderer-root" className="w-full h-full" />
+            <Renderer />
           </div>
         </div>
       </div>
