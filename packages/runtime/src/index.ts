@@ -4,6 +4,7 @@ export { createDefaultRegistry, RuleRegistry } from '@noxigui/core';
 export * from './elements/BorderPanel.js';
 export * from './elements/DockPanel.js';
 export * from './elements/StackPanel.js';
+export * from './elements/WrapPanel.js';
 export * from './elements/Image.js';
 export * from './elements/Text.js';
 export { Grid, Row, Col } from './elements/Grid.js';
