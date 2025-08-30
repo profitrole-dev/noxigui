@@ -2,6 +2,14 @@ import { create } from "zustand";
 import { ProjectZ } from "../types/project";
 import type { Project } from "../types/project";
 
+export const defaultProject: Project = {
+  name: "Untitled",
+  version: "0.1",
+  layout: "<Grid/>",
+  data: {},
+  assets: [],
+};
+
 type Tab = "Code" | "Data" | "Assets";
 type Dirty = { layout: boolean; data: boolean; assets: boolean };
 type StudioState = {
@@ -14,9 +22,10 @@ type StudioState = {
   setLayout: (s: string) => void;
   setData: (o: any) => void;
   setAssets: (a: Project["assets"]) => void;
+  newProject: () => void;
 };
 export const useStudio = create<StudioState>((set, get) => ({
-  project: { name: "Untitled", version: "0.1", layout: "<Grid/>", data: {}, assets: [] },
+  project: { ...defaultProject },
   activeTab: "Code",
   dirty: { layout: false, data: false, assets: false },
   setTab: (t) => set({ activeTab: t }),
@@ -35,4 +44,6 @@ export const useStudio = create<StudioState>((set, get) => ({
     set((s) => ({ project: { ...s.project, data }, dirty: { ...s.dirty, data: true } })),
   setAssets: (assets) =>
     set((s) => ({ project: { ...s.project, assets }, dirty: { ...s.dirty, assets: true } })),
+  newProject: () =>
+    set({ project: { ...defaultProject }, dirty: { layout: false, data: false, assets: false } }),
 }));
