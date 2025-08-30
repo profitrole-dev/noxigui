@@ -10,6 +10,7 @@ import {
   PhotoIcon,
   ArrowDownTrayIcon,
   ArrowUpTrayIcon,
+  PlayIcon,
 } from "@heroicons/react/24/outline";
 
 export default function App() {
@@ -72,28 +73,41 @@ export default function App() {
         <header className="bg-base-200 border-b border-base-300 flex items-center px-3">
           <div className="tabs tabs-boxed bg-base-300 p-1">
             <a
-              className={`tab tab-sm ${activeTab === "Code" ? "tab-active" : ""}`}
+              className={`tab tab-sm flex items-center gap-1 ${
+                activeTab === "Code" ? "tab-active" : ""
+              }`}
               onClick={() => setTab("Code")}
             >
-              Code
+              <CodeBracketIcon className="w-4 h-4" />
+              <span>Code</span>
             </a>
             <a
-              className={`tab tab-sm ${activeTab === "Data" ? "tab-active" : ""}`}
+              className={`tab tab-sm flex items-center gap-1 ${
+                activeTab === "Data" ? "tab-active" : ""
+              }`}
               onClick={() => setTab("Data")}
             >
-              Data
+              <RectangleStackIcon className="w-4 h-4" />
+              <span>Data</span>
             </a>
             <a
-              className={`tab tab-sm ${activeTab === "Assets" ? "tab-active" : ""}`}
+              className={`tab tab-sm flex items-center gap-1 ${
+                activeTab === "Assets" ? "tab-active" : ""
+              }`}
               onClick={() => setTab("Assets")}
             >
-              Assets
+              <PhotoIcon className="w-4 h-4" />
+              <span>Assets</span>
             </a>
           </div>
           <div className="ml-auto flex items-center gap-2">
             <button className="btn btn-sm btn-ghost">{project.name}</button>
-            <button className="btn btn-sm btn-primary" onClick={onRun}>
-              Run
+            <button
+              className="btn btn-sm btn-primary flex items-center gap-1"
+              onClick={onRun}
+            >
+              <PlayIcon className="w-4 h-4" />
+              <span>Run</span>
             </button>
           </div>
         </header>

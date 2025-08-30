@@ -10,18 +10,18 @@ module.exports = {
   daisyui: {
     themes: [
       {
-        noxi: {
-          primary: "#8B5CF6",
-          secondary: "#22D3EE",
-          accent: "#A78BFA",
-          neutral: "#1a1b22",
-          "base-100": "#0f1015",
-          "base-200": "#14151c",
-          "base-300": "#1e2029",
-          info: "#38bdf8",
-          success: "#22c55e",
-          warning: "#f59e0b",
-          error: "#ef4444",
+        cappuccin: {
+          primary: "#b4befe",
+          secondary: "#94e2d5",
+          accent: "#f5c2e7",
+          neutral: "#11111b",
+          "base-100": "#1e1e2e",
+          "base-200": "#181825",
+          "base-300": "#11111b",
+          info: "#89b4fa",
+          success: "#a6e3a1",
+          warning: "#f9e2af",
+          error: "#f38ba8",
           "--rounded-box": "12px",
           "--rounded-btn": "10px",
           "--tab-radius": "8px",
