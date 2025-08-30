@@ -1,3 +1,4 @@
+import React from "react";
 import { useStudio } from "../state/useStudio";
 import type { DragEvent } from "react";
 
