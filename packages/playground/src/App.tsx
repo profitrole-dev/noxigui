@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import * as PIXI from 'pixi.js';
 import Noxi from 'noxi.js';
+import { ViewModel } from '@noxigui/runtime';
 
 const initialSchema = `
 
@@ -46,14 +47,14 @@ const initialSchema = `
     <Border Grid.Row="0" Grid.Column="1" Background="#141414" CornerRadius="8" Padding="12">
       <StackPanel Spacing="8">
         <TextBlock Text="Hero Stats" FontSize="20"/>
-        <TextBlock Text="Health: 120 / 120"/>
-        <TextBlock Text="Strength: 18"/>
-        <TextBlock Text="Agility: 14"/>
-        <TextBlock Text="Intelligence: 10"/>
-        <TextBlock Text="Stamina: 16"/>
-        <TextBlock Text="Defense: 12"/>
-        <TextBlock Text="Crit Chance: 7%"/>
-        <TextBlock Text="Move Speed: 5.2"/>
+        <TextBlock Text="{Binding Stats.Health}"/>
+        <TextBlock Text="{Binding Stats.Strength}"/>
+        <TextBlock Text="{Binding Stats.Agility}"/>
+        <TextBlock Text="{Binding Stats.Intelligence}"/>
+        <TextBlock Text="{Binding Stats.Stamina}"/>
+        <TextBlock Text="{Binding Stats.Defense}"/>
+        <TextBlock Text="{Binding Stats.CritChance}"/>
+        <TextBlock Text="{Binding Stats.MoveSpeed}"/>
       </StackPanel>
     </Border>
 
@@ -101,39 +102,7 @@ const initialSchema = `
                       HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto"
                       PanningMode="VerticalOnly">
-          <WrapPanel Orientation="Horizontal" GapX="8" GapY="12" ItemWidth="115">
-            <!-- 30 resource cards from template -->
-            <Use Template="Card" Title="Iron Ore" Source="iron_ore"/>
-            <Use Template="Card" Title="Copper Ore" Source="copper_ore"/>
-            <Use Template="Card" Title="Silver Ore" Source="silver_ore"/>
-            <Use Template="Card" Title="Gold Ore" Source="gold_ore"/>
-            <Use Template="Card" Title="Mithril Ore" Source="mithril_ore"/>
-            <Use Template="Card" Title="Adamantite Ore" Source="adamantite_ore"/>
-            <Use Template="Card" Title="Coal" Source="coal"/>
-            <Use Template="Card" Title="Wood Log" Source="wood_log"/>
-            <Use Template="Card" Title="Hardwood" Source="hardwood"/>
-            <Use Template="Card" Title="Fiber" Source="fiber"/>
-            <Use Template="Card" Title="Herbs" Source="herbs"/>
-            <Use Template="Card" Title="Mushrooms" Source="mushrooms"/>
-            <Use Template="Card" Title="Leather"/>
-            <Use Template="Card" Title="Hide"/>
-            <Use Template="Card" Title="Bone"/>
-            <Use Template="Card" Title="Cloth"/>
-            <Use Template="Card" Title="Thread"/>
-            <Use Template="Card" Title="Feather"/>
-            <Use Template="Card" Title="Crystal Shard"/>
-            <Use Template="Card" Title="Runestone"/>
-            <Use Template="Card" Title="Water Flask"/>
-            <Use Template="Card" Title="Oil"/>
-            <Use Template="Card" Title="Powder"/>
-            <Use Template="Card" Title="Gunpowder"/>
-            <Use Template="Card" Title="Gemstone"/>
-            <Use Template="Card" Title="Ruby"/>
-            <Use Template="Card" Title="Sapphire"/>
-            <Use Template="Card" Title="Emerald"/>
-            <Use Template="Card" Title="Topaz"/>
-            <Use Template="Card" Title="Diamond"/>
-          </WrapPanel>
+          <ItemsControl ItemsPanel="WrapPanel" ItemsSource="{Binding Inventory}" ItemTemplate="Card"/>
         </ScrollViewer>
       </Grid>
     </Border>
@@ -147,6 +116,50 @@ export default function App() {
   const pixiRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PIXI.Application | null>(null);
   const guiRef = useRef<ReturnType<typeof Noxi.gui.create> | null>(null);
+  const vmRef = useRef(ViewModel({
+    Stats: {
+      Health: 120,
+      Strength: 18,
+      Agility: 14,
+      Intelligence: 10,
+      Stamina: 16,
+      Defense: 12,
+      CritChance: 7,
+      MoveSpeed: 5.2,
+    },
+    Inventory: [
+      { Title: 'Iron Ore', Source: 'iron_ore' },
+      { Title: 'Copper Ore', Source: 'copper_ore' },
+      { Title: 'Silver Ore', Source: 'silver_ore' },
+      { Title: 'Gold Ore', Source: 'gold_ore' },
+      { Title: 'Mithril Ore', Source: 'mithril_ore' },
+      { Title: 'Adamantite Ore', Source: 'adamantite_ore' },
+      { Title: 'Coal', Source: 'coal' },
+      { Title: 'Wood Log', Source: 'wood_log' },
+      { Title: 'Hardwood', Source: 'hardwood' },
+      { Title: 'Fiber', Source: 'fiber' },
+      { Title: 'Herbs', Source: 'herbs' },
+      { Title: 'Mushrooms', Source: 'mushrooms' },
+      { Title: 'Leather' },
+      { Title: 'Hide' },
+      { Title: 'Bone' },
+      { Title: 'Cloth' },
+      { Title: 'Thread' },
+      { Title: 'Feather' },
+      { Title: 'Crystal Shard' },
+      { Title: 'Runestone' },
+      { Title: 'Water Flask' },
+      { Title: 'Oil' },
+      { Title: 'Powder' },
+      { Title: 'Gunpowder' },
+      { Title: 'Gemstone' },
+      { Title: 'Ruby' },
+      { Title: 'Sapphire' },
+      { Title: 'Emerald' },
+      { Title: 'Topaz' },
+      { Title: 'Diamond' },
+    ],
+  }));
 
   // 1) Инициализация PIXI
   useEffect(() => {
@@ -227,6 +240,7 @@ export default function App() {
     try {
       const gui = Noxi.gui.create(code);
       guiRef.current = gui;
+      gui.bind(vmRef.current);
       // runtime.setGridDebug(true);
 
       app.stage.addChild(gui.container.getDisplayObject());
