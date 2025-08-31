@@ -106,3 +106,45 @@ test('item property change updates bound image', () => {
   assert.equal(renderer._imageTextures.get(img.sprite.getDisplayObject()), texAfter);
 });
 
+test('removing and adding inventory items rebuilds layout and updates bindings', () => {
+  const xml = `\n<Grid>\n  <Resources>\n    <Template Key="Card">\n      <Image Source="{Source}"/>\n    </Template>\n  </Resources>\n  <ItemsControl ItemsSource="{Binding Inventory}" ItemTemplate="Card"/>\n</Grid>`;
+  const renderer = createRenderer();
+  const gui = Noxi.gui.create(xml, renderer);
+  const vm = ViewModel({ Inventory: [ { Source: 'iron_ore' }, { Source: 'herbs' } ] });
+  gui.bind(vm);
+  gui.layout({ width: 100, height: 100 });
+
+  const ic = findItemsControl(gui.root)!;
+  const panel: any = ic.itemsPanel;
+  assert.equal(panel.children.length, vm.Inventory.length);
+  const controlObj = ic.container.getDisplayObject();
+  assert.equal(controlObj.children.length, vm.Inventory.length);
+
+  const removedCardEl: any = panel.children[0];
+  const removedDisplay = removedCardEl.sprite.getDisplayObject();
+
+  vm.Inventory.shift();
+  gui.layout({ width: 100, height: 100 });
+  assert.equal(panel.children.length, vm.Inventory.length);
+  assert.equal(controlObj.children.length, vm.Inventory.length);
+  assert.ok(!panel.children.includes(removedCardEl));
+  assert.ok(!controlObj.children.includes(removedDisplay));
+
+  const remainingCard: any = panel.children[0];
+  assert.equal(controlObj.children[0], remainingCard.sprite.getDisplayObject());
+  assert.deepEqual(remainingCard.getDataContext(), vm.Inventory[0]);
+  const remainingTex = renderer.getTexture(vm.Inventory[0].Source);
+  assert.equal(renderer._imageTextures.get(remainingCard.sprite.getDisplayObject()), remainingTex);
+
+  const newItem = { Source: 'gold_ore' };
+  vm.Inventory.push(newItem);
+  gui.layout({ width: 100, height: 100 });
+  assert.equal(panel.children.length, vm.Inventory.length);
+  assert.equal(controlObj.children.length, vm.Inventory.length);
+  const addedCard: any = panel.children[1];
+  assert.equal(controlObj.children[1], addedCard.sprite.getDisplayObject());
+  assert.deepEqual(addedCard.getDataContext(), newItem);
+  const addedTex = renderer.getTexture(newItem.Source);
+  assert.equal(renderer._imageTextures.get(addedCard.sprite.getDisplayObject()), addedTex);
+});
+
