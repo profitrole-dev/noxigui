@@ -124,6 +124,7 @@ test('removing and adding inventory items rebuilds layout and updates bindings',
   const removedDisplay = removedCardEl.sprite.getDisplayObject();
 
   vm.Inventory.shift();
+
   assert.equal(panel.children.length, vm.Inventory.length);
   assert.equal(controlObj.children.length, vm.Inventory.length);
   assert.ok(!panel.children.includes(removedCardEl));
@@ -132,12 +133,15 @@ test('removing and adding inventory items rebuilds layout and updates bindings',
   const remainingCard: any = panel.children[0];
   assert.equal(controlObj.children[0], remainingCard.sprite.getDisplayObject());
   assert.deepEqual(remainingCard.getDataContext(), vm.Inventory[0]);
+
   assert.equal(remainingCard.final.y, 0);
+
   const remainingTex = renderer.getTexture(vm.Inventory[0].Source);
   assert.equal(renderer._imageTextures.get(remainingCard.sprite.getDisplayObject()), remainingTex);
 
   const newItem = { Source: 'gold_ore' };
   vm.Inventory.push(newItem);
+
   assert.equal(panel.children.length, vm.Inventory.length);
   assert.equal(controlObj.children.length, vm.Inventory.length);
   const addedCard: any = panel.children[1];
