@@ -24,6 +24,10 @@ export class ItemsControl extends ContentPresenter {
   /** Called by parser to enable collecting newly created items. */
   setCollector(fn: (into: RenderContainer, el: UIElement) => void) {
     this.collector = fn;
+    // If items were already generated before the collector was supplied
+    // (e.g. when bindings apply prior to collect phase), refresh to realize
+    // their render objects now.
+    this.refresh();
   }
 
   /** Panel used to layout generated item elements. */
