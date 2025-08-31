@@ -10,6 +10,7 @@ export { ResourcesParser } from './ResourcesParser.js';
 export { ContentPresenterParser } from './ContentPresenterParser.js';
 export { UseParser } from './UseParser.js';
 export { ScrollViewerParser } from './ScrollViewerParser.js';
+export { ItemsControlParser } from './ItemsControlParser.js';
 
 import { TextBlockParser } from './TextBlockParser.js';
 import { BorderParser } from './BorderParser.js';
@@ -22,6 +23,7 @@ import { ResourcesParser } from './ResourcesParser.js';
 import { ContentPresenterParser } from './ContentPresenterParser.js';
 import { UseParser } from './UseParser.js';
 import { ScrollViewerParser } from './ScrollViewerParser.js';
+import { ItemsControlParser } from './ItemsControlParser.js';
 import type { ElementParser } from './ElementParser.js';
 import type { TemplateStore } from '@noxigui/runtime';
 
@@ -36,5 +38,6 @@ export const createParsers = (templates: TemplateStore): ElementParser[] => [
   new ResourcesParser(templates),
   new ContentPresenterParser(),
   new ScrollViewerParser(),
+  new ItemsControlParser(),
   new UseParser(templates),
 ];
