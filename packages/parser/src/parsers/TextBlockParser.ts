@@ -20,7 +20,7 @@ export class TextBlockParser implements ElementParser {
 
   collect(into: RenderContainer, el: UIElement) {
     if (el instanceof Text) {
-      into.addChild(el.text.getDisplayObject());
+      into.addChild(el.render.getDisplayObject());
       return true;
     }
     return false;

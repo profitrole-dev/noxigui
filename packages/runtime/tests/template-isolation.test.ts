@@ -74,6 +74,6 @@ test('templates are isolated between GuiObject instances', () => {
   const textA = (guiA.root as any).children[0];
   const textB = (guiB.root as any).children[0];
 
-  assert.equal((textA.text as any).content, 'One');
-  assert.equal((textB.text as any).content, 'Two');
+  assert.equal(textA.text, 'One');
+  assert.equal(textB.text, 'Two');
 });
