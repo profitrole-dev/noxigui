@@ -287,5 +287,4 @@ test('playground App layout parses and binds correctly', () => {
   const updatedTex = imageTextures.get(updatedImgEl.sprite.getDisplayObject());
   const expectedTex = renderer.getTexture(updatedItem.Source);
   assert.equal(updatedTex, expectedTex, 'updated card wrong texture');
-
 });
