@@ -268,7 +268,7 @@ test('playground App layout parses and binds correctly', () => {
   // Runtime updates to data should update displayed text and image
   const updatedItem = { Title: 'Platinum Ore', Source: 'gold_ore' };
   vm.Inventory = [updatedItem, ...vm.Inventory.slice(1)];
-  vm.Stats = { ...vm.Stats, Health: 150 };
+  vm.Stats.Health = 150;
 
   gui.layout({ width: 800, height: 600 });
 
