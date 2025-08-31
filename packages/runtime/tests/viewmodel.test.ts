@@ -23,3 +23,11 @@ test('viewmodel notifies on property changes', () => {
   assert.deepEqual(events, [{ property: 'a', value: 2 }]);
 });
 
+test('nested objects are observable', () => {
+  const vm = ViewModel({ stats: { health: 1 } });
+  const events: Array<{ property: string; value: number }> = [];
+  (vm.stats as any).observable.subscribe((e: any) => events.push(e));
+  (vm.stats as any).health = 2;
+  assert.deepEqual(events, [{ property: 'health', value: 2 }]);
+});
+

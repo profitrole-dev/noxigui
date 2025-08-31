@@ -8,7 +8,7 @@ export class ItemsControlParser implements ElementParser {
   test(node: Element) { return node.tagName === 'ItemsControl'; }
 
   parse(node: Element, p: Parser) {
-    const ic = new ItemsControl();
+    const ic = new ItemsControl(p.renderer);
     parseSizeAttrs(node, ic);
     applyMargin(node, ic);
     applyGridAttachedProps(node, ic);
@@ -47,7 +47,8 @@ export class ItemsControlParser implements ElementParser {
 
   collect(into: RenderContainer, el: UIElement, collect: (into: RenderContainer, el: UIElement) => void) {
     if (el instanceof ItemsControl) {
-      collect(into, el.itemsPanel);
+      into.addChild(el.container.getDisplayObject());
+      el.setCollector(collect);
       return true;
     }
     return false;
