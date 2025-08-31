@@ -246,7 +246,7 @@ export function AssetsPanel() {
     <div className="h-full overflow-auto">
       {/* заголовок: новая папка + добавить картинки */}
       <div className="px-2 py-2 text-xs text-neutral-400 flex items-center justify-between">
-        <span>Assets</span>
+        <span className="px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide">Assets</span>
         <div className="flex items-center gap-1">
           <button
             className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
