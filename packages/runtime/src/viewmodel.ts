@@ -11,6 +11,7 @@ export type ObservableObject<T extends object> = T & { observable: Observable<Ch
  */
 export function ViewModel<T extends object>(obj: T): ObservableObject<T> {
   const observable = new Observable<Change<T>>();
+  let suppress = false;
 
   const wrap = (val: any): any => {
     if (val && typeof val === 'object' && !(val as any).observable) {
@@ -29,17 +30,33 @@ export function ViewModel<T extends object>(obj: T): ObservableObject<T> {
 
   init(obj);
 
+  const arrayMethods = new Set(['push','pop','shift','unshift','splice','sort','reverse']);
+
   return new Proxy(obj as ObservableObject<T>, {
     get(target, prop, receiver) {
       if (prop === 'observable') return observable;
       const value = Reflect.get(target, prop, receiver);
+
+      if (Array.isArray(target) && arrayMethods.has(prop as string) && typeof value === 'function') {
+        return (...args: any[]) => {
+          suppress = true;
+          const result = (value as Function).apply(target, args.map(wrap));
+          init(target);
+          suppress = false;
+          observable.notify({ property: 'length' as any, value: target.length } as Change<any>);
+          return result;
+        };
+      }
+
       return wrap(value);
     },
     set(target, prop, value, receiver) {
       if (prop === 'observable') return false;
       const wrapped = wrap(value);
       const result = Reflect.set(target as any, prop, wrapped, receiver);
-      observable.notify({ property: prop as keyof T, value: wrapped } as Change<T>);
+      if (!suppress) {
+        observable.notify({ property: prop as keyof T, value: wrapped } as Change<T>);
+      }
       return result;
     },
   });
