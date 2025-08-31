@@ -71,12 +71,12 @@ test('scroll offsets clamp to scrollable range', () => {
   sv.measure({ width: 100, height: 100 });
   sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
 
-  sv.ScrollToVerticalOffset(50);
+  sv.scrollToVerticalOffset(50);
   sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
   assert.equal(sv.verticalOffset, 50);
   assert.equal(ch.final.y, -50);
 
-  sv.ScrollToVerticalOffset(1000);
+  sv.scrollToVerticalOffset(1000);
   sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
   assert.equal(sv.verticalOffset, sv.scrollableHeight);
   assert.equal(ch.final.y, -sv.scrollableHeight);
@@ -87,7 +87,7 @@ test('ScrollTo applies immediately', () => {
   sv.setContent(new Dummy(100, 200));
   sv.measure({ width: 100, height: 100 });
   sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
-  sv.ScrollToVerticalOffset(10);
+  sv.scrollToVerticalOffset(10);
   assert.equal(sv.verticalOffset, 10);
   assert.equal(sv.arrangeDirty, false);
 });
@@ -129,7 +129,7 @@ test('CanContentScroll with IScrollInfo child', () => {
   sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
   assert.equal(sv.extentHeight, 10);
   assert.equal(sv.viewportHeight, 100);
-  sv.LineDown();
+  sv.lineDown();
   sv.arrange({ x: 0, y: 0, width: 100, height: 100 });
   assert.equal(sv.verticalOffset, 1);
   assert.equal(si.verticalOffset, 1);
