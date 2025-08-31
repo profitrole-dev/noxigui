@@ -7,10 +7,10 @@ export { WrapPanelParser } from './WrapPanelParser.js';
 export { GridParser } from './GridParser.js';
 export { ImageParser } from './ImageParser.js';
 export { ResourcesParser } from './ResourcesParser.js';
-export { ContentPresenterParser } from './ContentPresenterParser.js';
-export { UseParser } from './UseParser.js';
-export { ScrollViewerParser } from './ScrollViewerParser.js';
 export { ItemsControlParser } from './ItemsControlParser.js';
+export { ContentPresenterParser } from './ContentPresenterParser.js';
+export { ScrollViewerParser } from './ScrollViewerParser.js';
+export { UseParser } from './UseParser.js';
 
 import { TextBlockParser } from './TextBlockParser.js';
 import { BorderParser } from './BorderParser.js';
@@ -36,8 +36,8 @@ export const createParsers = (templates: TemplateStore): ElementParser[] => [
   new GridParser(),
   new ImageParser(),
   new ResourcesParser(templates),
+  new ItemsControlParser(),
   new ContentPresenterParser(),
   new ScrollViewerParser(),
-  new ItemsControlParser(),
   new UseParser(templates),
 ];
