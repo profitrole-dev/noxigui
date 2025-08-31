@@ -49,6 +49,9 @@ export class ItemsControlParser implements ElementParser {
     if (el instanceof ItemsControl) {
       into.addChild(el.container.getDisplayObject());
       el.setCollector(collect);
+      // Mount the items panel so that any already-generated children
+      // participate in rendering immediately.
+      collect(el.container, el.itemsPanel);
       return true;
     }
     return false;
