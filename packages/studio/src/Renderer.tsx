@@ -11,17 +11,16 @@ export function Renderer() {
   const appRef = useRef<PIXI.Application | null>(null);
   const guiRef = useRef<ReturnType<typeof Noxi.gui.create> | null>(null);
 
-  // храним предыдущее состояние ассетов (alias -> src), чтобы делать diff
+  // хранить прошлую карту alias->src, чтобы делать дифф
   const prevAssetsRef = useRef<Record<string, string>>({});
 
-  // helper: построить карту alias->src
-  const toAssetsMap = (assets: Project["assets"] | undefined | null) =>
+  const toMap = (assets: Project["assets"] | undefined | null) =>
     Object.fromEntries((assets ?? []).map((a) => [a.alias, a.src]));
 
-  // аккуратная синхронизация ассетов без reset()
+  // надежная синхронизация ассетов
   const syncAssets = async (assets: Project["assets"] | undefined | null) => {
     const prev = prevAssetsRef.current;
-    const next = toAssetsMap(assets);
+    const next = toMap(assets);
 
     const prevAliases = new Set(Object.keys(prev));
     const nextAliases = new Set(Object.keys(next));
@@ -38,37 +37,46 @@ export function Renderer() {
       if (!prevAliases.has(a)) added.push(a);
     }
 
-    // 1) выгружаем удалённые и изменённые alias
-    if (removed.length || changed.length) {
+    // 1) выгружаем из Assets и TextureCache удалённые/изменённые
+    const toUnload = [...removed, ...changed];
+    if (toUnload.length) {
       await Promise.all(
-        [...removed, ...changed].map(async (alias) => {
-          try {
-            await PIXI.Assets.unload(alias);
-          } catch {
-            /* ignore */
-          }
-          // на всякий случай подчистим текстуру, если вдруг где-то осталась
-          const tex = PIXI.Texture.removeFromCache?.(alias);
-          void tex;
+        toUnload.map(async (alias) => {
+          try { await PIXI.Assets.unload(alias); } catch {}
+          try { PIXI.Texture.removeFromCache?.(alias); } catch {}
         })
       );
     }
 
-    // 2) регистрируем актуальные маппинги (idempotent)
+    // 2) регистрируем актуальные пары alias/src
     const entries = Object.entries(next).map(([alias, src]) => ({ alias, src }));
     if (entries.length) PIXI.Assets.add(entries);
 
-    // 3) догружаем только новые/изменённые
+    // 3) загружаем новые/изменённые (на холодном старте это будут все)
     const needLoad = [...added, ...changed];
     if (needLoad.length) {
-      await PIXI.Assets.load(needLoad);
+      const loaded = await PIXI.Assets.load(needLoad);
+
+      // 3.1) положить текстуры в TextureCache под алиасами
+      for (const alias of needLoad) {
+        const res = (loaded as any)[alias] ?? PIXI.Assets.get(alias);
+        // Пытаемся извлечь Texture из результата (часто это Texture/BaseTexture/HTMLImage)
+        let texture: PIXI.Texture | null = null;
+        if (res instanceof PIXI.Texture) texture = res;
+        else if (res?.baseTexture instanceof PIXI.BaseTexture) texture = new PIXI.Texture(res.baseTexture);
+        else if (res instanceof HTMLImageElement) texture = PIXI.Texture.from(res);
+
+        if (texture) {
+          // добавляем под alias на всякий случай
+          try { PIXI.Texture.addToCache?.(texture, alias); } catch {}
+        }
+      }
     }
 
-    // 4) сохраняем "снимок" для следующего diff
     prevAssetsRef.current = next;
   };
 
-  // Инициализация Pixi один раз и маунт в CanvasStage
+  // Инициализация Pixi и маунт
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
@@ -91,58 +99,46 @@ export function Renderer() {
     appRef.current = app;
 
     return () => {
-      try {
-        guiRef.current?.destroy();
-      } catch {}
+      try { guiRef.current?.destroy(); } catch {}
       guiRef.current = null;
-
-      try {
-        (app as any).destroy(true, { children: true });
-      } catch {}
+      try { (app as any).destroy(true, { children: true }); } catch {}
       appRef.current = null;
-
       if (mount.contains(view)) mount.removeChild(view);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // только один раз
+  }, []);
 
-  // Перезагрузка GUI при смене проекта (данные/лейаут/ассеты)
+  // Перезагрузка сцены при смене проекта (layout/data/assets/screen)
   useEffect(() => {
     const app = appRef.current;
     if (!app) return;
 
-    const reload = async (proj: Project) => {
-      // 0) ассеты: точечно синхронизируем alias→src
-      await syncAssets(proj.assets);
+    (async () => {
+      // 0) ассеты — строго дождаться загрузки
+      await syncAssets(project.assets);
 
-      // 1) зачистка предыдущего GUI/сцены
+      // 1) зачистить предыдущий GUI
       if (guiRef.current) {
-        try {
-          guiRef.current.destroy();
-        } catch {}
+        try { guiRef.current.destroy(); } catch {}
         app.stage.removeChildren().forEach((ch: any) => ch.destroy?.());
         guiRef.current = null;
       }
 
-      // 2) создание GUI
+      // 2) создать GUI и положить на сцену ТОЛЬКО после загрузки ассетов
       try {
-        const gui = Noxi.gui.create(proj.layout);
+        const gui = Noxi.gui.create(project.layout);
         guiRef.current = gui;
-        (gui as any).viewModel = proj.data;
+        (gui as any).viewModel = project.data;
 
         app.stage.addChild(gui.container.getDisplayObject());
-
-        // первичный layout по текущему логическому размеру
         gui.layout({ width: app.renderer.width, height: app.renderer.height });
       } catch (e) {
         console.warn("Runtime reload error:", e);
       }
-    };
-
-    reload(project);
+    })();
   }, [project]);
 
-  // Ресайз рендерера при смене логического размера канваса
+  // Ресайз Pixi при смене logical screen size
   useEffect(() => {
     const app = appRef.current;
     const gui = guiRef.current;
@@ -158,7 +154,6 @@ export function Renderer() {
   return (
     <div className="w-full h-full relative">
       <CanvasStage>
-        {/* mount-узел занимает всю логическую область канваса */}
         <div ref={mountRef} className="w-full h-full" />
       </CanvasStage>
     </div>

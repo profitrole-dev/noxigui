@@ -16,7 +16,9 @@
     "zod": "^4.1.5",
     "zustand": "^5.0.8",
     "pixi.js": "^7.4.0",
-    "noxi.js": "workspace:*"
+    "noxi.js": "workspace:*",
+    "lucide-react": "^0.542.0",
+    "idb-keyval": "^6.2.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.12",

@@ -1,6 +1,12 @@
+// src/state/useStudio.ts
 import { create } from "zustand";
 import { ProjectZ } from "../types/project";
 import type { Project } from "../types/project";
+import {
+  saveProjectToIDB,
+  loadProjectFromIDB,
+  deleteMissingAssetBlobs,
+} from "./storage";
 
 export const defaultProject: Project = {
   name: "Untitled",
@@ -11,9 +17,9 @@ export const defaultProject: Project = {
   screen: { width: 1280, height: 720 },
   meta: {
     assetFolders: [],
-    assetPaths: {},   // alias -> "Folder/Subfolder", пусто = корень
-  }
-}
+    assetPaths: {}, // alias -> "Folder/Subfolder", пусто = корень
+  },
+};
 
 const defaultCanvas = { width: 1280, height: 720 };
 
@@ -28,9 +34,10 @@ type StudioState = {
   // tabs
   setTab: (t: Tab) => void;
 
-  // io
-  loadProject: (raw: unknown) => void;
-  exportProject: () => string;
+  // persistence
+  hydrate: () => Promise<void>;         // загрузка из IndexedDB при старте
+  loadProject: (raw: unknown) => void;  // импорт из JSON
+  exportProject: () => string;          // экспорт в JSON
   newProject: () => void;
 
   // edits
@@ -39,58 +46,62 @@ type StudioState = {
   setData: (o: any) => void;
   setAssets: (a: Project["assets"]) => void;
 
-
   // canvas
   canvas: { width: number; height: number };
   setCanvasSize: (w: number, h: number) => void;
   swapCanvasSize: () => void;
 
+  // assets & folders
   addAssetFolder: (path: string) => void;
   setAssetPath: (alias: string, path: string | null) => void; // null => в корень
-  // asset/folder ops
-  renameAssetDisplayName: (alias: string, name: string) => void; // меняем читаемое имя (НЕ alias)
+  renameAssetDisplayName: (alias: string, name: string) => void; // только display name (НЕ alias)
   deleteAsset: (alias: string) => void;
 
-  renameAssetFolder: (oldPath: string, newPath: string) => void; // переносит все подпапки/ассеты
-  deleteAssetFolder: (path: string) => void; // удаляет папку(+вложенные записи), ассеты уезжают в корень
+  renameAssetFolder: (oldPath: string, newPath: string) => void; // переносит подпапки/ассеты
+  deleteAssetFolder: (path: string) => void; // удаляет папку(+вложенные), ассеты в корень
 };
 
 export const useStudio = create<StudioState>((set, get) => {
-  const STORAGE_KEY = "noxigui:project";
   let saveTimer: ReturnType<typeof setTimeout> | undefined;
 
   const scheduleSave = () => {
-    if (typeof window === "undefined" || !window.localStorage) return;
     if (saveTimer) clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
+    saveTimer = setTimeout(async () => {
       try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(get().project));
-      } catch {
-        /* ignore */
+        const p = get().project;
+        await saveProjectToIDB(p);
+        await deleteMissingAssetBlobs((p.assets ?? []).map((a) => a.alias));
+      } catch (e) {
+        console.warn("Save failed:", e);
       }
     }, 300);
   };
 
-  // bootstrap from localStorage
-  let initial: Project = { ...defaultProject };
-  if (typeof window !== "undefined" && window.localStorage) {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        initial = ProjectZ.parse(JSON.parse(raw));
-      } catch {
-        /* ignore invalid persisted data */
-      }
-    }
-  }
-
   return {
-    project: initial,
+    project: { ...defaultProject }, // гидрируем позже
     activeTab: "Layout",
     dirty: { layout: false, data: false, assets: false },
-    canvas: { ...defaultCanvas }, // ✅ есть сразу
+    canvas: { ...defaultCanvas },
 
+    // ===== Tabs =====
     setTab: (t) => set({ activeTab: t }),
+
+    // ===== Persistence =====
+    hydrate: async () => {
+      try {
+        const loaded = await loadProjectFromIDB();
+        if (loaded) {
+          set({
+            project: loaded,
+            activeTab: "Layout",
+            dirty: { layout: false, data: false, assets: false },
+            canvas: { ...defaultCanvas },
+          });
+        }
+      } catch (e) {
+        console.warn("Hydrate failed:", e);
+      }
+    },
 
     loadProject: (raw) => {
       const parsed = ProjectZ.parse(raw);
@@ -115,12 +126,12 @@ export const useStudio = create<StudioState>((set, get) => {
         project: { ...defaultProject },
         dirty: { layout: false, data: false, assets: false },
         activeTab: "Layout",
-        canvas: { ...defaultCanvas }, // ✅ сброс
+        canvas: { ...defaultCanvas },
       });
       scheduleSave();
     },
 
-    // === edits ===
+    // ===== Edits =====
     renameProject: (name) => {
       const next = name.trim();
       if (!next) return;
@@ -152,26 +163,27 @@ export const useStudio = create<StudioState>((set, get) => {
       scheduleSave();
     },
 
+    // ===== Canvas =====
     setCanvasSize: (width, height) =>
       set((s) => {
         const prev = s.project.screen ?? { width: 1280, height: 720 };
         const w = Number.isFinite(width) ? Math.max(1, Math.round(width)) : prev.width;
         const h = Number.isFinite(height) ? Math.max(1, Math.round(height)) : prev.height;
         const next = { ...s.project, screen: { width: w, height: h } };
+        // сохраняем после обновления стейта
         queueMicrotask(() => scheduleSave());
         return { project: next };
       }),
-
 
     swapCanvasSize: () =>
       set((s) => {
         const prev = s.project.screen ?? { width: 1280, height: 720 };
         const next = { ...s.project, screen: { width: prev.height, height: prev.width } };
-        // ↓ тоже сохраняем
         queueMicrotask(() => scheduleSave());
         return { project: next };
       }),
 
+    // ===== Asset Folders & Paths =====
     addAssetFolder: (path) =>
       set((s) => {
         const folders = new Set(s.project.meta?.assetFolders ?? []);
@@ -186,13 +198,14 @@ export const useStudio = create<StudioState>((set, get) => {
 
     setAssetPath: (alias, path) =>
       set((s) => {
-        const meta = { ...(s.project.meta ?? {}), assetPaths: { ...(s.project.meta?.assetPaths ?? {}) } };
+        const meta = {
+          ...(s.project.meta ?? {}),
+          assetPaths: { ...(s.project.meta?.assetPaths ?? {}) },
+        };
         if (!path || !path.trim()) {
-          // в корень → удаляем запись
-          delete meta.assetPaths[alias];
+          delete meta.assetPaths[alias]; // в корень
         } else {
           meta.assetPaths[alias] = path.trim();
-          // авто-добавим папку, если её ещё нет
           const folders = new Set(meta.assetFolders ?? []);
           folders.add(path.trim());
           meta.assetFolders = Array.from(folders);
@@ -204,7 +217,7 @@ export const useStudio = create<StudioState>((set, get) => {
     renameAssetDisplayName: (alias, name) =>
       set((s) => {
         const assets = (s.project.assets ?? []).map((a) =>
-          a.alias === alias ? { ...a, name } : a
+          a.alias === alias ? ({ ...a, name } as any) : a
         );
         queueMicrotask(() => scheduleSave());
         return { project: { ...s.project, assets } };
@@ -213,7 +226,10 @@ export const useStudio = create<StudioState>((set, get) => {
     deleteAsset: (alias) =>
       set((s) => {
         const assets = (s.project.assets ?? []).filter((a) => a.alias !== alias);
-        const meta = { ...(s.project.meta ?? {}), assetPaths: { ...(s.project.meta?.assetPaths ?? {}) } };
+        const meta = {
+          ...(s.project.meta ?? {}),
+          assetPaths: { ...(s.project.meta?.assetPaths ?? {}) },
+        };
         delete meta.assetPaths[alias];
         queueMicrotask(() => scheduleSave());
         return { project: { ...s.project, assets, meta } };
@@ -234,7 +250,11 @@ export const useStudio = create<StudioState>((set, get) => {
             assetPaths[alias] = newPath + p.slice(oldPath.length);
           }
         }
-        const meta = { ...meta0, assetFolders: Array.from(new Set(folders)), assetPaths };
+        const meta = {
+          ...meta0,
+          assetFolders: Array.from(new Set(folders)),
+          assetPaths,
+        };
         queueMicrotask(() => scheduleSave());
         return { project: { ...s.project, meta } };
       }),

@@ -9,6 +9,6 @@
     "test": "node scripts/build-packages.js && pnpm -r test"
   },
   "dependencies": {
-    "lucide-react": "^0.542.0"
+
   }
 }

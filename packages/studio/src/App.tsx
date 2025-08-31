@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { useStudio } from "./state/useStudio";
 import { AppShell } from "./ui/AppShell";
 import { Sidebar } from "./ui/Sidebar";
@@ -12,6 +12,13 @@ import { Renderer } from "./Renderer";
 type Tab = "Layout" | "Data" | "ViewModels" | "Assets";
 
 export default function App() {
+  const { hydrate } = useStudio();
+
+  useEffect(() => {
+    hydrate(); // восстановить проект и ассеты из IndexedDB
+  }, [hydrate]);
+
+
   const {
     project,
     activeTab,
