@@ -23,3 +23,12 @@ test('viewmodel notifies on property changes', () => {
   assert.deepEqual(events, [{ property: 'a', value: 2 }]);
 });
 
+test('array mutations trigger single notifications', () => {
+  const vm = ViewModel({ inv: [1, 2, 3] });
+  const events: Array<{ property: string; value: any }> = [];
+  (vm.inv as any).observable.subscribe((e: any) => events.push(e));
+  vm.inv.push(4);
+  vm.inv.shift();
+  assert.equal(events.length, 2);
+});
+
