@@ -3,27 +3,66 @@ import { Grid } from './elements/Grid.js';
 import type { Renderer, RenderContainer } from './renderer.js';
 import { Parser } from '@noxigui/parser';
 import { TemplateStore } from './template.js';
+import type { Binding } from './binding.js';
+import type { ObservableObject, Change } from './viewmodel.js';
 
 export class GuiObject {
   public root: UIElement;
   public container: RenderContainer;
   public templates: TemplateStore;
+  private bindings: Binding[];
+  private lastLayout?: Size;
 
   constructor(xml: string, renderer: Renderer) {
     this.templates = new TemplateStore();
-    const { root, container } = new Parser(renderer, this.templates).parse(xml);
-    this.root = root;
-    this.container = container;
+    const parsed = new Parser(renderer, this.templates).parse(xml) as any;
+    this.root = parsed.root;
+    this.container = parsed.container;
+    this.bindings = parsed.bindings ?? [];
   }
 
   layout(size: Size) {
+    this.lastLayout = size;
     this.root.measure(size);
     this.root.arrange({ x: 0, y: 0, width: size.width, height: size.height });
+  }
+
+  private relayout() {
+    if (this.lastLayout) this.layout(this.lastLayout);
   }
 
   destroy() {
     const obj = this.container.getDisplayObject();
     (obj as any)?.destroy?.({ children: true });
+  }
+
+  private getPath(obj: any, path: string) {
+    return path.split('.').reduce((acc: any, part: string) => acc?.[part], obj);
+  }
+
+  bind(vm: ObservableObject<any>) {
+    for (const b of this.bindings) {
+      const apply = () => {
+        (b.element as any)[b.property] = this.getPath(vm, b.path);
+        this.relayout();
+      };
+      const segs = b.path.split('.');
+      let current: any = vm;
+      let obs: any = vm.observable;
+      for (const seg of segs) {
+        if (obs) {
+          obs.subscribe((change: Change<any>) => {
+            if (change.property === seg) apply();
+          });
+        }
+        current = current?.[seg];
+        obs = current?.observable;
+      }
+      if (obs) {
+        obs.subscribe(() => apply());
+      }
+      apply();
+    }
   }
 
   setGridDebug(on: boolean) {

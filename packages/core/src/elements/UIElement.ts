@@ -19,6 +19,8 @@ export abstract class UIElement {
   minW = 0; minH = 0;
   prefW?: number; prefH?: number;
 
+  private dataContext: unknown;
+
   /** Flag set when a new arrange pass is required. */
   arrangeDirty = false;
 
@@ -31,6 +33,26 @@ export abstract class UIElement {
   /** Marks this element as needing an arrange pass. */
   invalidateArrange() {
     this.arrangeDirty = true;
+  }
+
+  setDataContext(ctx: unknown) {
+    this.dataContext = ctx;
+    const kids = (this as any).children as UIElement[] | undefined;
+    if (kids) {
+      for (const k of kids) {
+        if ((k as any).dataContext === undefined) {
+          k.setDataContext(ctx);
+        }
+      }
+    }
+    const child = (this as any).child as UIElement | undefined;
+    if (child && (child as any).dataContext === undefined) {
+      child.setDataContext(ctx);
+    }
+  }
+
+  getDataContext() {
+    return this.dataContext;
   }
 
   protected measureAxis(axis: 'x' | 'y', avail: number, intrinsic: number): number {

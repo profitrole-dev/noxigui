@@ -49,6 +49,10 @@ const createRenderer = () => {
         setPosition() {},
         setSortableChildren() {},
         setMask() {},
+        addEventListener() {},
+        setEventMode() {},
+        setHitArea() {},
+        removeEventListener() {},
         getDisplayObject() { return obj; },
       } as any;
     },
@@ -70,9 +74,9 @@ test('parse simple grid with text', () => {
 test('parse scrollviewer with child', () => {
   const renderer = createRenderer();
   const parser = new Parser(renderer, new TemplateStore(), new PatchedDOMParser());
-  const { root } = parser.parse('<ScrollViewer CanContentScroll="True"><TextBlock Text="Hello"/></ScrollViewer>');
-  assert.ok(root instanceof ScrollViewer);
-  const sv = root as ScrollViewer;
+  const { root } = parser.parse('<Grid><ScrollViewer CanContentScroll="True"><TextBlock Text="Hello"/></ScrollViewer></Grid>');
+  assert.ok(root instanceof Grid);
+  const sv = (root as Grid).children[0] as ScrollViewer;
   assert.equal(sv.canContentScroll, true);
   assert.ok(sv.content instanceof Text);
 });

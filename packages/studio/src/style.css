@@ -1,8 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/*noinspection CssUnknownAtRule*/
+@theme {
+  --color-cu-grey100: 25 25 25;  /* #191919 */
+  --color-cu-grey200: 34 34 34;  /* #222222 */
+  --color-cu-topbar:  17 17 17;  /* #111111 */
+}
 
 :root {
+
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -15,6 +21,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --cu-grey100: 25 25 25;  /* #191919 */
+  --cu-grey200: 34 34 34;  /* #222222 */
+  --cu-topbar:  17 17 17;  /* #111111 */
+  --cu-border:  64 64 64;  /* #404040 (можно подстроить) */
 }
 
 html, body, #root {
@@ -22,7 +33,15 @@ html, body, #root {
   margin: 0;
   padding: 0;
 
+  background: rgb(var(--cu-grey100));
+
   overscroll-behavior: none;
   overflow: hidden;
+  font-size: 16px;
   -webkit-overflow-scrolling: auto;
+}
+
+
+.editor-surface {
+  background: rgb(var(--cu-topbar)); /* #111111 */
 }

@@ -1,6 +1,6 @@
 import { UIElement, TemplateStore } from '@noxigui/runtime';
 import { createParsers as elementParsers } from './parsers/index.js';
-import type { Renderer, RenderContainer } from '@noxigui/runtime';
+import type { Renderer, RenderContainer, Binding } from '@noxigui/runtime';
 
 export interface XmlParser {
   parseFromString(xml: string, type: string): Document;
@@ -10,6 +10,7 @@ export interface XmlParser {
  * Parses NoxiGUI XML markup into UI elements and a PIXI display tree.
  */
 export class Parser {
+  bindings: Binding[] = [];
   /**
    * Create a new parser.
    *
@@ -27,14 +28,41 @@ export class Parser {
    *
    * @param node - DOM element to parse.
    * @returns The parsed UI element or `null` if no parser handled the node.
-   */
+  */
   parseElement(node: Element): UIElement | null {
     for (const p of this.parsers) {
       if (p.test(node)) {
-        return p.parse(node, this);
+        const el = p.parse(node, this);
+        if (el) this.parseBindings(node, el);
+        return el;
       }
     }
     return null;
+  }
+
+  private parseBindings(node: Element, el: UIElement) {
+    for (const attr of Array.from(node.attributes)) {
+      const val = attr.value.trim();
+      if (val.startsWith('{') && val.endsWith('}')) {
+        const inner = val.slice(1, -1).trim();
+        let path: string | null = null;
+        if (inner.startsWith('Binding')) {
+          const rest = inner.slice('Binding'.length).trim();
+          if (rest.startsWith('Path')) {
+            const m = rest.match(/Path\s*=\s*(.+)/);
+            path = m ? m[1].trim() : null;
+          } else {
+            path = rest;
+          }
+        } else {
+          path = inner;
+        }
+        if (path) {
+          const prop = attr.name[0].toLowerCase() + attr.name.slice(1);
+          this.bindings.push({ element: el, property: prop, path });
+        }
+      }
+    }
   }
 
   /**
@@ -61,6 +89,6 @@ export class Parser {
     };
     collect(container, root);
 
-    return { root, container };
+    return { root, container, bindings: this.bindings };
   }
 }

@@ -36,6 +36,25 @@ import Noxi from 'noxi.js';
 const gui = Noxi.gui.create(xml); // uses the PIXI.js renderer by default
 ```
 
+### Data binding
+
+Elements support bindings using the `{Binding ...}` syntax. Collections can be
+rendered with `ItemsControl`:
+
+```xml
+<ItemsControl ItemsPanel="WrapPanel"
+              ItemsSource="{Binding Inventory}"
+              ItemTemplate="Card"/>
+```
+
+Templates can bind to item properties directly:
+
+```xml
+<Image Source="{Source}"/>
+<TextBlock Text="{Title}"/>
+<TextBlock Text="{Binding Stats.Health}"/>
+```
+
 ## Documentation
 
 Additional materials can be found in the [`docs/`](docs) directory.

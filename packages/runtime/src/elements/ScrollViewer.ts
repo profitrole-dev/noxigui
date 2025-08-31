@@ -257,30 +257,30 @@ export class ScrollViewer extends UIElement {
   }
 
   // scrolling APIs
-  ScrollToHorizontalOffset(v: number) {
+  scrollToHorizontalOffset(v: number) {
     if (this.scrollInfo) this.scrollInfo.setHorizontalOffset(v);
     else this._hx = v;
     this.clampOffsets();
     // this.invalidateArrange?.();
     this.applyScrollTransformNow();
   }
-  ScrollToVerticalOffset(v: number) {
+  scrollToVerticalOffset(v: number) {
     if (this.scrollInfo) this.scrollInfo.setVerticalOffset(v);
     else this._vy = v;
     this.clampOffsets();
     // this.invalidateArrange?.();
     this.applyScrollTransformNow();
   }
-  LineUp()    { if (this.scrollInfo) this.scrollInfo.lineUp();    else this.ScrollToVerticalOffset(this._vy - 16); }
-  LineDown()  { if (this.scrollInfo) this.scrollInfo.lineDown();  else this.ScrollToVerticalOffset(this._vy + 16); }
-  LineLeft()  { if (this.scrollInfo) this.scrollInfo.lineLeft();  else this.ScrollToHorizontalOffset(this._hx - 16); }
-  LineRight() { if (this.scrollInfo) this.scrollInfo.lineRight(); else this.ScrollToHorizontalOffset(this._hx + 16); }
-  PageUp()    { if (this.scrollInfo) this.scrollInfo.pageUp();    else this.ScrollToVerticalOffset(this._vy - this.viewportHeight); }
-  PageDown()  { if (this.scrollInfo) this.scrollInfo.pageDown();  else this.ScrollToVerticalOffset(this._vy + this.viewportHeight); }
-  PageLeft()  { if (this.scrollInfo) this.scrollInfo.pageLeft();  else this.ScrollToHorizontalOffset(this._hx - this.viewportWidth); }
-  PageRight() { if (this.scrollInfo) this.scrollInfo.pageRight(); else this.ScrollToHorizontalOffset(this._hx + this.viewportWidth); }
-  MouseWheelUp()   { this.ScrollToVerticalOffset(this._vy - 48); }
-  MouseWheelDown() { this.ScrollToVerticalOffset(this._vy + 48); }
+  lineUp()    { if (this.scrollInfo) this.scrollInfo.lineUp();    else this.scrollToVerticalOffset(this._vy - 16); }
+  lineDown()  { if (this.scrollInfo) this.scrollInfo.lineDown();  else this.scrollToVerticalOffset(this._vy + 16); }
+  lineLeft()  { if (this.scrollInfo) this.scrollInfo.lineLeft();  else this.scrollToHorizontalOffset(this._hx - 16); }
+  lineRight() { if (this.scrollInfo) this.scrollInfo.lineRight(); else this.scrollToHorizontalOffset(this._hx + 16); }
+  pageUp()    { if (this.scrollInfo) this.scrollInfo.pageUp();    else this.scrollToVerticalOffset(this._vy - this.viewportHeight); }
+  pageDown()  { if (this.scrollInfo) this.scrollInfo.pageDown();  else this.scrollToVerticalOffset(this._vy + this.viewportHeight); }
+  pageLeft()  { if (this.scrollInfo) this.scrollInfo.pageLeft();  else this.scrollToHorizontalOffset(this._hx - this.viewportWidth); }
+  pageRight() { if (this.scrollInfo) this.scrollInfo.pageRight(); else this.scrollToHorizontalOffset(this._hx + this.viewportWidth); }
+  mouseWheelUp()   { this.scrollToVerticalOffset(this._vy - 48); }
+  mouseWheelDown() { this.scrollToVerticalOffset(this._vy + 48); }
 
   // Pixi v7 FederatedWheelEvent compatible
   onWheel(evt: { deltaX?: number; deltaY: number; deltaMode?: number; shiftKey?: boolean }) {
@@ -289,24 +289,24 @@ export class ScrollViewer extends UIElement {
     const dx = (evt.deltaX ?? 0) * unit;
     const dy = (evt.deltaY ?? 0) * unit;
 
-    if (evt.shiftKey) this.ScrollToHorizontalOffset(this._hx + (dy || dx));
-    else this.ScrollToVerticalOffset(this._vy + dy);
+    if (evt.shiftKey) this.scrollToHorizontalOffset(this._hx + (dy || dx));
+    else this.scrollToVerticalOffset(this._vy + dy);
   }
 
   onKeyDown(key: string) {
     switch (key) {
-      case 'ArrowUp': this.LineUp(); break;
-      case 'ArrowDown': this.LineDown(); break;
-      case 'ArrowLeft': this.LineLeft(); break;
-      case 'ArrowRight': this.LineRight(); break;
-      case 'PageUp': this.PageUp(); break;
-      case 'PageDown': this.PageDown(); break;
-      case 'Home': this.ScrollToVerticalOffset(0); break;
-      case 'End': this.ScrollToVerticalOffset(this.scrollableHeight); break;
+      case 'ArrowUp': this.lineUp(); break;
+      case 'ArrowDown': this.lineDown(); break;
+      case 'ArrowLeft': this.lineLeft(); break;
+      case 'ArrowRight': this.lineRight(); break;
+      case 'PageUp': this.pageUp(); break;
+      case 'PageDown': this.pageDown(); break;
+      case 'Home': this.scrollToVerticalOffset(0); break;
+      case 'End': this.scrollToVerticalOffset(this.scrollableHeight); break;
     }
   }
 
-  ChangeView(h?: number|null, v?: number|null, _zoom?: number|null, _disableAnimation = false): boolean {
+  changeView(h?: number|null, v?: number|null, _zoom?: number|null, _disableAnimation = false): boolean {
     if (h != null) {
       if (this.scrollInfo) this.scrollInfo.setHorizontalOffset(h);
       else this._hx = h;
