@@ -57,7 +57,10 @@ export class Parser {
         } else {
           path = inner;
         }
-        if (path) this.bindings.push({ element: el, property: attr.name, path });
+        if (path) {
+          const prop = attr.name[0].toLowerCase() + attr.name.slice(1);
+          this.bindings.push({ element: el, property: prop, path });
+        }
       }
     }
   }
