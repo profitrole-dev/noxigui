@@ -51,6 +51,9 @@ export class GuiObject {
         current = current?.[seg];
         obs = current?.observable;
       }
+      if (obs) {
+        obs.subscribe(() => apply());
+      }
       apply();
     }
   }
