@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+
 import { Noxi, Text, Image, ItemsControl, ViewModel, type Renderer, type RenderContainer, type RenderGraphics, type RenderImage, type RenderText, type UIElement } from '../src/index.js';
+
 import { DOMParser as XmldomParser } from '@xmldom/xmldom';
 
 class PatchedDOMParser extends XmldomParser {
@@ -25,7 +27,9 @@ class PatchedDOMParser extends XmldomParser {
 (globalThis as any).Node = { ELEMENT_NODE: 1 } as any;
 
 const createdImages: any[] = [];
+
 const imageTextures = new Map<any, any>();
+
 const addedImages = new Set<any>();
 
 const createRenderer = (): Renderer => {
@@ -38,12 +42,14 @@ const createRenderer = (): Renderer => {
     getDisplayObject() { return {}; },
   });
 
+
   const createImage = (tex?: any): RenderImage => {
     const obj: any = {};
     createdImages.push(obj);
     if (tex !== undefined) imageTextures.set(obj, tex);
     return {
       setTexture(tex: any) { imageTextures.set(obj, tex); },
+
       setPosition() {},
       setScale() {},
       getNaturalSize() { return { width: 0, height: 0 }; },
@@ -78,6 +84,7 @@ const createRenderer = (): Renderer => {
     } as any;
   };
 
+
   const textures = new Map<any, any>();
 
   return {
@@ -85,6 +92,7 @@ const createRenderer = (): Renderer => {
       if (!textures.has(name)) textures.set(name, { name });
       return textures.get(name);
     },
+
     createImage,
     createText,
     createGraphics,
