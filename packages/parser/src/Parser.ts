@@ -47,8 +47,13 @@ export class Parser {
         const inner = val.slice(1, -1).trim();
         let path: string | null = null;
         if (inner.startsWith('Binding')) {
-          const m = inner.match(/Binding\s+Path\s*=\s*(.+)/);
-          path = m ? m[1].trim() : null;
+          const rest = inner.slice('Binding'.length).trim();
+          if (rest.startsWith('Path')) {
+            const m = rest.match(/Path\s*=\s*(.+)/);
+            path = m ? m[1].trim() : null;
+          } else {
+            path = rest;
+          }
         } else {
           path = inner;
         }

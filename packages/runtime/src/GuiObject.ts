@@ -30,13 +30,28 @@ export class GuiObject {
     (obj as any)?.destroy?.({ children: true });
   }
 
+  private getPath(obj: any, path: string) {
+    return path.split('.').reduce((acc: any, part: string) => acc?.[part], obj);
+  }
+
   bind(vm: ObservableObject<any>) {
     for (const b of this.bindings) {
-      const apply = (value: any) => { (b.element as any)[b.property] = value; };
-      vm.observable.subscribe((change: Change<any>) => {
-        if (change.property === b.path) apply(change.value);
-      });
-      apply((vm as any)[b.path]);
+      const apply = () => {
+        (b.element as any)[b.property] = this.getPath(vm, b.path);
+      };
+      const segs = b.path.split('.');
+      let current: any = vm;
+      let obs: any = vm.observable;
+      for (const seg of segs) {
+        if (obs) {
+          obs.subscribe((change: Change<any>) => {
+            if (change.property === seg) apply();
+          });
+        }
+        current = current?.[seg];
+        obs = current?.observable;
+      }
+      apply();
     }
   }
 
