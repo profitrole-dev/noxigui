@@ -264,4 +264,28 @@ test('playground App layout parses and binds correctly', () => {
 
   const firstCard: any = panel.children[0];
   assert.deepEqual(firstCard.getDataContext(), vm.Inventory[0]);
+
+  // Runtime updates to data should update displayed text and image
+  const updatedItem = { Title: 'Platinum Ore', Source: 'gold_ore' };
+  vm.Inventory = [updatedItem, ...vm.Inventory.slice(1)];
+  vm.Stats.Health = 150;
+
+  gui.layout({ width: 800, height: 600 });
+
+  // updated stat value should be rendered
+  const textsAfter = collectTexts(gui.root).map(t => String(t.text));
+  assert.ok(textsAfter.includes('150'), 'updated stat not displayed');
+
+  // first card should reflect new item data
+  assert.equal(panel.children.length, vm.Inventory.length);
+  const updatedCard: any = panel.children[0];
+  const updatedTexts = collectTexts(updatedCard).map(t => String(t.text));
+  assert.ok(updatedTexts.includes(updatedItem.Title), 'updated card missing new text');
+
+  const updatedImgEl = findImage(updatedCard);
+  assert.ok(updatedImgEl, 'updated card missing image after change');
+  const updatedTex = imageTextures.get(updatedImgEl.sprite.getDisplayObject());
+  const expectedTex = renderer.getTexture(updatedItem.Source);
+  assert.equal(updatedTex, expectedTex, 'updated card wrong texture');
+
 });
