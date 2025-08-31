@@ -51,6 +51,9 @@ importers:
 
   packages/playground:
     dependencies:
+      '@noxigui/runtime':
+        specifier: workspace:*
+        version: link:../runtime
       noxi.js:
         specifier: workspace:*
         version: link:../noxi.js
