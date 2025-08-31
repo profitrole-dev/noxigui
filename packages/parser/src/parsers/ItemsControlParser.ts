@@ -20,7 +20,14 @@ export class ItemsControlParser implements ElementParser {
     const tplKey = node.getAttribute('ItemTemplate');
     if (tplKey) {
       ic.itemTemplate = (item: any) => {
-        const tplRoot = p.templates.instantiate(tplKey, item, new Map());
+        // Instantiate template without substituting item properties so that
+        // binding expressions like `{Source}` remain and can react to
+        // changes on the data item. Use a proxy that returns the placeholder
+        // itself for any lookup so `instantiate` leaves the binding intact.
+        const passthrough = new Proxy({}, {
+          get(_t, prop: string) { return `{${prop}}`; }
+        });
+        const tplRoot = p.templates.instantiate(tplKey, passthrough as any, new Map());
         const before = p.bindings.length;
         const el = p.parseElement(tplRoot)!;
         const bindings = p.bindings.slice(before);
