@@ -11,6 +11,7 @@ export class GuiObject {
   public container: RenderContainer;
   public templates: TemplateStore;
   private bindings: Binding[];
+  private lastLayout?: Size;
 
   constructor(xml: string, renderer: Renderer) {
     this.templates = new TemplateStore();
@@ -21,8 +22,13 @@ export class GuiObject {
   }
 
   layout(size: Size) {
+    this.lastLayout = size;
     this.root.measure(size);
     this.root.arrange({ x: 0, y: 0, width: size.width, height: size.height });
+  }
+
+  private relayout() {
+    if (this.lastLayout) this.layout(this.lastLayout);
   }
 
   destroy() {
@@ -38,6 +44,7 @@ export class GuiObject {
     for (const b of this.bindings) {
       const apply = () => {
         (b.element as any)[b.property] = this.getPath(vm, b.path);
+        this.relayout();
       };
       const segs = b.path.split('.');
       let current: any = vm;
