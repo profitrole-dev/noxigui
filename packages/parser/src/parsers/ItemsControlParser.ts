@@ -19,12 +19,12 @@ export class ItemsControlParser implements ElementParser {
 
     const tplKey = node.getAttribute('ItemTemplate');
     if (tplKey) {
-      const tplRoot = p.templates.instantiate(tplKey, {}, new Map());
       ic.itemTemplate = (item: any) => {
-        const clone = tplRoot.cloneNode(true) as Element;
+        const tplRoot = p.templates.instantiate(tplKey, item, new Map());
         const before = p.bindings.length;
-        const el = p.parseElement(clone)!;
+        const el = p.parseElement(tplRoot)!;
         const bindings = p.bindings.slice(before);
+        p.bindings.length = before;
         if ((item as any)?.observable) {
           for (const b of bindings) {
             const apply = (v: any) => { (b.element as any)[b.property] = v; };
