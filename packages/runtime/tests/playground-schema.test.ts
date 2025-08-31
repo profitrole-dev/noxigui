@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { Noxi, Text, ItemsControl, ViewModel, type Renderer, type RenderContainer, type RenderGraphics, type RenderImage, type RenderText, type UIElement } from '../src/index.js';
+
+import { Noxi, Text, Image, ItemsControl, ViewModel, type Renderer, type RenderContainer, type RenderGraphics, type RenderImage, type RenderText, type UIElement } from '../src/index.js';
+
 import { DOMParser as XmldomParser } from '@xmldom/xmldom';
 
 class PatchedDOMParser extends XmldomParser {
@@ -25,6 +27,9 @@ class PatchedDOMParser extends XmldomParser {
 (globalThis as any).Node = { ELEMENT_NODE: 1 } as any;
 
 const createdImages: any[] = [];
+
+const imageTextures = new Map<any, any>();
+
 const addedImages = new Set<any>();
 
 const createRenderer = (): Renderer => {
@@ -37,11 +42,14 @@ const createRenderer = (): Renderer => {
     getDisplayObject() { return {}; },
   });
 
-  const createImage = (): RenderImage => {
+
+  const createImage = (tex?: any): RenderImage => {
     const obj: any = {};
     createdImages.push(obj);
+    if (tex !== undefined) imageTextures.set(obj, tex);
     return {
-      setTexture() {},
+      setTexture(tex: any) { imageTextures.set(obj, tex); },
+
       setPosition() {},
       setScale() {},
       getNaturalSize() { return { width: 0, height: 0 }; },
@@ -76,8 +84,15 @@ const createRenderer = (): Renderer => {
     } as any;
   };
 
+
+  const textures = new Map<any, any>();
+
   return {
-    getTexture() { return {}; },
+    getTexture(name: any) {
+      if (!textures.has(name)) textures.set(name, { name });
+      return textures.get(name);
+    },
+
     createImage,
     createText,
     createGraphics,
@@ -126,6 +141,30 @@ function findItemsControl(el: UIElement): ItemsControl | undefined {
   }
   const presenterChild = (el as any).presenter?.child as UIElement | undefined;
   if (presenterChild) return findItemsControl(presenterChild);
+  return undefined;
+}
+
+function findImage(el: UIElement): Image | undefined {
+  if (el instanceof Image) return el;
+  const kids = (el as any).children as UIElement[] | undefined;
+  if (kids) {
+    for (const k of kids) {
+      const found = findImage(k);
+      if (found) return found;
+    }
+  }
+  const child = (el as any).child as UIElement | undefined;
+  if (child) {
+    const found = findImage(child);
+    if (found) return found;
+  }
+  const content = (el as any).content as UIElement | undefined;
+  if (content) {
+    const found = findImage(content);
+    if (found) return found;
+  }
+  const presenterChild = (el as any).presenter?.child as UIElement | undefined;
+  if (presenterChild) return findImage(presenterChild);
   return undefined;
 }
 
@@ -208,6 +247,20 @@ test('playground App layout parses and binds correctly', () => {
   assert.ok(ic, 'ItemsControl not found');
   const panel: any = ic!.itemsPanel as any;
   assert.equal(panel.children.length, vm.Inventory.length);
+
+  panel.children.forEach((card: any, i: number) => {
+    const item = vm.Inventory[i];
+    const cardTexts = collectTexts(card).map(t => String(t.text));
+    assert.ok(cardTexts.includes(item.Title), `card ${i} missing text ${item.Title}`);
+
+    const imgEl = findImage(card);
+    assert.ok(imgEl, `card ${i} missing image`);
+    const tex = imageTextures.get(imgEl.sprite.getDisplayObject());
+    if (item.Source) {
+      const expectedTex = renderer.getTexture(item.Source);
+      assert.equal(tex, expectedTex, `card ${i} wrong texture`);
+    }
+  });
 
   const firstCard: any = panel.children[0];
   assert.deepEqual(firstCard.getDataContext(), vm.Inventory[0]);
