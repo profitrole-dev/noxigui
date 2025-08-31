@@ -106,15 +106,25 @@ export function Renderer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // только один раз
 
-  // Перезагрузка GUI при смене проекта (данные/лейаут/ассеты)
+  // Синхронизация ассетов и обновление лейаута при изменении дерева
+  useEffect(() => {
+    const run = async () => {
+      await syncAssets(project.assets);
+      const app = appRef.current;
+      const gui = guiRef.current;
+      if (app && gui) {
+        gui.layout({ width: app.renderer.width, height: app.renderer.height });
+      }
+    };
+    run();
+  }, [project.assets, project.meta?.assetFolders, project.meta?.assetPaths]);
+
+  // Перезагрузка GUI при смене лейаута или данных
   useEffect(() => {
     const app = appRef.current;
     if (!app) return;
 
     const reload = async (proj: Project) => {
-      // 0) ассеты: точечно синхронизируем alias→src
-      await syncAssets(proj.assets);
-
       // 1) зачистка предыдущего GUI/сцены
       if (guiRef.current) {
         try {
@@ -140,7 +150,7 @@ export function Renderer() {
     };
 
     reload(project);
-  }, [project]);
+  }, [project.layout, project.data]);
 
   // Ресайз рендерера при смене логического размера канваса
   useEffect(() => {
