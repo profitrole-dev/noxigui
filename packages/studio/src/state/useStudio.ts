@@ -9,7 +9,11 @@ export const defaultProject: Project = {
   data: {},
   assets: [],
   screen: { width: 1280, height: 720 },
-};
+  meta: {
+    assetFolders: [],
+    assetPaths: {},   // alias -> "Folder/Subfolder", пусто = корень
+  }
+}
 
 const defaultCanvas = { width: 1280, height: 720 };
 
@@ -40,6 +44,15 @@ type StudioState = {
   canvas: { width: number; height: number };
   setCanvasSize: (w: number, h: number) => void;
   swapCanvasSize: () => void;
+
+  addAssetFolder: (path: string) => void;
+  setAssetPath: (alias: string, path: string | null) => void; // null => в корень
+  // asset/folder ops
+  renameAssetDisplayName: (alias: string, name: string) => void; // меняем читаемое имя (НЕ alias)
+  deleteAsset: (alias: string) => void;
+
+  renameAssetFolder: (oldPath: string, newPath: string) => void; // переносит все подпапки/ассеты
+  deleteAssetFolder: (path: string) => void; // удаляет папку(+вложенные записи), ассеты уезжают в корень
 };
 
 export const useStudio = create<StudioState>((set, get) => {
@@ -157,6 +170,93 @@ export const useStudio = create<StudioState>((set, get) => {
         // ↓ тоже сохраняем
         queueMicrotask(() => scheduleSave());
         return { project: next };
+      }),
+
+    addAssetFolder: (path) =>
+      set((s) => {
+        const folders = new Set(s.project.meta?.assetFolders ?? []);
+        folders.add(path.trim());
+        const next = {
+          ...s.project,
+          meta: { ...(s.project.meta ?? {}), assetFolders: Array.from(folders) },
+        };
+        queueMicrotask(() => scheduleSave());
+        return { project: next };
+      }),
+
+    setAssetPath: (alias, path) =>
+      set((s) => {
+        const meta = { ...(s.project.meta ?? {}), assetPaths: { ...(s.project.meta?.assetPaths ?? {}) } };
+        if (!path || !path.trim()) {
+          // в корень → удаляем запись
+          delete meta.assetPaths[alias];
+        } else {
+          meta.assetPaths[alias] = path.trim();
+          // авто-добавим папку, если её ещё нет
+          const folders = new Set(meta.assetFolders ?? []);
+          folders.add(path.trim());
+          meta.assetFolders = Array.from(folders);
+        }
+        queueMicrotask(() => scheduleSave());
+        return { project: { ...s.project, meta } };
+      }),
+
+    renameAssetDisplayName: (alias, name) =>
+      set((s) => {
+        const assets = (s.project.assets ?? []).map((a) =>
+          a.alias === alias ? { ...a, name } : a
+        );
+        queueMicrotask(() => scheduleSave());
+        return { project: { ...s.project, assets } };
+      }),
+
+    deleteAsset: (alias) =>
+      set((s) => {
+        const assets = (s.project.assets ?? []).filter((a) => a.alias !== alias);
+        const meta = { ...(s.project.meta ?? {}), assetPaths: { ...(s.project.meta?.assetPaths ?? {}) } };
+        delete meta.assetPaths[alias];
+        queueMicrotask(() => scheduleSave());
+        return { project: { ...s.project, assets, meta } };
+      }),
+
+    renameAssetFolder: (oldPath, newPath) =>
+      set((s) => {
+        const meta0 = s.project.meta ?? { assetFolders: [], assetPaths: {} };
+        const folders = (meta0.assetFolders ?? []).map((p) =>
+          p === oldPath || p.startsWith(oldPath + "/")
+            ? newPath + p.slice(oldPath.length)
+            : p
+        );
+        const assetPaths = { ...(meta0.assetPaths ?? {}) };
+        for (const [alias, p] of Object.entries(assetPaths)) {
+          if (!p) continue;
+          if (p === oldPath || p.startsWith(oldPath + "/")) {
+            assetPaths[alias] = newPath + p.slice(oldPath.length);
+          }
+        }
+        const meta = { ...meta0, assetFolders: Array.from(new Set(folders)), assetPaths };
+        queueMicrotask(() => scheduleSave());
+        return { project: { ...s.project, meta } };
+      }),
+
+    deleteAssetFolder: (path) =>
+      set((s) => {
+        const meta0 = s.project.meta ?? { assetFolders: [], assetPaths: {} };
+        // выкидываем саму папку и все подпапки
+        const folders = (meta0.assetFolders ?? []).filter(
+          (p) => p !== path && !p.startsWith(path + "/")
+        );
+        // ассеты из этой папки и подпапок — в корень
+        const assetPaths = { ...(meta0.assetPaths ?? {}) };
+        for (const [alias, p] of Object.entries(assetPaths)) {
+          if (!p) continue;
+          if (p === path || p.startsWith(path + "/")) {
+            delete assetPaths[alias]; // в корень
+          }
+        }
+        const meta = { ...meta0, assetFolders: folders, assetPaths };
+        queueMicrotask(() => scheduleSave());
+        return { project: { ...s.project, meta } };
       }),
   };
 });
