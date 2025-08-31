@@ -14,6 +14,7 @@ export type { Renderer, RenderImage, RenderText, RenderGraphics, RenderContainer
 export { Noxi } from './runtime.js';
 export { GuiObject } from './GuiObject.js';
 export * from './elements/ScrollViewer.js';
+export * from './elements/ItemsControl.js';
 export * from './observable.js';
 export * from './viewmodel.js';
 export * from './binding.js';
