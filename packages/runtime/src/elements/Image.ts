@@ -8,10 +8,14 @@ export class Image extends UIElement {
   stretch: 'None'|'Fill'|'Uniform'|'UniformToFill' = 'Uniform';
   private natW = 0;
   private natH = 0;
+  private renderer: Renderer;
+  private _source?: unknown;
 
   constructor(renderer: Renderer, tex?: unknown) {
     super();
+    this.renderer = renderer;
     this.sprite = renderer.createImage(tex);
+    this._source = tex;
     this.updateNaturalSize();
   }
 
@@ -25,6 +29,16 @@ export class Image extends UIElement {
     this.sprite.setTexture(tex);
     this.updateNaturalSize();
   }
+
+  get source() { return this._source; }
+  set source(v: unknown) {
+    this._source = v;
+    const tex = typeof v === 'string' ? this.renderer.getTexture(v) : v;
+    this.setTexture(tex);
+    this.invalidateArrange();
+  }
+  get Source() { return this.source; }
+  set Source(v: unknown) { this.source = v; }
 
   measure(avail: Size) {
     const natW = this.natW || 0;
