@@ -16,3 +16,4 @@ export { GuiObject } from './GuiObject.js';
 export * from './elements/ScrollViewer.js';
 export * from './observable.js';
 export * from './viewmodel.js';
+export * from './binding.js';
