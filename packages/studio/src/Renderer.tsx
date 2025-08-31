@@ -3,95 +3,111 @@ import * as PIXI from "pixi.js";
 import Noxi from "noxi.js";
 import { useStudio } from "./state/useStudio";
 import type { Project } from "./types/project";
+import CanvasStage from "./ui/CanvasStage";
 
 export function Renderer() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { project } = useStudio();
+  const mountRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PIXI.Application | null>(null);
   const guiRef = useRef<ReturnType<typeof Noxi.gui.create> | null>(null);
-  const resizeCleanup = useRef<(() => void) | null>(null);
 
+  // Инициализация Pixi один раз и маунт в CanvasStage
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const mount = mountRef.current;
+    if (!mount) return;
 
     const app = new PIXI.Application({
-      resizeTo: container,
-      backgroundColor: 0x222222,
       antialias: true,
+      backgroundAlpha: 0,
+      width: project.screen?.width ?? 1280,
+      height: project.screen?.height ?? 720,
       eventFeatures: { wheel: true },
     });
-    container.appendChild(app.view as HTMLCanvasElement);
+
+    // стиль канваса: занять всю логическую область стейджа
+    const view = app.view as HTMLCanvasElement;
+    view.style.width = "100%";
+    view.style.height = "100%";
+    view.style.display = "block";
+    view.style.background = "transparent";
+    mount.appendChild(view);
+
     appRef.current = app;
 
-    const reload = async (project: Project) => {
-      if (!appRef.current) return;
-      const app = appRef.current;
+    return () => {
+      // cleanup
+      try {
+        guiRef.current?.destroy();
+      } catch {}
+      guiRef.current = null;
+      try {
+        (app as any).destroy(true, { children: true });
+      } catch {}
+      appRef.current = null;
+      if (mount.contains(view)) mount.removeChild(view);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // только один раз
 
+  // Перезагрузка GUI при смене проекта
+  useEffect(() => {
+    const app = appRef.current;
+    if (!app) return;
+
+    const reload = async (proj: Project) => {
+      // зачистка предыдущего GUI/сцены
       if (guiRef.current) {
         try {
           guiRef.current.destroy();
         } catch {}
-        app.stage.removeChildren().forEach((ch) => ch.destroy());
+        app.stage.removeChildren().forEach((ch: any) => ch.destroy?.());
         guiRef.current = null;
       }
-      resizeCleanup.current?.();
-      resizeCleanup.current = null;
 
       try {
+        // ассеты
         PIXI.Assets.reset();
-        if (project.assets?.length) {
-          PIXI.Assets.add(project.assets.map((a) => ({ alias: a.alias, src: a.src })));
-          await PIXI.Assets.load(project.assets.map((a) => a.alias));
+        if (proj.assets?.length) {
+          PIXI.Assets.add(proj.assets.map(a => ({ alias: a.alias, src: a.src })));
+          await PIXI.Assets.load(proj.assets.map(a => a.alias));
         }
 
-        const gui = Noxi.gui.create(project.layout);
+        // создание GUI
+        const gui = Noxi.gui.create(proj.layout);
         guiRef.current = gui;
-        (gui as any).viewModel = project.data;
+        (gui as any).viewModel = proj.data;
+
         app.stage.addChild(gui.container.getDisplayObject());
 
-        const relayout = () => {
-          if (!appRef.current || !guiRef.current) return;
-          guiRef.current.layout({
-            width: appRef.current.renderer.width,
-            height: appRef.current.renderer.height,
-          });
-        };
-        relayout();
-
-        const r: any = app.renderer as any;
-        if (r && typeof r.on === "function") r.on("resize", relayout);
-        else if (r && typeof r.addListener === "function") r.addListener("resize", relayout);
-        resizeCleanup.current = () => {
-          if (r && typeof r.off === "function") r.off("resize", relayout);
-          else if (r && typeof r.removeListener === "function") r.removeListener("resize", relayout);
-        };
+        // первичный layout по текущему логическому размеру
+        gui.layout({ width: app.renderer.width, height: app.renderer.height });
       } catch (e) {
         console.warn("Runtime reload error:", e);
       }
     };
 
-    const unsub = useStudio.subscribe((state, prev) => {
-      if (state.project !== prev.project) reload(state.project);
-    });
-    reload(useStudio.getState().project);
+    reload(project);
+  }, [project]);
 
-    return () => {
-      unsub();
-      resizeCleanup.current?.();
-      if (guiRef.current) {
-        try {
-          guiRef.current.destroy();
-        } catch {}
-        guiRef.current = null;
-      }
-      if (appRef.current) {
-        try {
-          (appRef.current as any).destroy(true, { children: true });
-        } catch {}
-        appRef.current = null;
-      }
-    };
-  }, []);
+  // Ресайз рендерера при смене логического размера канваса
+  useEffect(() => {
+    const app = appRef.current;
+    const gui = guiRef.current;
+    if (!app) return;
 
-  return <div id="renderer-root" ref={containerRef} className="w-full h-full" />;
+    const w = project.screen?.width ?? 1280;
+    const h = project.screen?.height ?? 720;
+
+    app.renderer.resize(w, h);
+    gui?.layout({ width: w, height: h });
+  }, [project.screen?.width, project.screen?.height]);
+
+  return (
+    <div className="w-full h-full relative">
+      <CanvasStage>
+        {/* Внутри логической области канваса — наш mount-узел */}
+        <div ref={mountRef} className="w-full h-full" />
+      </CanvasStage>
+    </div>
+  );
 }

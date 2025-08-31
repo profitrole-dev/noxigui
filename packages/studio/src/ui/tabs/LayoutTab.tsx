@@ -1,18 +1,16 @@
-import React from "react";
-import MonacoEditor from "react-monaco-editor";
 import {useStudio} from "../../state/useStudio.ts";
+import React from "react";
+import NoxiEditor from "../NoxiEditor";
+
 
 export function LayoutTab() {
   const { project, setLayout } = useStudio();
   return (
-    <MonacoEditor
-      language="xml"
+    <NoxiEditor
       value={project.layout}
-      onChange={(v) => setLayout(v)}
-      options={{ minimap: { enabled: false }, fontSize: 14 }}
-      width="100%"
+      onChange={setLayout}
+      language="xml"
       height="100%"
     />
   );
 }
-

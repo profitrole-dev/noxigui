@@ -40,3 +40,8 @@ html, body, #root {
   font-size: 16px;
   -webkit-overflow-scrolling: auto;
 }
+
+
+.editor-surface {
+  background: rgb(var(--cu-topbar)); /* #111111 */
+}

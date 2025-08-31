@@ -6,7 +6,7 @@ export function AppShell({
                            children,
                          }: {
   sidebar: React.ReactNode;
-  topbar?: React.ReactNode;
+  topbar?: React.ReactNode; // оставим как есть — внутрь передадим уже готовый flex
   children: React.ReactNode;
 }) {
   return (
@@ -16,8 +16,7 @@ export function AppShell({
       </aside>
 
       <main className="grid grid-rows-[48px_1fr] min-h-0">
-        <div
-          className="h-12 px-3 flex items-center justify-end bg-[rgb(var(--cu-topbar))] border-b-[1px] border-[rgb(var(--cu-border))]">
+        <div className="h-12 px-3 flex items-center justify-between bg-[rgb(var(--cu-topbar))] border-b-[1px] border-[rgb(var(--cu-border))]">
           {topbar}
         </div>
         <div className="min-h-0 overflow-hidden">{children}</div>
