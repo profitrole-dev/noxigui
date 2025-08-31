@@ -11,6 +11,63 @@ export function Renderer() {
   const appRef = useRef<PIXI.Application | null>(null);
   const guiRef = useRef<ReturnType<typeof Noxi.gui.create> | null>(null);
 
+  // храним предыдущее состояние ассетов (alias -> src), чтобы делать diff
+  const prevAssetsRef = useRef<Record<string, string>>({});
+
+  // helper: построить карту alias->src
+  const toAssetsMap = (assets: Project["assets"] | undefined | null) =>
+    Object.fromEntries((assets ?? []).map((a) => [a.alias, a.src]));
+
+  // аккуратная синхронизация ассетов без reset()
+  const syncAssets = async (assets: Project["assets"] | undefined | null) => {
+    const prev = prevAssetsRef.current;
+    const next = toAssetsMap(assets);
+
+    const prevAliases = new Set(Object.keys(prev));
+    const nextAliases = new Set(Object.keys(next));
+
+    const removed: string[] = [];
+    const added: string[] = [];
+    const changed: string[] = [];
+
+    for (const a of prevAliases) {
+      if (!nextAliases.has(a)) removed.push(a);
+      else if (prev[a] !== next[a]) changed.push(a);
+    }
+    for (const a of nextAliases) {
+      if (!prevAliases.has(a)) added.push(a);
+    }
+
+    // 1) выгружаем удалённые и изменённые alias
+    if (removed.length || changed.length) {
+      await Promise.all(
+        [...removed, ...changed].map(async (alias) => {
+          try {
+            await PIXI.Assets.unload(alias);
+          } catch {
+            /* ignore */
+          }
+          // на всякий случай подчистим текстуру, если вдруг где-то осталась
+          const tex = PIXI.Texture.removeFromCache?.(alias);
+          void tex;
+        })
+      );
+    }
+
+    // 2) регистрируем актуальные маппинги (idempotent)
+    const entries = Object.entries(next).map(([alias, src]) => ({ alias, src }));
+    if (entries.length) PIXI.Assets.add(entries);
+
+    // 3) догружаем только новые/изменённые
+    const needLoad = [...added, ...changed];
+    if (needLoad.length) {
+      await PIXI.Assets.load(needLoad);
+    }
+
+    // 4) сохраняем "снимок" для следующего diff
+    prevAssetsRef.current = next;
+  };
+
   // Инициализация Pixi один раз и маунт в CanvasStage
   useEffect(() => {
     const mount = mountRef.current;
@@ -24,7 +81,6 @@ export function Renderer() {
       eventFeatures: { wheel: true },
     });
 
-    // стиль канваса: занять всю логическую область стейджа
     const view = app.view as HTMLCanvasElement;
     view.style.width = "100%";
     view.style.height = "100%";
@@ -35,27 +91,31 @@ export function Renderer() {
     appRef.current = app;
 
     return () => {
-      // cleanup
       try {
         guiRef.current?.destroy();
       } catch {}
       guiRef.current = null;
+
       try {
         (app as any).destroy(true, { children: true });
       } catch {}
       appRef.current = null;
+
       if (mount.contains(view)) mount.removeChild(view);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // только один раз
 
-  // Перезагрузка GUI при смене проекта
+  // Перезагрузка GUI при смене проекта (данные/лейаут/ассеты)
   useEffect(() => {
     const app = appRef.current;
     if (!app) return;
 
     const reload = async (proj: Project) => {
-      // зачистка предыдущего GUI/сцены
+      // 0) ассеты: точечно синхронизируем alias→src
+      await syncAssets(proj.assets);
+
+      // 1) зачистка предыдущего GUI/сцены
       if (guiRef.current) {
         try {
           guiRef.current.destroy();
@@ -64,15 +124,8 @@ export function Renderer() {
         guiRef.current = null;
       }
 
+      // 2) создание GUI
       try {
-        // ассеты
-        PIXI.Assets.reset();
-        if (proj.assets?.length) {
-          PIXI.Assets.add(proj.assets.map(a => ({ alias: a.alias, src: a.src })));
-          await PIXI.Assets.load(proj.assets.map(a => a.alias));
-        }
-
-        // создание GUI
         const gui = Noxi.gui.create(proj.layout);
         guiRef.current = gui;
         (gui as any).viewModel = proj.data;
@@ -105,7 +158,7 @@ export function Renderer() {
   return (
     <div className="w-full h-full relative">
       <CanvasStage>
-        {/* Внутри логической области канваса — наш mount-узел */}
+        {/* mount-узел занимает всю логическую область канваса */}
         <div ref={mountRef} className="w-full h-full" />
       </CanvasStage>
     </div>

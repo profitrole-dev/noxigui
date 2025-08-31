@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-export const AssetZ = z.object({ alias: z.string(), src: z.string() });
+export const AssetZ = z.object({
+  alias: z.string(),
+  src: z.string(),
+  name: z.string().optional(),
+});
+
 
 export const ScreenZ = z.object({
   width: z.number().int().min(1).default(1280),

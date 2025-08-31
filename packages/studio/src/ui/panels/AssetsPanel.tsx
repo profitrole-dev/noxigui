@@ -18,6 +18,15 @@ const parentPath = (full: string) => {
 };
 const leafName = (full: string) => full.split("/").filter(Boolean).pop() ?? "";
 
+// file -> dataURL, чтобы жить без бэкенда
+const fileToDataURL = (file: File) =>
+  new Promise<string>((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result));
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+
 // Построение дерева из проекта
 function buildAssetsRoot(project: {
   assets: Array<{ alias: string; src: string; name?: string }>;
@@ -140,35 +149,35 @@ export function AssetsPanel() {
 
   // input для добавления картинок
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const objectUrlsRef = useRef<string[]>([]);
-  useEffect(() => {
-    return () => {
-      objectUrlsRef.current.forEach((u) => URL.revokeObjectURL(u));
-      objectUrlsRef.current = [];
-    };
-  }, []);
 
-  // Добавить картинки
-  const onAddFiles = (files: FileList | null) => {
+  // Добавить картинки: ПЕРЕЗАПИСЫВАЕМ существующий alias, а не делаем -2
+  const onAddFiles = async (files: FileList | null) => {
     if (!files) return;
-    const takenAliases = new Set((project.assets ?? []).map((a) => a.alias));
-    const newAssets: { alias: string; src: string }[] = [];
+
+    const existing = project.assets ?? [];
+    const nextAssets = [...existing];
+    const byAlias = new Map(existing.map((a) => [a.alias, a]));
 
     for (let i = 0; i < files.length; i++) {
       const f = files[i];
       if (!f.type.startsWith("image/")) continue;
 
-      const url = URL.createObjectURL(f);
-      objectUrlsRef.current.push(url);
+      const dataUrl = await fileToDataURL(f);
+      const rawBase = f.name.replace(/\.[^.]+$/, ""); // "hero" из "hero.png"
+      const alias = rawBase;                           // КЛЮЧЕВОЕ: НЕ уникализируем
 
-      const rawBase = f.name.replace(/\.[^.]+$/, "");
-      const alias = makeUnique(rawBase, takenAliases, "-");
-      takenAliases.add(alias);
-
-      newAssets.push({ alias, src: url });
+      const existed = byAlias.get(alias);
+      if (existed) {
+        existed.src = dataUrl;      // overwrite src
+        if (!existed.name) existed.name = f.name;
+      } else {
+        const asset = { alias, src: dataUrl, name: f.name };
+        nextAssets.push(asset);
+        byAlias.set(alias, asset);
+      }
     }
-    if (!newAssets.length) return;
-    setAssets([...(project.assets ?? []), ...newAssets]);
+
+    setAssets(nextAssets);
   };
 
   // Новая папка (в корне)
@@ -176,18 +185,17 @@ export function AssetsPanel() {
     const base = "New Folder";
     const siblings = new Set(
       (project.meta?.assetFolders ?? [])
-        .filter((p) => !p.includes("/")) // только корневые
+        .filter((p) => !p.includes("/"))
         .map((p) => leafName(p))
     );
     const leaf = makeUnique(base, siblings, " ");
-    addAssetFolder(leaf); // сохранится как корень "Leaf"
+    addAssetFolder(leaf);
   };
 
   // DnD: persist путей при броске
   const handleDrop = (src: string, dst: string, pos: DropPosition) => {
     if (src === dst) return;
 
-    // UI-обновление
     setRoot((r) => moveNode(r, src, dst, pos));
 
     const isAsset = src.startsWith("asset:");
@@ -207,14 +215,12 @@ export function AssetsPanel() {
   const handleRename = (id: string, nextName: string) => {
     if (id.startsWith("asset:")) {
       const alias = id.slice("asset:".length);
-      // меняем только display name (name), alias не трогаем
       renameAssetDisplayName(alias, nextName);
       return;
     }
     if (id.startsWith("folder:")) {
       const full = id.slice("folder:".length);
-      const parent = parentPath(full); // "" если корень
-      // уникализируем в рамках одного родителя
+      const parent = parentPath(full);
       const siblingLeaves = new Set(
         (project.meta?.assetFolders ?? [])
           .filter((p) => parentPath(p) === parent)
@@ -224,7 +230,6 @@ export function AssetsPanel() {
       const newFull = parent ? `${parent}/${uniqueLeaf}` : uniqueLeaf;
       if (newFull !== full) {
         renameAssetFolder(full, newFull);
-        // Можно автораскрыть новую ветку, если хочешь
       }
     }
   };
@@ -238,15 +243,15 @@ export function AssetsPanel() {
     }
     if (id.startsWith("folder:")) {
       const full = id.slice("folder:".length);
-      deleteAssetFolder(full); // ассеты из неё уедут в корень
+      deleteAssetFolder(full);
     }
   };
 
   return (
     <div className="h-full overflow-auto">
-      {/* заголовок: новая папка + добавить картинки */}
-      <div className="px-2 py-2 text-xs text-neutral-400 flex items-center justify-between">
-        <span className="px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide">Assets</span>
+      {/* заголовок */}
+      <div className="px-2 py-2 border-b border-neutral-800 text-sm font-medium text-neutral-300 flex items-center justify-between">
+        <span>Assets</span>
         <div className="flex items-center gap-1">
           <button
             className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
@@ -315,7 +320,6 @@ export function AssetsPanel() {
           onDrop={handleDrop}
           onRename={handleRename}
           onDelete={handleDelete}
-          // inside только в папку (на всякий случай)
           allowDrop={(src, dst, pos) => {
             if (src.id === dst.id) return false;
             if (pos === "inside") return dst.type === "folder";
