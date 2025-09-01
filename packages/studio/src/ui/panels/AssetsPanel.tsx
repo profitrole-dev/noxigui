@@ -94,7 +94,7 @@ function moveNode(root: TreeItem, sourceId: string, targetId: string, pos: DropP
   const src = extractNode(clone.children ?? [], sourceId);
   if (!src) return clone;
 
-  if (targetId === "__ROOT__") {
+  if (targetId === root.id) {
     clone.children = clone.children ?? [];
     pos === "before" ? clone.children.unshift(src) : clone.children.push(src);
     return clone;
@@ -136,16 +136,15 @@ export function AssetsPanel() {
   } = useStudio();
 
   const [root, setRoot] = useState<TreeItem>(() => buildAssetsRoot(project));
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [expanded, setExpanded] = useState<Set<string>>(new Set(["assets-root"]));
   const [selected, setSelected] = useState<string | null>(null);
-  const [rootHover, setRootHover] = useState(false);
 
   // Перестраиваем при изменении проекта
   useEffect(() => {
     setRoot(buildAssetsRoot(project));
   }, [project.assets, project.meta?.assetFolders, project.meta?.assetPaths]);
 
-  const visible = root.children ?? [];
+  const visible = [root];
 
   // input для добавления картинок
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -199,15 +198,15 @@ export function AssetsPanel() {
     setRoot((r) => moveNode(r, src, dst, pos));
 
     const isAsset = src.startsWith("asset:");
-    const isFolder = dst.startsWith("folder:");
+    const alias = isAsset ? src.slice("asset:".length) : "";
 
-    if (isAsset && isFolder && pos === "inside") {
-      const alias = src.slice("asset:".length);
-      const folderPath = dst.slice("folder:".length);
-      setAssetPath(alias, folderPath);
-    } else if (isAsset && dst === "__ROOT__") {
-      const alias = src.slice("asset:".length);
-      setAssetPath(alias, null);
+    if (isAsset) {
+      if (dst.startsWith("folder:") && pos === "inside") {
+        const folderPath = dst.slice("folder:".length);
+        setAssetPath(alias, folderPath || null);
+      } else if (dst === "assets-root") {
+        setAssetPath(alias, null);
+      }
     }
   };
 
@@ -250,7 +249,7 @@ export function AssetsPanel() {
   return (
     <div className="h-full overflow-auto">
       {/* заголовок */}
-      <div className="px-2 py-2 border-b border-neutral-800 text-sm font-medium text-neutral-300 flex items-center justify-between">
+      <div className="px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide flex items-center justify-between">
         <span>Assets</span>
         <div className="flex items-center gap-1">
           <button
@@ -276,31 +275,6 @@ export function AssetsPanel() {
             onChange={(e) => onAddFiles(e.target.files)}
           />
         </div>
-      </div>
-
-      {/* зона «в корень» */}
-      <div
-        className="mx-2 my-2 h-6 rounded border border-dashed text-xs grid place-items-center border-neutral-700/60 text-neutral-500"
-        onDragOver={(e) => {
-          if (e.dataTransfer.types.includes("text/x-tree-id")) {
-            e.preventDefault();
-            setRootHover(true);
-          }
-        }}
-        onDragLeave={() => setRootHover(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          const src = e.dataTransfer.getData("text/x-tree-id");
-          if (src) handleDrop(src, "__ROOT__", "after");
-          setRootHover(false);
-        }}
-        style={
-          rootHover
-            ? ({ borderColor: "#A89FFF", backgroundColor: "rgba(44,26,117,0.2)", color: "#A89FFF" } as React.CSSProperties)
-            : undefined
-        }
-      >
-        Drop here to move to root
       </div>
 
       {/* дерево */}
