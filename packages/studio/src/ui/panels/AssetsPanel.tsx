@@ -140,7 +140,7 @@ function moveNode(
 export function AssetsPanel() {
   const {
     project,
-    setAssets,
+    addAssets,
     addAssetFolder,
     setAssetPath,
     renameAssetDisplayName,
@@ -168,31 +168,17 @@ export function AssetsPanel() {
   // Добавить картинки: ПЕРЕЗАПИСЫВАЕМ существующий alias, а не делаем -2
   const onAddFiles = async (files: FileList | null) => {
     if (!files) return
-
-    const existing = project.assets ?? []
-    const nextAssets = [...existing]
-    const byAlias = new Map(existing.map((a) => [a.alias, a]))
-
+    const toAdd: Array<{ alias: string; src: string; name: string }> = []
     for (let i = 0; i < files.length; i++) {
       const f = files[i]
       if (!f.type.startsWith('image/')) continue
-
       const dataUrl = await fileToDataURL(f)
       const rawBase = f.name.replace(/\.[^.]+$/, '') // "hero" из "hero.png"
       const alias = rawBase // КЛЮЧЕВОЕ: НЕ уникализируем
-
-      const existed = byAlias.get(alias)
-      if (existed) {
-        existed.src = dataUrl // overwrite src
-        if (!existed.name) existed.name = f.name
-      } else {
-        const asset = { alias, src: dataUrl, name: f.name }
-        nextAssets.push(asset)
-        byAlias.set(alias, asset)
-      }
+      toAdd.push({ alias, src: dataUrl, name: f.name })
     }
 
-    setAssets(nextAssets)
+    addAssets(toAdd)
   }
 
   // Новая папка (в корне)

@@ -47,6 +47,7 @@ type StudioState = {
   setLayout: (s: string) => void;
   setData: (o: any) => void;
   setAssets: (a: Project["assets"]) => void;
+  addAssets: (a: Project["assets"]) => void;
 
   // canvas
   canvas: { width: number; height: number };
@@ -196,6 +197,23 @@ export const useStudio = create<StudioState>((set, get) => {
 
     setAssets: (assets) =>
       runProjectCommand((p) => ({ ...p, assets })),
+
+    addAssets: (toAdd) =>
+      runProjectCommand((p) => {
+        const assets = [...(p.assets ?? [])];
+        const byAlias = new Map(assets.map((a) => [a.alias, a]));
+        for (const asset of toAdd) {
+          const existing = byAlias.get(asset.alias);
+          if (existing) {
+            existing.src = asset.src;
+            if (!existing.name) existing.name = asset.name;
+          } else {
+            assets.push(asset);
+            byAlias.set(asset.alias, asset);
+          }
+        }
+        return { ...p, assets };
+      }),
 
     // ===== Canvas =====
     setCanvasSize: (width, height) =>

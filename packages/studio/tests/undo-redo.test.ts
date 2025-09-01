@@ -17,7 +17,7 @@ function reset() {
 test('undo/redo restores deleted asset', () => {
   reset();
   const store = useStudio.getState();
-  store.setAssets([{ alias: 'hero', name: 'Hero', src: '' }]);
+  store.addAssets([{ alias: 'hero', name: 'Hero', src: '' }]);
   assert.equal(useStudio.getState().project.assets.length, 1);
   store.deleteAsset('hero');
   assert.equal(useStudio.getState().project.assets.length, 0);
@@ -27,23 +27,40 @@ test('undo/redo restores deleted asset', () => {
   assert.equal(useStudio.getState().project.assets.length, 0);
 });
 
+test('undo/redo removes added asset', () => {
+  reset();
+  const store = useStudio.getState();
+  store.addAssets([{ alias: 'hero', name: 'Hero', src: '' }]);
+  assert.equal(useStudio.getState().project.assets.length, 1);
+  store.undo();
+  assert.equal(useStudio.getState().project.assets.length, 0);
+  store.redo();
+  assert.equal(useStudio.getState().project.assets.length, 1);
+});
+
 test('new command clears redo stack', () => {
   reset();
   const store = useStudio.getState();
-  store.setAssets([{ alias: 'a1', name: '', src: '' }]);
-  store.setAssets([{ alias: 'a2', name: '', src: '' }]);
+  store.addAssets([{ alias: 'a1', name: '', src: '' }]);
+  store.addAssets([{ alias: 'a2', name: '', src: '' }]);
   store.undo();
-  assert.equal(useStudio.getState().project.assets[0].alias, 'a1');
-  store.setAssets([{ alias: 'a3', name: '', src: '' }]);
+  assert.deepEqual(
+    useStudio.getState().project.assets.map((a) => a.alias),
+    ['a1'],
+  );
+  store.addAssets([{ alias: 'a3', name: '', src: '' }]);
   store.redo();
-  assert.equal(useStudio.getState().project.assets[0].alias, 'a3');
+  assert.deepEqual(
+    useStudio.getState().project.assets.map((a) => a.alias),
+    ['a1', 'a3'],
+  );
 });
 
 test('history capped at 10 commands', () => {
   reset();
   const store = useStudio.getState();
   for (let i = 1; i <= 11; i++) {
-    store.setAssets([{ alias: `a${i}`, name: '', src: '' }]);
+    store.addAssets([{ alias: `a${i}`, name: '', src: '' }]);
   }
   for (let i = 0; i < 11; i++) {
     store.undo();
