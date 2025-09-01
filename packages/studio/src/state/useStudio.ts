@@ -81,12 +81,35 @@ export const useStudio = create<StudioState>((set, get) => {
     }, 300);
   };
 
-  const history: Project[] = [];
-  const future: Project[] = [];
-  const snapshot = () => {
-    history.push(structuredClone(get().project));
-    if (history.length > 100) history.shift();
-    future.length = 0;
+  type Command = { execute: () => void; undo: () => void };
+  const history: Command[] = [];
+  let cursor = 0;
+  const exec = (cmd: Command) => {
+    if (cursor < history.length) history.splice(cursor);
+    cmd.execute();
+    history.push(cmd);
+    if (history.length > 10) history.shift();
+    cursor = history.length;
+  };
+  const runProjectCommand = (mutate: (p: Project) => Project) => {
+    const before = structuredClone(get().project);
+    const after = mutate(structuredClone(before));
+    exec({
+      execute() {
+        set((s) => ({
+          project: structuredClone(after),
+          dirty: { ...s.dirty, assets: true },
+        }));
+        queueMicrotask(() => scheduleSave());
+      },
+      undo() {
+        set((s) => ({
+          project: structuredClone(before),
+          dirty: { ...s.dirty, assets: true },
+        }));
+        queueMicrotask(() => scheduleSave());
+      },
+    });
   };
 
   return {
@@ -167,14 +190,8 @@ export const useStudio = create<StudioState>((set, get) => {
       scheduleSave();
     },
 
-    setAssets: (assets) => {
-      snapshot();
-      set((s) => ({
-        project: { ...s.project, assets },
-        dirty: { ...s.dirty, assets: true },
-      }));
-      scheduleSave();
-    },
+    setAssets: (assets) =>
+      runProjectCommand((p) => ({ ...p, assets })),
 
     // ===== Canvas =====
     setCanvasSize: (width, height) =>
@@ -198,124 +215,106 @@ export const useStudio = create<StudioState>((set, get) => {
 
     // ===== Asset Folders & Paths =====
     addAssetFolder: (path) =>
-      set((s) => {
-        snapshot();
-        const folders = new Set(s.project.meta?.assetFolders ?? []);
+      runProjectCommand((p) => {
+        const folders = new Set(p.meta?.assetFolders ?? []);
         folders.add(path.trim());
-        const next = {
-          ...s.project,
-          meta: { ...(s.project.meta ?? {}), assetFolders: Array.from(folders) },
+        return {
+          ...p,
+          meta: { ...(p.meta ?? {}), assetFolders: Array.from(folders) },
         };
-        queueMicrotask(() => scheduleSave());
-        return { project: next };
       }),
 
     setAssetPath: (alias, path) =>
-      set((s) => {
-        snapshot();
+      runProjectCommand((p) => {
         const meta = {
-          ...(s.project.meta ?? {}),
-          assetPaths: { ...(s.project.meta?.assetPaths ?? {}) },
+          ...(p.meta ?? {}),
+          assetPaths: { ...(p.meta?.assetPaths ?? {}) },
         };
         if (!path || !path.trim()) {
-          delete meta.assetPaths[alias]; // в корень
+          delete meta.assetPaths[alias];
         } else {
           meta.assetPaths[alias] = path.trim();
           const folders = new Set(meta.assetFolders ?? []);
           folders.add(path.trim());
           meta.assetFolders = Array.from(folders);
         }
-        queueMicrotask(() => scheduleSave());
-        return { project: { ...s.project, meta } };
+        return { ...p, meta };
       }),
 
     renameAssetDisplayName: (alias, name) =>
-      set((s) => {
-        snapshot();
-        const assets = (s.project.assets ?? []).map((a) =>
+      runProjectCommand((p) => {
+        const assets = (p.assets ?? []).map((a) =>
           a.alias === alias ? ({ ...a, name } as any) : a
         );
-        queueMicrotask(() => scheduleSave());
-        return { project: { ...s.project, assets } };
+        return { ...p, assets };
       }),
 
     deleteAsset: (alias) =>
-      set((s) => {
-        snapshot();
-        const assets = (s.project.assets ?? []).filter((a) => a.alias !== alias);
+      runProjectCommand((p) => {
+        const assets = (p.assets ?? []).filter((a) => a.alias !== alias);
         const meta = {
-          ...(s.project.meta ?? {}),
-          assetPaths: { ...(s.project.meta?.assetPaths ?? {}) },
+          ...(p.meta ?? {}),
+          assetPaths: { ...(p.meta?.assetPaths ?? {}) },
         };
         delete meta.assetPaths[alias];
-        queueMicrotask(() => scheduleSave());
-        return { project: { ...s.project, assets, meta } };
+        return { ...p, assets, meta };
       }),
 
     renameAssetFolder: (oldPath, newPath) =>
-      set((s) => {
-        snapshot();
-        const meta0 = s.project.meta ?? { assetFolders: [], assetPaths: {} };
-        const folders = (meta0.assetFolders ?? []).map((p) =>
-          p === oldPath || p.startsWith(oldPath + "/")
-            ? newPath + p.slice(oldPath.length)
-            : p
+      runProjectCommand((p) => {
+        const meta0 = p.meta ?? { assetFolders: [], assetPaths: {} };
+        const folders = (meta0.assetFolders ?? []).map((pth) =>
+          pth === oldPath || pth.startsWith(oldPath + "/")
+            ? newPath + pth.slice(oldPath.length)
+            : pth
         );
         const assetPaths = { ...(meta0.assetPaths ?? {}) };
-        for (const [alias, p] of Object.entries(assetPaths)) {
-          if (!p) continue;
-          if (p === oldPath || p.startsWith(oldPath + "/")) {
-            assetPaths[alias] = newPath + p.slice(oldPath.length);
+        for (const [alias, pth] of Object.entries(assetPaths)) {
+          if (!pth) continue;
+          if (pth === oldPath || pth.startsWith(oldPath + "/")) {
+            assetPaths[alias] = newPath + pth.slice(oldPath.length);
           }
         }
-        const meta = {
-          ...meta0,
-          assetFolders: Array.from(new Set(folders)),
-          assetPaths,
+        return {
+          ...p,
+          meta: {
+            ...meta0,
+            assetFolders: Array.from(new Set(folders)),
+            assetPaths,
+          },
         };
-        queueMicrotask(() => scheduleSave());
-        return { project: { ...s.project, meta } };
       }),
 
     deleteAssetFolder: (path) =>
-      set((s) => {
-        snapshot();
-        const meta0 = s.project.meta ?? { assetFolders: [], assetPaths: {} };
-        // выкидываем саму папку и все подпапки
+      runProjectCommand((p) => {
+        const meta0 = p.meta ?? { assetFolders: [], assetPaths: {} };
         const folders = (meta0.assetFolders ?? []).filter(
-          (p) => p !== path && !p.startsWith(path + "/")
+          (pth) => pth !== path && !pth.startsWith(path + "/")
         );
-        // ассеты из этой папки и подпапок — удаляем
         const assetPaths = { ...(meta0.assetPaths ?? {}) };
-        const assets = (s.project.assets ?? []).filter((a) => {
-          const p = assetPaths[a.alias];
-          const inside = p && (p === path || p.startsWith(path + "/"));
+        const assets = (p.assets ?? []).filter((a) => {
+          const pth = assetPaths[a.alias];
+          const inside = pth && (pth === path || pth.startsWith(path + "/"));
           if (inside) delete assetPaths[a.alias];
           return !inside;
         });
-        const meta = { ...meta0, assetFolders: folders, assetPaths };
-        queueMicrotask(() => scheduleSave());
-        return { project: { ...s.project, assets, meta } };
+        return {
+          ...p,
+          assets,
+          meta: { ...meta0, assetFolders: folders, assetPaths },
+        };
       }),
 
     undo: () => {
-      const prev = history.pop();
-      if (!prev) return;
-      set((s) => {
-        future.push(structuredClone(s.project));
-        queueMicrotask(() => scheduleSave());
-        return { project: prev };
-      });
+      if (cursor === 0) return;
+      cursor--;
+      history[cursor]?.undo();
     },
 
     redo: () => {
-      const next = future.pop();
-      if (!next) return;
-      set((s) => {
-        history.push(structuredClone(s.project));
-        queueMicrotask(() => scheduleSave());
-        return { project: next };
-      });
+      if (cursor >= history.length) return;
+      history[cursor]?.execute();
+      cursor++;
     },
   };
 });
