@@ -265,7 +265,7 @@ export function AssetsPanel() {
   }
 
   return (
-    <div className="h-full overflow-auto">
+    <div className="h-full overflow-auto p-2 text-sm">
       {/* заголовок */}
       <div className="px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide flex items-center justify-between">
         <span>Assets</span>
@@ -296,7 +296,7 @@ export function AssetsPanel() {
       </div>
 
       {/* дерево */}
-      <div className="-ml-2">
+      <div>
         <Tree
           items={visible}
           expanded={expanded}
