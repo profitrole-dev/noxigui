@@ -2,14 +2,17 @@ import React, { useEffect, useState } from "react";
 import Tree, { type TreeItem } from "../tree/Tree";
 import { useStudio } from "../../state/useStudio";
 
+// Tags that should not appear in the scene tree.
+const HIDDEN_TAGS = new Set(["Resources", "Template"]);
+
 function buildTree(el: Element, path: string): TreeItem {
   return {
     id: path,
     name: el.tagName,
     type: "view",
-    children: Array.from(el.children).map((c, i) =>
-      buildTree(c, `${path}.${i}`),
-    ),
+    children: Array.from(el.children)
+      .filter((c) => !HIDDEN_TAGS.has(c.tagName) && !c.tagName.includes("."))
+      .map((c, i) => buildTree(c, `${path}.${i}`)),
   };
 }
 
