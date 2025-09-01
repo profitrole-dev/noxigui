@@ -7,6 +7,7 @@ import {
   loadProjectFromIDB,
   deleteMissingAssetBlobs,
 } from "./storage";
+import { applyPatch, compare } from "fast-json-patch";
 
 export const defaultProject: Project = {
   name: "Untitled",
@@ -94,17 +95,19 @@ export const useStudio = create<StudioState>((set, get) => {
   const runProjectCommand = (mutate: (p: Project) => Project) => {
     const before = structuredClone(get().project);
     const after = mutate(structuredClone(before));
+    const patch = compare(before, after);
+    const inverse = compare(after, before);
     exec({
       execute() {
         set((s) => ({
-          project: structuredClone(after),
+          project: applyPatch(structuredClone(s.project), patch).newDocument,
           dirty: { ...s.dirty, assets: true },
         }));
         queueMicrotask(() => scheduleSave());
       },
       undo() {
         set((s) => ({
-          project: structuredClone(before),
+          project: applyPatch(structuredClone(s.project), inverse).newDocument,
           dirty: { ...s.dirty, assets: true },
         }));
         queueMicrotask(() => scheduleSave());
