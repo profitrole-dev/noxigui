@@ -38,6 +38,22 @@ test('undo/redo removes added asset', () => {
   assert.equal(useStudio.getState().project.assets.length, 1);
 });
 
+test('undo/redo restores multiple deleted assets at once', () => {
+  reset();
+  const store = useStudio.getState();
+  store.addAssets([
+    { alias: 'a1', name: '', src: '' },
+    { alias: 'a2', name: '', src: '' },
+  ]);
+  assert.equal(useStudio.getState().project.assets.length, 2);
+  store.deleteAssets(['a1', 'a2']);
+  assert.equal(useStudio.getState().project.assets.length, 0);
+  store.undo();
+  assert.equal(useStudio.getState().project.assets.length, 2);
+  store.redo();
+  assert.equal(useStudio.getState().project.assets.length, 0);
+});
+
 test('new command clears redo stack', () => {
   reset();
   const store = useStudio.getState();

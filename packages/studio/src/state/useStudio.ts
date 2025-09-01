@@ -58,6 +58,7 @@ type StudioState = {
   addAssetFolder: (path: string) => void;
   setAssetPath: (alias: string, path: string | null) => void; // null => в корень
   renameAssetDisplayName: (alias: string, name: string) => void; // только display name (НЕ alias)
+  deleteAssets: (aliases: string[]) => void;
   deleteAsset: (alias: string) => void;
 
   renameAssetFolder: (oldPath: string, newPath: string) => void; // переносит подпапки/ассеты
@@ -271,16 +272,19 @@ export const useStudio = create<StudioState>((set, get) => {
         return { ...p, assets };
       }),
 
-    deleteAsset: (alias) =>
+    deleteAssets: (aliases) =>
       runProjectCommand((p) => {
-        const assets = (p.assets ?? []).filter((a) => a.alias !== alias);
+        const remove = new Set(aliases);
+        const assets = (p.assets ?? []).filter((a) => !remove.has(a.alias));
         const meta = {
           ...(p.meta ?? {}),
           assetPaths: { ...(p.meta?.assetPaths ?? {}) },
         };
-        delete meta.assetPaths[alias];
+        for (const alias of aliases) delete meta.assetPaths[alias];
         return { ...p, assets, meta };
       }),
+
+    deleteAsset: (alias) => get().deleteAssets([alias]),
 
     renameAssetFolder: (oldPath, newPath) =>
       runProjectCommand((p) => {

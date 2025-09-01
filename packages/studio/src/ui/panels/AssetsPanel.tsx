@@ -144,7 +144,7 @@ export function AssetsPanel() {
     addAssetFolder,
     setAssetPath,
     renameAssetDisplayName,
-    deleteAsset,
+    deleteAssets,
     renameAssetFolder,
     deleteAssetFolder,
   } = useStudio()
@@ -242,7 +242,7 @@ export function AssetsPanel() {
     (id: string) => {
       if (id.startsWith('asset:')) {
         const alias = id.slice('asset:'.length)
-        deleteAsset(alias)
+        deleteAssets([alias])
         return
       }
       if (id.startsWith('folder:')) {
@@ -250,19 +250,26 @@ export function AssetsPanel() {
         deleteAssetFolder(full)
       }
     },
-    [deleteAsset, deleteAssetFolder],
+    [deleteAssets, deleteAssetFolder],
   )
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Delete') {
-        for (const id of Array.from(selected)) handleDelete(id)
+        const assets: string[] = []
+        const folders: string[] = []
+        for (const id of Array.from(selected)) {
+          if (id.startsWith('asset:')) assets.push(id.slice('asset:'.length))
+          else if (id.startsWith('folder:')) folders.push(id.slice('folder:'.length))
+        }
+        if (assets.length) deleteAssets(assets)
+        for (const full of folders) deleteAssetFolder(full)
         if (selected.size) setSelected(new Set())
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selected, handleDelete])
+  }, [selected, deleteAssets, deleteAssetFolder])
 
   return (
     <div className="h-full overflow-auto p-2 text-sm">
