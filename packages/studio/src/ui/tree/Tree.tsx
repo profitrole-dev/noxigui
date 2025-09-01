@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from 'react'
 import {
   ChevronRight,
   Folder,
@@ -9,97 +9,139 @@ import {
   Database,
   Edit2,
   Trash2,
-} from "lucide-react";
+} from 'lucide-react'
 
 /** Типы узлов */
-export type TreeItemType = "folder" | "view" | "component" | "image" | "data";
+export type TreeItemType = 'folder' | 'view' | 'component' | 'image' | 'data'
 
 export type TreeItem = {
-  id: string;
-  name: string;
-  type: TreeItemType;
-  children?: TreeItem[];
-};
+  id: string
+  name: string
+  type: TreeItemType
+  children?: TreeItem[]
+}
 
-export type DropPosition = "inside" | "before" | "after";
+export type DropPosition = 'inside' | 'before' | 'after'
 
 /** Иконки по типам */
-export function iconFor(type: TreeItemType, expanded: boolean): React.ReactNode {
+export function iconFor(
+  type: TreeItemType,
+  expanded: boolean,
+): React.ReactNode {
   switch (type) {
-    case "folder":
-      return expanded ? <FolderOpen size={16} /> : <Folder size={16} />;
-    case "view":
-      return <Layout size={16} />;
-    case "component":
-      return <Component size={16} />;
-    case "image":
-      return <ImageIcon size={16} />;
-    case "data":
-      return <Database size={16} />;
+    case 'folder':
+      return expanded ? <FolderOpen size={16} /> : <Folder size={16} />
+    case 'view':
+      return <Layout size={16} />
+    case 'component':
+      return <Component size={16} />
+    case 'image':
+      return <ImageIcon size={16} />
+    case 'data':
+      return <Database size={16} />
     default:
-      return <Layout size={16} />;
+      return <Layout size={16} />
   }
 }
 
 export type TreeProps = {
-  items: TreeItem[];
-  expanded: Set<string>;
-  selectedId?: string | null;
+  items: TreeItem[]
+  expanded: Set<string>
+  selected: Set<string>
 
-  onToggle: (id: string) => void;
-  onSelect: (id: string) => void;
-  onDrop?: (sourceId: string, targetId: string, pos: DropPosition) => void;
+  onToggle: (id: string) => void
+  onSelect: (next: Set<string>) => void
+  onDrop?: (sourceIds: string[], targetId: string, pos: DropPosition) => void
 
   /** Вызывается при подтверждении переименования */
-  onRename?: (id: string, nextName: string) => void;
+  onRename?: (id: string, nextName: string) => void
 
   /** Удалить узел (и его потомков) */
-  onDelete?: (id: string) => void;
+  onDelete?: (id: string) => void
 
-  renderIcon?: (item: TreeItem, expanded: boolean) => React.ReactNode;
+  renderIcon?: (item: TreeItem, expanded: boolean) => React.ReactNode
 
   /** Кастомная политика dnd. По умолчанию: inside только в папку. */
-  allowDrop?: (source: TreeItem, target: TreeItem, pos: DropPosition) => boolean;
-};
+  allowDrop?: (source: TreeItem, target: TreeItem, pos: DropPosition) => boolean
+}
 
 /** Собираем карту id -> item для быстрых проверок */
 function collectMap(items: TreeItem[], map = new Map<string, TreeItem>()) {
   for (const it of items) {
-    map.set(it.id, it);
-    if (it.children) collectMap(it.children, map);
+    map.set(it.id, it)
+    if (it.children) collectMap(it.children, map)
   }
-  return map;
+  return map
 }
 
 /** Корневой компонент дерева */
 export default function Tree({
-                               items,
-                               expanded,
-                               selectedId,
-                               onToggle,
-                               onSelect,
-                               onDrop,
-                               onRename,
-                               onDelete,
-                               renderIcon,
-                               allowDrop,
-                             }: TreeProps) {
-  const itemsMap = useMemo(() => collectMap(items), [items]);
+  items,
+  expanded,
+  selected,
+  onToggle,
+  onSelect,
+  onDrop,
+  onRename,
+  onDelete,
+  renderIcon,
+  allowDrop,
+}: TreeProps) {
+  const itemsMap = useMemo(() => collectMap(items), [items])
+
+  const flatList = useMemo(() => {
+    const acc: TreeItem[] = []
+    const walk = (arr: TreeItem[]) => {
+      for (const it of arr) {
+        acc.push(it)
+        if (it.children && expanded.has(it.id)) walk(it.children)
+      }
+    }
+    walk(items)
+    return acc
+  }, [items, expanded])
 
   // дефолтное правило: inside только в папку; before/after — везде
   const canDrop = useMemo(
     () =>
       allowDrop ??
       ((src: TreeItem, dst: TreeItem, pos: DropPosition) => {
-        if (src.id === dst.id) return false;
-        if (pos === "inside") return dst.type === "folder";
-        return true;
+        if (src.id === dst.id) return false
+        if (pos === 'inside') return dst.type === 'folder'
+        return true
       }),
-    [allowDrop]
-  );
+    [allowDrop],
+  )
 
-  // помним текущий перетаскиваемый id (чтобы корректно валидировать over/drop)
-  const draggingIdRef = useRef<string | null>(null);
+  // помним текущие перетаскиваемые id (чтобы корректно валидировать over/drop)
+  const draggingIdsRef = useRef<string[] | null>(null)
+
+  const lastSelectedRef = useRef<string | null>(null)
+
+  const handleSelect = (
+    id: string,
+    e: { shiftKey: boolean; ctrlKey: boolean; metaKey: boolean },
+  ) => {
+    let next = new Set(selected)
+    if (e.shiftKey && lastSelectedRef.current) {
+      const a = flatList.findIndex((it) => it.id === lastSelectedRef.current)
+      const b = flatList.findIndex((it) => it.id === id)
+      if (a !== -1 && b !== -1) {
+        const [from, to] = a < b ? [a, b] : [b, a]
+        for (let i = from; i <= to; i++) next.add(flatList[i].id)
+      } else {
+        next = new Set([id])
+        lastSelectedRef.current = id
+      }
+    } else if (e.ctrlKey || e.metaKey) {
+      next.has(id) ? next.delete(id) : next.add(id)
+      lastSelectedRef.current = id
+    } else {
+      next = new Set([id])
+      lastSelectedRef.current = id
+    }
+    onSelect(next)
+  }
 
   return (
     <div className="text-sm select-none">
@@ -109,158 +151,201 @@ export default function Tree({
           item={it}
           depth={0}
           expanded={expanded}
-          selectedId={selectedId ?? null}
+          selected={selected}
           onToggle={onToggle}
-          onSelect={onSelect}
+          onSelect={handleSelect}
           onDrop={onDrop}
           onRename={onRename}
           onDelete={onDelete}
           renderIcon={renderIcon}
           itemsMap={itemsMap}
           canDrop={canDrop}
-          draggingIdRef={draggingIdRef}
+          draggingIdsRef={draggingIdsRef}
         />
       ))}
     </div>
-  );
+  )
 }
 
 /** Узел дерева */
 function TreeNode({
-                    item,
-                    depth,
-                    expanded,
-                    selectedId,
-                    onToggle,
-                    onSelect,
-                    onDrop,
-                    onRename,
-                    onDelete,
-                    renderIcon,
-                    itemsMap,
-                    canDrop,
-                    draggingIdRef,
-                  }: {
-  item: TreeItem;
-  depth: number;
-  expanded: Set<string>;
-  selectedId: string | null;
-  onToggle: (id: string) => void;
-  onSelect: (id: string) => void;
-  onDrop?: (sourceId: string, targetId: string, pos: DropPosition) => void;
-  onRename?: (id: string, nextName: string) => void;
-  onDelete?: (id: string) => void;
-  renderIcon?: (item: TreeItem, expanded: boolean) => React.ReactNode;
-  itemsMap: Map<string, TreeItem>;
-  canDrop: (source: TreeItem, target: TreeItem, pos: DropPosition) => boolean;
-  draggingIdRef: React.MutableRefObject<string | null>;
+  item,
+  depth,
+  expanded,
+  selected,
+  onToggle,
+  onSelect,
+  onDrop,
+  onRename,
+  onDelete,
+  renderIcon,
+  itemsMap,
+  canDrop,
+  draggingIdsRef,
+}: {
+  item: TreeItem
+  depth: number
+  expanded: Set<string>
+  selected: Set<string>
+  onToggle: (id: string) => void
+  onSelect: (
+    id: string,
+    e: { shiftKey: boolean; ctrlKey: boolean; metaKey: boolean },
+  ) => void
+  onDrop?: (sourceIds: string[], targetId: string, pos: DropPosition) => void
+  onRename?: (id: string, nextName: string) => void
+  onDelete?: (id: string) => void
+  renderIcon?: (item: TreeItem, expanded: boolean) => React.ReactNode
+  itemsMap: Map<string, TreeItem>
+  canDrop: (source: TreeItem, target: TreeItem, pos: DropPosition) => boolean
+  draggingIdsRef: React.MutableRefObject<string[] | null>
 }) {
-  const isExpanded = expanded.has(item.id);
-  const hasChildren = !!(item.children && item.children.length);
-  const isSelected = selectedId === item.id;
+  const isExpanded = expanded.has(item.id)
+  const hasChildren = !!(item.children && item.children.length)
+  const isSelected = selected.has(item.id)
 
-  const [dropHint, setDropHint] = useState<DropPosition | null>(null);
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(item.name);
-  const rowRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [dropHint, setDropHint] = useState<DropPosition | null>(null)
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(item.name)
+  const rowRef = useRef<HTMLDivElement | null>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   function computeDropPosition(e: React.DragEvent): DropPosition {
-    const el = rowRef.current!;
-    const rect = el.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    if (y < rect.height * 0.25) return "before";
-    if (y > rect.height * 0.75) return "after";
-    return "inside";
+    const el = rowRef.current!
+    const rect = el.getBoundingClientRect()
+    const y = e.clientY - rect.top
+    if (y < rect.height * 0.25) return 'before'
+    if (y > rect.height * 0.75) return 'after'
+    return 'inside'
   }
 
   const icon = useMemo(
-    () => (renderIcon ? renderIcon(item, isExpanded) : iconFor(item.type, isExpanded)),
-    [item, isExpanded, renderIcon]
-  );
+    () =>
+      renderIcon
+        ? renderIcon(item, isExpanded)
+        : iconFor(item.type, isExpanded),
+    [item, isExpanded, renderIcon],
+  )
 
   // автофокус поля при входе в режим редактирования
   React.useEffect(() => {
-    if (editing) inputRef.current?.focus();
-  }, [editing]);
+    if (editing) inputRef.current?.focus()
+  }, [editing])
 
   const confirmRename = () => {
-    const next = draft.trim();
-    setEditing(false);
-    if (next && next !== item.name) onRename?.(item.id, next);
-    else setDraft(item.name); // откат текста
-  };
+    const next = draft.trim()
+    setEditing(false)
+    if (next && next !== item.name) onRename?.(item.id, next)
+    else setDraft(item.name) // откат текста
+  }
 
   return (
     <div>
       <div
         ref={rowRef}
         className={[
-          "group flex items-center gap-2 h-7 px-2 cursor-default",
-          isSelected ? "bg-[#2C1A75] text-[#A89FFF]" : "text-neutral-300 hover:bg-[#2a2a2a]",
-        ].join(" ")}
+          'group flex items-center gap-2 h-7 px-2 cursor-default',
+          isSelected
+            ? 'bg-[#2C1A75] text-[#A89FFF]'
+            : 'text-neutral-300 hover:bg-[#2a2a2a]',
+        ].join(' ')}
         style={{ paddingLeft: 8 + depth * 14 }}
         draggable={!editing}
-        onClick={() => onSelect(item.id)}
-        onDoubleClick={() => (hasChildren ? onToggle(item.id) : setEditing(true))}
+        onClick={(e) => onSelect(item.id, e)}
+        onDoubleClick={() =>
+          hasChildren ? onToggle(item.id) : setEditing(true)
+        }
         onDragStart={(e) => {
-          e.dataTransfer.setData("text/x-tree-id", item.id);
-          e.dataTransfer.effectAllowed = "move";
-          draggingIdRef.current = item.id;
+          const ids = selected.has(item.id) ? Array.from(selected) : [item.id]
+          if (!selected.has(item.id)) {
+            onSelect(item.id, {
+              shiftKey: false,
+              ctrlKey: false,
+              metaKey: false,
+            })
+          }
+          e.dataTransfer.setData('text/x-tree-ids', JSON.stringify(ids))
+          e.dataTransfer.effectAllowed = 'move'
+          draggingIdsRef.current = ids
         }}
         onDragEnd={() => {
-          draggingIdRef.current = null;
+          draggingIdsRef.current = null
         }}
         onDragOver={(e) => {
-          if (!onDrop || editing) return;
-          e.preventDefault();
-          const pos = computeDropPosition(e);
-          const srcId = draggingIdRef.current;
-          const src = srcId ? itemsMap.get(srcId) : undefined;
-          const ok = src ? canDrop(src, item, pos) : false;
+          if (!onDrop || editing) return
+          e.preventDefault()
+          const pos = computeDropPosition(e)
+          const srcIds = draggingIdsRef.current
+          const srcs = srcIds
+            ? srcIds
+                .map((id) => itemsMap.get(id))
+                .filter((v: TreeItem | undefined): v is TreeItem => !!v)
+            : []
+          const isSelf = srcIds?.includes(item.id)
+          const ok =
+            srcs.length > 0 &&
+            !isSelf &&
+            srcs.every((src) => canDrop(src, item, pos))
 
           if (!ok) {
-            setDropHint(null);
-            e.dataTransfer.dropEffect = "none";
-            return;
+            setDropHint(null)
+            e.dataTransfer.dropEffect = 'none'
+            return
           }
-          setDropHint(pos);
-          e.dataTransfer.dropEffect = "move";
+          setDropHint(pos)
+          e.dataTransfer.dropEffect = 'move'
         }}
         onDragLeave={() => setDropHint(null)}
         onDrop={(e) => {
-          if (!onDrop || editing) return;
-          e.preventDefault();
-          const srcId = e.dataTransfer.getData("text/x-tree-id") || draggingIdRef.current;
-          const pos = computeDropPosition(e);
-          const src = srcId ? itemsMap.get(srcId) : undefined;
+          if (!onDrop || editing) return
+          e.preventDefault()
+          const data = e.dataTransfer.getData('text/x-tree-ids')
+          const srcIds: string[] | null = data
+            ? JSON.parse(data)
+            : draggingIdsRef.current
+          const pos = computeDropPosition(e)
+          const srcs = srcIds
+            ? srcIds
+                .map((id: string) => itemsMap.get(id))
+                .filter((v: TreeItem | undefined): v is TreeItem => !!v)
+            : []
 
-          if (src && canDrop(src, item, pos)) {
-            onDrop(src.id, item.id, pos);
+          if (srcs.length && srcs.every((src) => canDrop(src, item, pos))) {
+            onDrop(srcIds!, item.id, pos)
           }
-          setDropHint(null);
+          setDropHint(null)
         }}
       >
         {/* Раскрывалка */}
         <button
           className={[
-            "shrink-0 w-4 h-4 grid place-items-center rounded hover:bg-[#2a2a2a]",
-            hasChildren ? "opacity-100" : "opacity-0 pointer-events-none",
-          ].join(" ")}
+            'shrink-0 w-4 h-4 grid place-items-center rounded hover:bg-[#2a2a2a]',
+            hasChildren ? 'opacity-100' : 'opacity-0 pointer-events-none',
+          ].join(' ')}
           onClick={(e) => {
-            e.stopPropagation();
-            onToggle(item.id);
+            e.stopPropagation()
+            onToggle(item.id)
           }}
-          title={isExpanded ? "Collapse" : "Expand"}
+          title={isExpanded ? 'Collapse' : 'Expand'}
         >
           <ChevronRight
             size={14}
-            className={["transition-transform", isExpanded ? "rotate-90" : ""].join(" ")}
+            className={[
+              'transition-transform',
+              isExpanded ? 'rotate-90' : '',
+            ].join(' ')}
           />
         </button>
 
         {/* Иконка */}
-        <span className={["shrink-0", isSelected ? "text-[#A89FFF]" : "opacity-80 group-hover:opacity-100"].join(" ")}>
+        <span
+          className={[
+            'shrink-0',
+            isSelected
+              ? 'text-[#A89FFF]'
+              : 'opacity-80 group-hover:opacity-100',
+          ].join(' ')}
+        >
           {icon}
         </span>
 
@@ -274,14 +359,14 @@ function TreeNode({
             onChange={(e) => setDraft(e.target.value)}
             onBlur={confirmRename}
             onKeyDown={(e) => {
-              if (e.key === "Enter") confirmRename();
-              if (e.key === "Escape") {
-                setDraft(item.name);
-                setEditing(false);
+              if (e.key === 'Enter') confirmRename()
+              if (e.key === 'Escape') {
+                setDraft(item.name)
+                setEditing(false)
               }
             }}
             className="min-w-0 flex-1 bg-transparent border-b border-neutral-700 outline-none text-neutral-100"
-            style={{ padding: 0, height: 18, lineHeight: "18px" }}
+            style={{ padding: 0, height: 18, lineHeight: '18px' }}
             onClick={(e) => e.stopPropagation()}
           />
         )}
@@ -292,9 +377,9 @@ function TreeNode({
             className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
             title="Rename"
             onClick={(e) => {
-              e.stopPropagation();
-              setEditing(true);
-              setDraft(item.name);
+              e.stopPropagation()
+              setEditing(true)
+              setDraft(item.name)
             }}
           >
             <Edit2 size={14} />
@@ -303,8 +388,8 @@ function TreeNode({
             className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
             title="Delete"
             onClick={(e) => {
-              e.stopPropagation();
-              onDelete?.(item.id);
+              e.stopPropagation()
+              onDelete?.(item.id)
             }}
           >
             <Trash2 size={14} />
@@ -312,7 +397,12 @@ function TreeNode({
         </div>
       </div>
 
-      {dropHint === "before" && <div style={{ marginLeft: 8 + depth * 14 }} className="h-px bg-[#A89FFF]" />}
+      {dropHint === 'before' && (
+        <div
+          style={{ marginLeft: 8 + depth * 14 }}
+          className="h-px bg-[#A89FFF]"
+        />
+      )}
 
       {hasChildren && isExpanded && (
         <div>
@@ -322,7 +412,7 @@ function TreeNode({
               item={ch}
               depth={depth + 1}
               expanded={expanded}
-              selectedId={selectedId}
+              selected={selected}
               onToggle={onToggle}
               onSelect={onSelect}
               onDrop={onDrop}
@@ -331,13 +421,18 @@ function TreeNode({
               renderIcon={renderIcon}
               itemsMap={itemsMap}
               canDrop={canDrop}
-              draggingIdRef={draggingIdRef}
+              draggingIdsRef={draggingIdsRef}
             />
           ))}
         </div>
       )}
 
-      {dropHint === "after" && <div style={{ marginLeft: 8 + depth * 14 }} className="h-px bg-[#A89FFF]" />}
+      {dropHint === 'after' && (
+        <div
+          style={{ marginLeft: 8 + depth * 14 }}
+          className="h-px bg-[#A89FFF]"
+        />
+      )}
     </div>
-  );
+  )
 }
