@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { useStudio } from "./state/useStudio";
 import { AppShell } from "./ui/AppShell";
 import { Sidebar } from "./ui/Sidebar";
@@ -25,7 +25,26 @@ export default function App() {
     setTab,
     newProject,
     renameProject, // ← добавь в стор, если ещё нет
+    undo,
+    redo,
   } = useStudio() as any;
+
+  useEffect(() => {
+    const isTextInput = (el: any) =>
+      el.tagName === 'INPUT' ||
+      el.tagName === 'TEXTAREA' ||
+      el.isContentEditable ||
+      el.closest?.('.monaco-editor');
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        if (isTextInput(e.target as HTMLElement)) return;
+        e.preventDefault();
+        e.shiftKey ? redo() : undo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [undo, redo]);
 
   const onImport = async () => { /* твой код */ };
   const onExport = () => { /* твой код */ };

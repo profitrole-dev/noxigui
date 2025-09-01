@@ -59,6 +59,10 @@ type StudioState = {
 
   renameAssetFolder: (oldPath: string, newPath: string) => void; // переносит подпапки/ассеты
   deleteAssetFolder: (path: string) => void; // удаляет папку(+вложенные), ассеты в корень
+
+  // undo/redo
+  undo: () => void;
+  redo: () => void;
 };
 
 export const useStudio = create<StudioState>((set, get) => {
@@ -75,6 +79,14 @@ export const useStudio = create<StudioState>((set, get) => {
         console.warn("Save failed:", e);
       }
     }, 300);
+  };
+
+  const history: Project[] = [];
+  const future: Project[] = [];
+  const snapshot = () => {
+    history.push(structuredClone(get().project));
+    if (history.length > 100) history.shift();
+    future.length = 0;
   };
 
   return {
@@ -156,6 +168,7 @@ export const useStudio = create<StudioState>((set, get) => {
     },
 
     setAssets: (assets) => {
+      snapshot();
       set((s) => ({
         project: { ...s.project, assets },
         dirty: { ...s.dirty, assets: true },
@@ -186,6 +199,7 @@ export const useStudio = create<StudioState>((set, get) => {
     // ===== Asset Folders & Paths =====
     addAssetFolder: (path) =>
       set((s) => {
+        snapshot();
         const folders = new Set(s.project.meta?.assetFolders ?? []);
         folders.add(path.trim());
         const next = {
@@ -198,6 +212,7 @@ export const useStudio = create<StudioState>((set, get) => {
 
     setAssetPath: (alias, path) =>
       set((s) => {
+        snapshot();
         const meta = {
           ...(s.project.meta ?? {}),
           assetPaths: { ...(s.project.meta?.assetPaths ?? {}) },
@@ -216,6 +231,7 @@ export const useStudio = create<StudioState>((set, get) => {
 
     renameAssetDisplayName: (alias, name) =>
       set((s) => {
+        snapshot();
         const assets = (s.project.assets ?? []).map((a) =>
           a.alias === alias ? ({ ...a, name } as any) : a
         );
@@ -225,6 +241,7 @@ export const useStudio = create<StudioState>((set, get) => {
 
     deleteAsset: (alias) =>
       set((s) => {
+        snapshot();
         const assets = (s.project.assets ?? []).filter((a) => a.alias !== alias);
         const meta = {
           ...(s.project.meta ?? {}),
@@ -237,6 +254,7 @@ export const useStudio = create<StudioState>((set, get) => {
 
     renameAssetFolder: (oldPath, newPath) =>
       set((s) => {
+        snapshot();
         const meta0 = s.project.meta ?? { assetFolders: [], assetPaths: {} };
         const folders = (meta0.assetFolders ?? []).map((p) =>
           p === oldPath || p.startsWith(oldPath + "/")
@@ -261,6 +279,7 @@ export const useStudio = create<StudioState>((set, get) => {
 
     deleteAssetFolder: (path) =>
       set((s) => {
+        snapshot();
         const meta0 = s.project.meta ?? { assetFolders: [], assetPaths: {} };
         // выкидываем саму папку и все подпапки
         const folders = (meta0.assetFolders ?? []).filter(
@@ -278,5 +297,25 @@ export const useStudio = create<StudioState>((set, get) => {
         queueMicrotask(() => scheduleSave());
         return { project: { ...s.project, assets, meta } };
       }),
+
+    undo: () => {
+      const prev = history.pop();
+      if (!prev) return;
+      set((s) => {
+        future.push(structuredClone(s.project));
+        queueMicrotask(() => scheduleSave());
+        return { project: prev };
+      });
+    },
+
+    redo: () => {
+      const next = future.pop();
+      if (!next) return;
+      set((s) => {
+        history.push(structuredClone(s.project));
+        queueMicrotask(() => scheduleSave());
+        return { project: next };
+      });
+    },
   };
 });
