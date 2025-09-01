@@ -266,17 +266,17 @@ export const useStudio = create<StudioState>((set, get) => {
         const folders = (meta0.assetFolders ?? []).filter(
           (p) => p !== path && !p.startsWith(path + "/")
         );
-        // ассеты из этой папки и подпапок — в корень
+        // ассеты из этой папки и подпапок — удаляем
         const assetPaths = { ...(meta0.assetPaths ?? {}) };
-        for (const [alias, p] of Object.entries(assetPaths)) {
-          if (!p) continue;
-          if (p === path || p.startsWith(path + "/")) {
-            delete assetPaths[alias]; // в корень
-          }
-        }
+        const assets = (s.project.assets ?? []).filter((a) => {
+          const p = assetPaths[a.alias];
+          const inside = p && (p === path || p.startsWith(path + "/"));
+          if (inside) delete assetPaths[a.alias];
+          return !inside;
+        });
         const meta = { ...meta0, assetFolders: folders, assetPaths };
         queueMicrotask(() => scheduleSave());
-        return { project: { ...s.project, meta } };
+        return { project: { ...s.project, assets, meta } };
       }),
   };
 });
