@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { Plus, FolderPlus } from 'lucide-react'
 import Tree, { type TreeItem, type DropPosition } from '../tree/Tree'
 import { useStudio } from '../../state/useStudio'
@@ -252,17 +252,31 @@ export function AssetsPanel() {
   }
 
   // Удаление
-  const handleDelete = (id: string) => {
-    if (id.startsWith('asset:')) {
-      const alias = id.slice('asset:'.length)
-      deleteAsset(alias)
-      return
+  const handleDelete = useCallback(
+    (id: string) => {
+      if (id.startsWith('asset:')) {
+        const alias = id.slice('asset:'.length)
+        deleteAsset(alias)
+        return
+      }
+      if (id.startsWith('folder:')) {
+        const full = id.slice('folder:'.length)
+        deleteAssetFolder(full)
+      }
+    },
+    [deleteAsset, deleteAssetFolder],
+  )
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Delete') {
+        for (const id of Array.from(selected)) handleDelete(id)
+        if (selected.size) setSelected(new Set())
+      }
     }
-    if (id.startsWith('folder:')) {
-      const full = id.slice('folder:'.length)
-      deleteAssetFolder(full)
-    }
-  }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selected, handleDelete])
 
   return (
     <div className="h-full overflow-auto p-2 text-sm">

@@ -14,7 +14,7 @@
     "@noxigui/runtime": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^20.19.11",
+    "@types/node": "^24.3.0",
     "@xmldom/xmldom": "^0.8.11",
     "typescript": "~5.8.3"
   }
