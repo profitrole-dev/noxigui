@@ -1,13 +1,14 @@
 // src/state/useStudio.ts
 import { create } from "zustand";
-import { ProjectZ } from "../types/project";
-import type { Project } from "../types/project";
+import { ProjectZ } from "../types/project.js";
+import type { Project } from "../types/project.js";
 import {
   saveProjectToIDB,
   loadProjectFromIDB,
   deleteMissingAssetBlobs,
-} from "./storage";
-import { applyPatch, compare } from "fast-json-patch";
+} from "./storage.js";
+import jsonPatch from "fast-json-patch";
+const { applyPatch, compare } = jsonPatch;
 
 export const defaultProject: Project = {
   name: "Untitled",
