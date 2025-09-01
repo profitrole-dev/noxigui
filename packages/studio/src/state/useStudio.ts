@@ -1,12 +1,14 @@
 // src/state/useStudio.ts
 import { create } from "zustand";
-import { ProjectZ } from "../types/project";
-import type { Project } from "../types/project";
+import { ProjectZ } from "../types/project.js";
+import type { Project } from "../types/project.js";
 import {
   saveProjectToIDB,
   loadProjectFromIDB,
   deleteMissingAssetBlobs,
-} from "./storage";
+} from "./storage.js";
+import jsonPatch from "fast-json-patch";
+const { applyPatch, compare } = jsonPatch;
 
 export const defaultProject: Project = {
   name: "Untitled",
@@ -31,6 +33,9 @@ type StudioState = {
   activeTab: Tab;
   dirty: Dirty;
 
+  selectAssetAliases: string[] | null;
+  clearSelectAssetAliases: () => void;
+
   // tabs
   setTab: (t: Tab) => void;
 
@@ -45,6 +50,7 @@ type StudioState = {
   setLayout: (s: string) => void;
   setData: (o: any) => void;
   setAssets: (a: Project["assets"]) => void;
+  addAssets: (a: Project["assets"]) => void;
 
   // canvas
   canvas: { width: number; height: number };
@@ -55,10 +61,15 @@ type StudioState = {
   addAssetFolder: (path: string) => void;
   setAssetPath: (alias: string, path: string | null) => void; // null => в корень
   renameAssetDisplayName: (alias: string, name: string) => void; // только display name (НЕ alias)
+  deleteAssets: (aliases: string[]) => void;
   deleteAsset: (alias: string) => void;
 
   renameAssetFolder: (oldPath: string, newPath: string) => void; // переносит подпапки/ассеты
   deleteAssetFolder: (path: string) => void; // удаляет папку(+вложенные), ассеты в корень
+
+  // undo/redo
+  undo: () => void;
+  redo: () => void;
 };
 
 export const useStudio = create<StudioState>((set, get) => {
@@ -77,11 +88,51 @@ export const useStudio = create<StudioState>((set, get) => {
     }, 300);
   };
 
+  type Command = { execute: () => void; undo: () => void };
+  const history: Command[] = [];
+  let cursor = 0;
+  const exec = (cmd: Command) => {
+    if (cursor < history.length) history.splice(cursor);
+    cmd.execute();
+    history.push(cmd);
+    if (history.length > 10) history.shift();
+    cursor = history.length;
+  };
+  const runProjectCommand = (
+    mutate: (p: Project) => Project,
+    sideEffects?: { onExecute?: () => void; onUndo?: () => void },
+  ) => {
+    const before = structuredClone(get().project);
+    const after = mutate(structuredClone(before));
+    const patch = compare(before, after);
+    const inverse = compare(after, before);
+    exec({
+      execute() {
+        set((s) => ({
+          project: applyPatch(structuredClone(s.project), patch).newDocument,
+          dirty: { ...s.dirty, assets: true },
+        }));
+        queueMicrotask(() => scheduleSave());
+        sideEffects?.onExecute?.();
+      },
+      undo() {
+        set((s) => ({
+          project: applyPatch(structuredClone(s.project), inverse).newDocument,
+          dirty: { ...s.dirty, assets: true },
+        }));
+        queueMicrotask(() => scheduleSave());
+        sideEffects?.onUndo?.();
+      },
+    });
+  };
+
   return {
     project: { ...defaultProject }, // гидрируем позже
     activeTab: "Layout",
     dirty: { layout: false, data: false, assets: false },
     canvas: { ...defaultCanvas },
+    selectAssetAliases: null,
+    clearSelectAssetAliases: () => set({ selectAssetAliases: null }),
 
     // ===== Tabs =====
     setTab: (t) => set({ activeTab: t }),
@@ -155,13 +206,25 @@ export const useStudio = create<StudioState>((set, get) => {
       scheduleSave();
     },
 
-    setAssets: (assets) => {
-      set((s) => ({
-        project: { ...s.project, assets },
-        dirty: { ...s.dirty, assets: true },
-      }));
-      scheduleSave();
-    },
+    setAssets: (assets) =>
+      runProjectCommand((p) => ({ ...p, assets })),
+
+    addAssets: (toAdd) =>
+      runProjectCommand((p) => {
+        const assets = [...(p.assets ?? [])];
+        const byAlias = new Map(assets.map((a) => [a.alias, a]));
+        for (const asset of toAdd) {
+          const existing = byAlias.get(asset.alias);
+          if (existing) {
+            existing.src = asset.src;
+            if (!existing.name) existing.name = asset.name;
+          } else {
+            assets.push(asset);
+            byAlias.set(asset.alias, asset);
+          }
+        }
+        return { ...p, assets };
+      }),
 
     // ===== Canvas =====
     setCanvasSize: (width, height) =>
@@ -185,98 +248,115 @@ export const useStudio = create<StudioState>((set, get) => {
 
     // ===== Asset Folders & Paths =====
     addAssetFolder: (path) =>
-      set((s) => {
-        const folders = new Set(s.project.meta?.assetFolders ?? []);
+      runProjectCommand((p) => {
+        const folders = new Set(p.meta?.assetFolders ?? []);
         folders.add(path.trim());
-        const next = {
-          ...s.project,
-          meta: { ...(s.project.meta ?? {}), assetFolders: Array.from(folders) },
+        return {
+          ...p,
+          meta: { ...(p.meta ?? {}), assetFolders: Array.from(folders) },
         };
-        queueMicrotask(() => scheduleSave());
-        return { project: next };
       }),
 
     setAssetPath: (alias, path) =>
-      set((s) => {
+      runProjectCommand((p) => {
         const meta = {
-          ...(s.project.meta ?? {}),
-          assetPaths: { ...(s.project.meta?.assetPaths ?? {}) },
+          ...(p.meta ?? {}),
+          assetPaths: { ...(p.meta?.assetPaths ?? {}) },
         };
         if (!path || !path.trim()) {
-          delete meta.assetPaths[alias]; // в корень
+          delete meta.assetPaths[alias];
         } else {
           meta.assetPaths[alias] = path.trim();
           const folders = new Set(meta.assetFolders ?? []);
           folders.add(path.trim());
           meta.assetFolders = Array.from(folders);
         }
-        queueMicrotask(() => scheduleSave());
-        return { project: { ...s.project, meta } };
+        return { ...p, meta };
       }),
 
     renameAssetDisplayName: (alias, name) =>
-      set((s) => {
-        const assets = (s.project.assets ?? []).map((a) =>
+      runProjectCommand((p) => {
+        const assets = (p.assets ?? []).map((a) =>
           a.alias === alias ? ({ ...a, name } as any) : a
         );
-        queueMicrotask(() => scheduleSave());
-        return { project: { ...s.project, assets } };
+        return { ...p, assets };
       }),
 
-    deleteAsset: (alias) =>
-      set((s) => {
-        const assets = (s.project.assets ?? []).filter((a) => a.alias !== alias);
-        const meta = {
-          ...(s.project.meta ?? {}),
-          assetPaths: { ...(s.project.meta?.assetPaths ?? {}) },
-        };
-        delete meta.assetPaths[alias];
-        queueMicrotask(() => scheduleSave());
-        return { project: { ...s.project, assets, meta } };
-      }),
+    deleteAssets: (aliases) =>
+      runProjectCommand(
+        (p) => {
+          const remove = new Set(aliases);
+          const assets = (p.assets ?? []).filter((a) => !remove.has(a.alias));
+          const meta = {
+            ...(p.meta ?? {}),
+            assetPaths: { ...(p.meta?.assetPaths ?? {}) },
+          };
+          for (const alias of aliases) delete meta.assetPaths[alias];
+          return { ...p, assets, meta };
+        },
+        {
+          onExecute: () => set({ selectAssetAliases: [] }),
+          onUndo: () => set({ selectAssetAliases: aliases }),
+        },
+      ),
+
+    deleteAsset: (alias) => get().deleteAssets([alias]),
 
     renameAssetFolder: (oldPath, newPath) =>
-      set((s) => {
-        const meta0 = s.project.meta ?? { assetFolders: [], assetPaths: {} };
-        const folders = (meta0.assetFolders ?? []).map((p) =>
-          p === oldPath || p.startsWith(oldPath + "/")
-            ? newPath + p.slice(oldPath.length)
-            : p
+      runProjectCommand((p) => {
+        const meta0 = p.meta ?? { assetFolders: [], assetPaths: {} };
+        const folders = (meta0.assetFolders ?? []).map((pth) =>
+          pth === oldPath || pth.startsWith(oldPath + "/")
+            ? newPath + pth.slice(oldPath.length)
+            : pth
         );
         const assetPaths = { ...(meta0.assetPaths ?? {}) };
-        for (const [alias, p] of Object.entries(assetPaths)) {
-          if (!p) continue;
-          if (p === oldPath || p.startsWith(oldPath + "/")) {
-            assetPaths[alias] = newPath + p.slice(oldPath.length);
+        for (const [alias, pth] of Object.entries(assetPaths)) {
+          if (!pth) continue;
+          if (pth === oldPath || pth.startsWith(oldPath + "/")) {
+            assetPaths[alias] = newPath + pth.slice(oldPath.length);
           }
         }
-        const meta = {
-          ...meta0,
-          assetFolders: Array.from(new Set(folders)),
-          assetPaths,
+        return {
+          ...p,
+          meta: {
+            ...meta0,
+            assetFolders: Array.from(new Set(folders)),
+            assetPaths,
+          },
         };
-        queueMicrotask(() => scheduleSave());
-        return { project: { ...s.project, meta } };
       }),
 
     deleteAssetFolder: (path) =>
-      set((s) => {
-        const meta0 = s.project.meta ?? { assetFolders: [], assetPaths: {} };
-        // выкидываем саму папку и все подпапки
+      runProjectCommand((p) => {
+        const meta0 = p.meta ?? { assetFolders: [], assetPaths: {} };
         const folders = (meta0.assetFolders ?? []).filter(
-          (p) => p !== path && !p.startsWith(path + "/")
+          (pth) => pth !== path && !pth.startsWith(path + "/")
         );
-        // ассеты из этой папки и подпапок — удаляем
         const assetPaths = { ...(meta0.assetPaths ?? {}) };
-        const assets = (s.project.assets ?? []).filter((a) => {
-          const p = assetPaths[a.alias];
-          const inside = p && (p === path || p.startsWith(path + "/"));
+        const assets = (p.assets ?? []).filter((a) => {
+          const pth = assetPaths[a.alias];
+          const inside = pth && (pth === path || pth.startsWith(path + "/"));
           if (inside) delete assetPaths[a.alias];
           return !inside;
         });
-        const meta = { ...meta0, assetFolders: folders, assetPaths };
-        queueMicrotask(() => scheduleSave());
-        return { project: { ...s.project, assets, meta } };
+        return {
+          ...p,
+          assets,
+          meta: { ...meta0, assetFolders: folders, assetPaths },
+        };
       }),
+
+    undo: () => {
+      if (cursor === 0) return;
+      cursor--;
+      history[cursor]?.undo();
+    },
+
+    redo: () => {
+      if (cursor >= history.length) return;
+      history[cursor]?.execute();
+      cursor++;
+    },
   };
 });

@@ -130,6 +130,9 @@ importers:
 
   packages/studio:
     dependencies:
+      fast-json-patch:
+        specifier: ^3.1.1
+        version: 3.1.1
       idb-keyval:
         specifier: ^6.2.2
         version: 6.2.2
@@ -164,6 +167,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.12
         version: 4.1.12
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.3.0
       '@types/react':
         specifier: ^19.1.6
         version: 19.1.12
@@ -974,6 +980,9 @@ packages:
 
   eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
+
+  fast-json-patch@3.1.1:
+    resolution: {integrity: sha512-vf6IHUX2SBcA+5/+4883dsIjpBTqmfBjmYiWK1savxQmFk4JfBMLa7ynTYOs1Rolp/T1betJxHiGD3g1Mn8lUQ==}
 
   fdir@6.5.0:
     resolution: {integrity: sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==}
@@ -2031,6 +2040,8 @@ snapshots:
   escalade@3.2.0: {}
 
   eventemitter3@4.0.7: {}
+
+  fast-json-patch@3.1.1: {}
 
   fdir@6.5.0(picomatch@4.0.3):
     optionalDependencies:

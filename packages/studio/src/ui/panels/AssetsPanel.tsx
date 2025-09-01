@@ -140,13 +140,15 @@ function moveNode(
 export function AssetsPanel() {
   const {
     project,
-    setAssets,
+    addAssets,
     addAssetFolder,
     setAssetPath,
     renameAssetDisplayName,
-    deleteAsset,
+    deleteAssets,
     renameAssetFolder,
     deleteAssetFolder,
+    selectAssetAliases,
+    clearSelectAssetAliases,
   } = useStudio()
 
   const [root, setRoot] = useState<TreeItem>(() => buildAssetsRoot(project))
@@ -154,6 +156,12 @@ export function AssetsPanel() {
     new Set(['assets-root']),
   )
   const [selected, setSelected] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    if (selectAssetAliases === null) return
+    setSelected(new Set(selectAssetAliases.map((a) => `asset:${a}`)))
+    clearSelectAssetAliases()
+  }, [selectAssetAliases, clearSelectAssetAliases])
 
   // Перестраиваем при изменении проекта
   useEffect(() => {
@@ -168,31 +176,17 @@ export function AssetsPanel() {
   // Добавить картинки: ПЕРЕЗАПИСЫВАЕМ существующий alias, а не делаем -2
   const onAddFiles = async (files: FileList | null) => {
     if (!files) return
-
-    const existing = project.assets ?? []
-    const nextAssets = [...existing]
-    const byAlias = new Map(existing.map((a) => [a.alias, a]))
-
+    const toAdd: Array<{ alias: string; src: string; name: string }> = []
     for (let i = 0; i < files.length; i++) {
       const f = files[i]
       if (!f.type.startsWith('image/')) continue
-
       const dataUrl = await fileToDataURL(f)
       const rawBase = f.name.replace(/\.[^.]+$/, '') // "hero" из "hero.png"
       const alias = rawBase // КЛЮЧЕВОЕ: НЕ уникализируем
-
-      const existed = byAlias.get(alias)
-      if (existed) {
-        existed.src = dataUrl // overwrite src
-        if (!existed.name) existed.name = f.name
-      } else {
-        const asset = { alias, src: dataUrl, name: f.name }
-        nextAssets.push(asset)
-        byAlias.set(alias, asset)
-      }
+      toAdd.push({ alias, src: dataUrl, name: f.name })
     }
 
-    setAssets(nextAssets)
+    addAssets(toAdd)
   }
 
   // Новая папка (в корне)
@@ -256,7 +250,7 @@ export function AssetsPanel() {
     (id: string) => {
       if (id.startsWith('asset:')) {
         const alias = id.slice('asset:'.length)
-        deleteAsset(alias)
+        deleteAssets([alias])
         return
       }
       if (id.startsWith('folder:')) {
@@ -264,19 +258,26 @@ export function AssetsPanel() {
         deleteAssetFolder(full)
       }
     },
-    [deleteAsset, deleteAssetFolder],
+    [deleteAssets, deleteAssetFolder],
   )
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Delete') {
-        for (const id of Array.from(selected)) handleDelete(id)
+        const assets: string[] = []
+        const folders: string[] = []
+        for (const id of Array.from(selected)) {
+          if (id.startsWith('asset:')) assets.push(id.slice('asset:'.length))
+          else if (id.startsWith('folder:')) folders.push(id.slice('folder:'.length))
+        }
+        if (assets.length) deleteAssets(assets)
+        for (const full of folders) deleteAssetFolder(full)
         if (selected.size) setSelected(new Set())
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selected, handleDelete])
+  }, [selected, deleteAssets, deleteAssetFolder])
 
   return (
     <div className="h-full overflow-auto p-2 text-sm">
