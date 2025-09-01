@@ -147,6 +147,8 @@ export function AssetsPanel() {
     deleteAssets,
     renameAssetFolder,
     deleteAssetFolder,
+    selectAssetAliases,
+    clearSelectAssetAliases,
   } = useStudio()
 
   const [root, setRoot] = useState<TreeItem>(() => buildAssetsRoot(project))
@@ -154,6 +156,12 @@ export function AssetsPanel() {
     new Set(['assets-root']),
   )
   const [selected, setSelected] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    if (selectAssetAliases === null) return
+    setSelected(new Set(selectAssetAliases.map((a) => `asset:${a}`)))
+    clearSelectAssetAliases()
+  }, [selectAssetAliases, clearSelectAssetAliases])
 
   // Перестраиваем при изменении проекта
   useEffect(() => {

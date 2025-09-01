@@ -11,6 +11,7 @@ function reset() {
     activeTab: 'Layout',
     dirty: { layout: false, data: false, assets: false },
     canvas: { width: 1280, height: 720 },
+    selectAssetAliases: null,
   });
 }
 
@@ -52,6 +53,18 @@ test('undo/redo restores multiple deleted assets at once', () => {
   assert.equal(useStudio.getState().project.assets.length, 2);
   store.redo();
   assert.equal(useStudio.getState().project.assets.length, 0);
+});
+
+test('undoing deletion selects restored assets', () => {
+  reset();
+  const store = useStudio.getState();
+  store.addAssets([{ alias: 'hero', name: '', src: '' }]);
+  store.deleteAsset('hero');
+  assert.deepEqual(useStudio.getState().selectAssetAliases, []);
+  store.undo();
+  assert.deepEqual(useStudio.getState().selectAssetAliases, ['hero']);
+  store.redo();
+  assert.deepEqual(useStudio.getState().selectAssetAliases, []);
 });
 
 test('new command clears redo stack', () => {

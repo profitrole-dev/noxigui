@@ -33,6 +33,9 @@ type StudioState = {
   activeTab: Tab;
   dirty: Dirty;
 
+  selectAssetAliases: string[] | null;
+  clearSelectAssetAliases: () => void;
+
   // tabs
   setTab: (t: Tab) => void;
 
@@ -95,7 +98,10 @@ export const useStudio = create<StudioState>((set, get) => {
     if (history.length > 10) history.shift();
     cursor = history.length;
   };
-  const runProjectCommand = (mutate: (p: Project) => Project) => {
+  const runProjectCommand = (
+    mutate: (p: Project) => Project,
+    sideEffects?: { onExecute?: () => void; onUndo?: () => void },
+  ) => {
     const before = structuredClone(get().project);
     const after = mutate(structuredClone(before));
     const patch = compare(before, after);
@@ -107,6 +113,7 @@ export const useStudio = create<StudioState>((set, get) => {
           dirty: { ...s.dirty, assets: true },
         }));
         queueMicrotask(() => scheduleSave());
+        sideEffects?.onExecute?.();
       },
       undo() {
         set((s) => ({
@@ -114,6 +121,7 @@ export const useStudio = create<StudioState>((set, get) => {
           dirty: { ...s.dirty, assets: true },
         }));
         queueMicrotask(() => scheduleSave());
+        sideEffects?.onUndo?.();
       },
     });
   };
@@ -123,6 +131,8 @@ export const useStudio = create<StudioState>((set, get) => {
     activeTab: "Layout",
     dirty: { layout: false, data: false, assets: false },
     canvas: { ...defaultCanvas },
+    selectAssetAliases: null,
+    clearSelectAssetAliases: () => set({ selectAssetAliases: null }),
 
     // ===== Tabs =====
     setTab: (t) => set({ activeTab: t }),
@@ -273,16 +283,22 @@ export const useStudio = create<StudioState>((set, get) => {
       }),
 
     deleteAssets: (aliases) =>
-      runProjectCommand((p) => {
-        const remove = new Set(aliases);
-        const assets = (p.assets ?? []).filter((a) => !remove.has(a.alias));
-        const meta = {
-          ...(p.meta ?? {}),
-          assetPaths: { ...(p.meta?.assetPaths ?? {}) },
-        };
-        for (const alias of aliases) delete meta.assetPaths[alias];
-        return { ...p, assets, meta };
-      }),
+      runProjectCommand(
+        (p) => {
+          const remove = new Set(aliases);
+          const assets = (p.assets ?? []).filter((a) => !remove.has(a.alias));
+          const meta = {
+            ...(p.meta ?? {}),
+            assetPaths: { ...(p.meta?.assetPaths ?? {}) },
+          };
+          for (const alias of aliases) delete meta.assetPaths[alias];
+          return { ...p, assets, meta };
+        },
+        {
+          onExecute: () => set({ selectAssetAliases: [] }),
+          onUndo: () => set({ selectAssetAliases: aliases }),
+        },
+      ),
 
     deleteAsset: (alias) => get().deleteAssets([alias]),
 
