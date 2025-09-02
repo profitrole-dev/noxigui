@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
-import { Plus, FolderPlus } from 'lucide-react'
+import { Plus, FolderPlus, Minimize2, Maximize2 } from 'lucide-react'
 import Tree, { type TreeItem, type DropPosition } from '../../ui/tree/Tree'
 import { useStudio } from '../../state/useStudio'
 import { ContextPanel } from '../../ui/panels/ContextPanel'
@@ -171,6 +171,19 @@ export function AssetsPanel() {
 
   const visible = [root]
 
+  const collectIds = (it: TreeItem): Set<string> => {
+    const ids = new Set<string>()
+    const walk = (node: TreeItem) => {
+      ids.add(node.id)
+      node.children?.forEach(walk)
+    }
+    walk(it)
+    return ids
+  }
+
+  const expandAll = () => setExpanded(collectIds(root))
+  const collapseAll = () => setExpanded(new Set())
+
   // input для добавления картинок
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -286,6 +299,20 @@ export function AssetsPanel() {
         <>
           <span>Assets</span>
           <div className="flex items-center gap-1">
+            <button
+              className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+              onClick={collapseAll}
+              title="Collapse all"
+            >
+              <Minimize2 size={14} />
+            </button>
+            <button
+              className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+              onClick={expandAll}
+              title="Expand all"
+            >
+              <Maximize2 size={14} />
+            </button>
             <button
               className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
               onClick={onNewFolder}

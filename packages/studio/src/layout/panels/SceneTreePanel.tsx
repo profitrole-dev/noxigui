@@ -9,6 +9,8 @@ import {
   MousePointer,
   Square,
   Type as TextIcon,
+  Minimize2,
+  Maximize2,
 } from "lucide-react";
 
 // Tags that should not appear in the scene tree.
@@ -59,6 +61,23 @@ export function SceneTreePanel() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["0"]));
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
+  const collectIds = (it: TreeItem): Set<string> => {
+    const ids = new Set<string>();
+    const walk = (node: TreeItem) => {
+      ids.add(node.id);
+      node.children?.forEach(walk);
+    };
+    walk(it);
+    return ids;
+  };
+
+  const expandAll = () => {
+    if (!root) return;
+    setExpanded(collectIds(root));
+  };
+
+  const collapseAll = () => setExpanded(new Set());
+
   useEffect(() => {
     const dom = new DOMParser().parseFromString(
       project.layout,
@@ -75,13 +94,57 @@ export function SceneTreePanel() {
 
   if (!root)
     return (
-      <ContextPanel topbar={<span>Scene</span>}>
+      <ContextPanel
+        topbar={
+          <>
+            <span>Scene</span>
+            <div className="flex items-center gap-1">
+              <button
+                className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+                onClick={collapseAll}
+                title="Collapse all"
+              >
+                <Minimize2 size={14} />
+              </button>
+              <button
+                className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+                onClick={expandAll}
+                title="Expand all"
+              >
+                <Maximize2 size={14} />
+              </button>
+            </div>
+          </>
+        }
+      >
         <div className="px-2 py-1 text-neutral-500">Invalid layout</div>
       </ContextPanel>
     );
 
   return (
-    <ContextPanel topbar={<span>Scene</span>}>
+    <ContextPanel
+      topbar={
+        <>
+          <span>Scene</span>
+          <div className="flex items-center gap-1">
+            <button
+              className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+              onClick={collapseAll}
+              title="Collapse all"
+            >
+              <Minimize2 size={14} />
+            </button>
+            <button
+              className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+              onClick={expandAll}
+              title="Expand all"
+            >
+              <Maximize2 size={14} />
+            </button>
+          </div>
+        </>
+      }
+    >
       <Tree
         items={[root]}
         expanded={expanded}
