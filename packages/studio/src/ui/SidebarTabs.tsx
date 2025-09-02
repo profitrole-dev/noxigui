@@ -3,7 +3,11 @@ import { NavItem } from "./NavItem";
 import { Layout, Database, Link2, Image } from "lucide-react";
 import type { Tab } from "./Sidebar";
 
-export function SidebarSwitch({
+/**
+ * Renders the primary sidebar navigation using {@link NavItem} components.
+ * Each tab corresponds to a main section of the studio.
+ */
+export function SidebarTabs({
   activeTab,
   setTab,
 }: {
