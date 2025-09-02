@@ -8,6 +8,8 @@ import { LayoutTab } from "./ui/tabs/LayoutTab";
 import { DataTab } from "./ui/tabs/DataTab";
 import { AssetsTab } from "./ui/tabs/AssetsTab";
 import { Renderer } from "./Renderer";
+import { SplitContainer } from "./ui/SplitContainer";
+import { SplitWindow } from "./ui/SplitWindow";
 
 type Tab = "Layout" | "Data" | "ViewModels" | "Assets";
 
@@ -77,23 +79,19 @@ export default function App() {
         </div>
       }
     >
-      <div className="grid grid-cols-2 h-full">
-        {/* левая панель с редакторами */}
-        <div className="min-h-0 border-r border-neutral-800 overflow-hidden">
-          {/* табы */}
+      <SplitContainer>
+        <SplitWindow>
           {activeTab === "Layout" && <LayoutTab/>}
           {activeTab === "Data" && <DataTab/>}
           {activeTab === "ViewModels" && <div className="p-4">ViewModels editor WIP</div>}
           {activeTab === "Assets" && <AssetsTab/>}
-        </div>
-
-        {/* правая панель с CanvasStage */}
-        <div className="min-h-0 overflow-hidden">
+        </SplitWindow>
+        <SplitWindow>
           <div className="h-full relative">
             <Renderer/>
           </div>
-        </div>
-      </div>
+        </SplitWindow>
+      </SplitContainer>
     </AppShell>
   );
 }
