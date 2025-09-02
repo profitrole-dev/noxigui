@@ -10,7 +10,7 @@ export function ContextPanel({
   return (
     <div className="context-panel">
       {topbar && <div className="context-panel-topbar">{topbar}</div>}
-      {children}
+      <div className="context-panel-body">{children}</div>
     </div>
   );
 }

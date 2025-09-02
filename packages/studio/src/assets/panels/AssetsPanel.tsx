@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react'
-import { Plus, FolderPlus, Minimize2, Maximize2 } from 'lucide-react'
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import { Plus, FolderPlus, PlusSquare, MinusSquare } from 'lucide-react'
 import Tree, { type TreeItem, type DropPosition } from '../../ui/tree/Tree'
 import { useStudio } from '../../state/useStudio'
 import { ContextPanel } from '../../ui/panels/ContextPanel'
@@ -181,8 +181,10 @@ export function AssetsPanel() {
     return ids
   }
 
-  const expandAll = () => setExpanded(collectIds(root))
-  const collapseAll = () => setExpanded(new Set())
+  const allIds = useMemo(() => collectIds(root), [root])
+  const allExpanded = expanded.size === allIds.size
+  const toggleExpand = () =>
+    setExpanded(allExpanded ? new Set() : new Set(allIds))
 
   // input для добавления картинок
   const fileInputRef = useRef<HTMLInputElement | null>(null)
@@ -301,17 +303,10 @@ export function AssetsPanel() {
           <div className="flex items-center gap-1">
             <button
               className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-              onClick={collapseAll}
-              title="Collapse all"
+              onClick={toggleExpand}
+              title={allExpanded ? 'Collapse all' : 'Expand all'}
             >
-              <Minimize2 size={14} />
-            </button>
-            <button
-              className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-              onClick={expandAll}
-              title="Expand all"
-            >
-              <Maximize2 size={14} />
+              {allExpanded ? <MinusSquare size={14} /> : <PlusSquare size={14} />}
             </button>
             <button
               className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"

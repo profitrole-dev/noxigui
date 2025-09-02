@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Tree, { type TreeItem } from "../../ui/tree/Tree";
 import { useStudio } from "../../state/useStudio";
 import { ContextPanel } from "../../ui/panels/ContextPanel";
@@ -9,8 +9,8 @@ import {
   MousePointer,
   Square,
   Type as TextIcon,
-  Minimize2,
-  Maximize2,
+  PlusSquare,
+  MinusSquare,
 } from "lucide-react";
 
 // Tags that should not appear in the scene tree.
@@ -71,12 +71,13 @@ export function SceneTreePanel() {
     return ids;
   };
 
-  const expandAll = () => {
-    if (!root) return;
-    setExpanded(collectIds(root));
-  };
-
-  const collapseAll = () => setExpanded(new Set());
+  const allIds = useMemo(
+    () => (root ? collectIds(root) : new Set<string>()),
+    [root],
+  );
+  const allExpanded = root ? expanded.size === allIds.size : false;
+  const toggleExpand = () =>
+    setExpanded(allExpanded ? new Set() : new Set(allIds));
 
   useEffect(() => {
     const dom = new DOMParser().parseFromString(
@@ -101,17 +102,14 @@ export function SceneTreePanel() {
             <div className="flex items-center gap-1">
               <button
                 className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-                onClick={collapseAll}
-                title="Collapse all"
+                onClick={toggleExpand}
+                title={allExpanded ? "Collapse all" : "Expand all"}
               >
-                <Minimize2 size={14} />
-              </button>
-              <button
-                className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-                onClick={expandAll}
-                title="Expand all"
-              >
-                <Maximize2 size={14} />
+                {allExpanded ? (
+                  <MinusSquare size={14} />
+                ) : (
+                  <PlusSquare size={14} />
+                )}
               </button>
             </div>
           </>
@@ -129,17 +127,14 @@ export function SceneTreePanel() {
           <div className="flex items-center gap-1">
             <button
               className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-              onClick={collapseAll}
-              title="Collapse all"
+              onClick={toggleExpand}
+              title={allExpanded ? "Collapse all" : "Expand all"}
             >
-              <Minimize2 size={14} />
-            </button>
-            <button
-              className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-              onClick={expandAll}
-              title="Expand all"
-            >
-              <Maximize2 size={14} />
+              {allExpanded ? (
+                <MinusSquare size={14} />
+              ) : (
+                <PlusSquare size={14} />
+              )}
             </button>
           </div>
         </>

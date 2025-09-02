@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Plus, Minimize2, Maximize2 } from 'lucide-react';
+import { Plus, PlusSquare, MinusSquare } from 'lucide-react';
 import Tree, { type TreeItem } from '../../ui/tree/Tree';
 import { useStudio } from '../../state/useStudio';
 import { ContextPanel } from '../../ui/panels/ContextPanel';
@@ -45,8 +45,10 @@ export function DataModelsPanel() {
     return ids;
   };
 
-  const expandAll = () => setExpanded(collectIds(root));
-  const collapseAll = () => setExpanded(new Set());
+  const allIds = useMemo(() => collectIds(root), [root]);
+  const allExpanded = expanded.size === allIds.size;
+  const toggleExpand = () =>
+    setExpanded(allExpanded ? new Set() : new Set(allIds));
 
     return (
       <ContextPanel
@@ -56,17 +58,14 @@ export function DataModelsPanel() {
             <div className="flex items-center gap-1">
               <button
                 className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-                onClick={collapseAll}
-                title="Collapse all"
+                onClick={toggleExpand}
+                title={allExpanded ? 'Collapse all' : 'Expand all'}
               >
-                <Minimize2 size={14} />
-              </button>
-              <button
-                className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-                onClick={expandAll}
-                title="Expand all"
-              >
-                <Maximize2 size={14} />
+                {allExpanded ? (
+                  <MinusSquare size={14} />
+                ) : (
+                  <PlusSquare size={14} />
+                )}
               </button>
               <button
                 className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
