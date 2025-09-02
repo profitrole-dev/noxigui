@@ -27,6 +27,7 @@ export interface RenderContainer {
   addChild(child: any): void;
   removeChild(child: any): void;
   setPosition(x: number, y: number): void;
+  setScale(x: number, y: number): void;
   setSortableChildren(value: boolean): void;
   setMask(mask: any | null): void;
   /** Optional event hookup used by interactive elements */
@@ -38,6 +39,11 @@ export interface RenderContainer {
 }
 
 export interface Renderer {
+  /**
+   * Rendering resolution. When provided, the root container will be scaled
+   * by `1 / resolution` so logical units map correctly to display pixels.
+   */
+  resolution?: number;
   getTexture(key: string): unknown;
   createImage(tex?: unknown): RenderImage;
   createText(text: string, style: { fill: string; fontSize: number }): RenderText;

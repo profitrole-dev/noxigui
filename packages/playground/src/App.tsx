@@ -238,7 +238,7 @@ export default function App() {
     }
 
     try {
-      const gui = Noxi.gui.create(code);
+      const gui = Noxi.gui.create(code, undefined, window.devicePixelRatio ?? 1);
       guiRef.current = gui;
       gui.bind(vmRef.current);
       // runtime.setGridDebug(true);

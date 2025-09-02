@@ -106,6 +106,9 @@ class PixiRenderContainer implements RenderContainer {
   setPosition(x: number, y: number) {
     this.c.position.set(x, y);
   }
+  setScale(x: number, y: number) {
+    this.c.scale.set(x, y);
+  }
   setSortableChildren(value: boolean) {
     this.c.sortableChildren = value;
   }

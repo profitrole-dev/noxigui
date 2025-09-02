@@ -126,7 +126,7 @@ export function Renderer() {
 
       // 2) создать GUI и положить на сцену ТОЛЬКО после загрузки ассетов
       try {
-        const gui = Noxi.gui.create(project.layout);
+        const gui = Noxi.gui.create(project.layout, undefined, window.devicePixelRatio ?? 1);
         guiRef.current = gui;
         (gui as any).viewModel = project.data;
 

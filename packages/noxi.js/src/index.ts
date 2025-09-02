@@ -3,8 +3,25 @@ import { createPixiRenderer } from '@noxigui/renderer-pixi';
 
 const Noxi = {
   gui: {
-    create(xml: string, renderer: Renderer = createPixiRenderer()): GuiObject {
-      return RuntimeNoxi.gui.create(xml, renderer);
+    /**
+     * Create a GUI object from XML.
+     *
+     * @param xml - Markup describing the UI.
+     * @param renderer - Optional renderer instance. Defaults to Pixi renderer.
+     * @param resolution - Rendering resolution (device pixel ratio).
+     */
+    create(
+      xml: string,
+      renderer: Renderer = createPixiRenderer(),
+      resolution?: number
+    ): GuiObject {
+      const res = resolution ?? renderer.resolution ?? 1;
+      renderer.resolution = res;
+      const gui = RuntimeNoxi.gui.create(xml, renderer);
+      if (res !== 1) {
+        gui.container.setScale(1 / res, 1 / res);
+      }
+      return gui;
     }
   }
 };
