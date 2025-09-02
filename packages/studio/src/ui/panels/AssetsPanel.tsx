@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { Plus, FolderPlus } from 'lucide-react'
 import Tree, { type TreeItem, type DropPosition } from '../tree/Tree'
 import { useStudio } from '../../state/useStudio'
+import { ContextPanel } from './ContextPanel'
 
 // === Вспомогалки ===
 const makeUnique = (base: string, taken: Set<string>, sep = '-') => {
@@ -280,37 +281,37 @@ export function AssetsPanel() {
   }, [selected, deleteAssets, deleteAssetFolder])
 
   return (
-    <div className="h-full overflow-auto p-2 text-sm">
-      {/* заголовок */}
-      <div className="px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide flex items-center justify-between">
-        <span>Assets</span>
-        <div className="flex items-center gap-1">
-          <button
-            className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-            onClick={onNewFolder}
-            title="New folder"
-          >
-            <FolderPlus size={14} />
-          </button>
-          <button
-            className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-            onClick={() => fileInputRef.current?.click()}
-            title="Add images"
-          >
-            <Plus size={14} />
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={(e) => onAddFiles(e.target.files)}
-          />
-        </div>
-      </div>
-
-      {/* дерево */}
+    <ContextPanel
+      topbar={
+        <>
+          <span>Assets</span>
+          <div className="flex items-center gap-1">
+            <button
+              className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+              onClick={onNewFolder}
+              title="New folder"
+            >
+              <FolderPlus size={14} />
+            </button>
+            <button
+              className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+              onClick={() => fileInputRef.current?.click()}
+              title="Add images"
+            >
+              <Plus size={14} />
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => onAddFiles(e.target.files)}
+            />
+          </div>
+        </>
+      }
+    >
       <div>
         <Tree
           items={visible}
@@ -334,6 +335,6 @@ export function AssetsPanel() {
           }}
         />
       </div>
-    </div>
+    </ContextPanel>
   )
 }

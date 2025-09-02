@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import Tree, { type TreeItem } from '../tree/Tree';
 import { useStudio } from '../../state/useStudio';
+import { ContextPanel } from './ContextPanel';
 
 function buildRoot(data: Record<string, any>): TreeItem {
   return {
@@ -34,37 +35,40 @@ export function DataModelsPanel() {
 
   const visible = useMemo(() => [root], [root]);
 
-  return (
-    <div className="h-full overflow-auto p-2 text-sm">
-      <div className="px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide flex items-center justify-between">
-        <span>Schemas</span>
-        <button
-          className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-          onClick={addSchema}
-          title="Add schema"
-        >
-          <Plus size={14} />
-        </button>
-      </div>
-      <Tree
-        items={visible}
-        expanded={expanded}
-        selected={selected}
-        onToggle={(id) =>
-          setExpanded((prev) => {
-            const next = new Set(prev);
-            next.has(id) ? next.delete(id) : next.add(id);
-            return next;
-          })
+    return (
+      <ContextPanel
+        topbar={
+          <>
+            <span>Schemas</span>
+            <button
+              className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+              onClick={addSchema}
+              title="Add schema"
+            >
+              <Plus size={14} />
+            </button>
+          </>
         }
-        onSelect={(next) => {
-          setSelected(next);
-          const first = Array.from(next)[0];
-          if (first && first.startsWith('schema:'))
-            setSelectedSchema(first.slice('schema:'.length));
-          else setSelectedSchema(null);
-        }}
-      />
-    </div>
-  );
-}
+      >
+        <Tree
+          items={visible}
+          expanded={expanded}
+          selected={selected}
+          onToggle={(id) =>
+            setExpanded((prev) => {
+              const next = new Set(prev);
+              next.has(id) ? next.delete(id) : next.add(id);
+              return next;
+            })
+          }
+          onSelect={(next) => {
+            setSelected(next);
+            const first = Array.from(next)[0];
+            if (first && first.startsWith('schema:'))
+              setSelectedSchema(first.slice('schema:'.length));
+            else setSelectedSchema(null);
+          }}
+        />
+      </ContextPanel>
+    );
+  }
