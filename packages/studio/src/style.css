@@ -45,3 +45,31 @@ html, body, #root {
 .editor-surface {
   background: rgb(var(--cu-topbar)); /* #111111 */
 }
+
+.sidebar {
+  @apply flex flex-col h-full;
+}
+
+.sidebar-logo {
+  @apply h-12 px-3 flex items-center justify-between bg-cu-grey200 border-b border-neutral-700;
+}
+
+.sidebar-nav {
+  @apply p-2 flex flex-col gap-2;
+}
+
+.sidebar-separator {
+  @apply mx-2 my-2 border-t border-neutral-700;
+}
+
+.context-panel-container {
+  @apply flex-1 overflow-auto text-sm;
+}
+
+.context-panel {
+  @apply p-2 text-sm;
+}
+
+.context-panel-topbar {
+  @apply px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide flex items-center justify-between;
+}

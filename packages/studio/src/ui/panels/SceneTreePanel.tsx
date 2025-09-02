@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Tree, { type TreeItem } from "../tree/Tree";
 import { useStudio } from "../../state/useStudio";
+import { ContextPanel } from "./ContextPanel";
 import {
   Box,
   Component,
@@ -74,19 +75,13 @@ export function SceneTreePanel() {
 
   if (!root)
     return (
-      <div className="p-2 text-sm">
-        <div className="px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide">
-          Scene
-        </div>
+      <ContextPanel topbar={<span>Scene</span>}>
         <div className="px-2 py-1 text-neutral-500">Invalid layout</div>
-      </div>
+      </ContextPanel>
     );
 
   return (
-    <div className="p-2 text-sm">
-      <div className="px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide">
-        Scene
-      </div>
+    <ContextPanel topbar={<span>Scene</span>}>
       <Tree
         items={[root]}
         expanded={expanded}
@@ -122,7 +117,7 @@ export function SceneTreePanel() {
           setLayout(xml);
         }}
       />
-    </div>
+    </ContextPanel>
   );
 }
 
