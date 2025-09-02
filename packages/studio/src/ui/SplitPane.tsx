@@ -57,16 +57,18 @@ export function SplitPane({
   }
 
   return (
-    <div
-      className={['grid', className].filter(Boolean).join(' ')}
-      style={{ gridTemplateColumns: `${leftWidth}px 4px 1fr` }}
-    >
-      <div className="min-h-0 overflow-hidden">{left}</div>
+    <div className={["flex", className].filter(Boolean).join(" ")}>      
       <div
-        className="cursor-col-resize bg-[rgb(var(--cu-border))]"
+        style={{ width: leftWidth }}
+        className="shrink-0 min-w-0 min-h-0 overflow-hidden"
+      >
+        {left}
+      </div>
+      <div
+        className="w-1 h-full cursor-col-resize bg-[rgb(var(--cu-border))]"
         onMouseDown={startDrag}
       />
-      <div className="min-h-0 overflow-hidden">{right}</div>
+      <div className="flex-1 min-w-0 min-h-0 overflow-hidden">{right}</div>
     </div>
   )
 }

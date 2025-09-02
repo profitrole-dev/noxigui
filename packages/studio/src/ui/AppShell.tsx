@@ -16,7 +16,7 @@ export function AppShell({
       defaultLeftWidth={260}
       className="w-screen h-screen bg-[rgb(var(--cu-grey100))] text-neutral-200"
       left={
-        <aside className="flex flex-col bg-[rgb(var(--cu-grey200))]">
+        <aside className="flex flex-col bg-[rgb(var(--cu-grey200))] border-r-[1px] border-[rgb(var(--cu-border))]">
           {sidebar}
         </aside>
       }
