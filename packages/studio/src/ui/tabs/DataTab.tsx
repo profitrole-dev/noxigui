@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Braces, Table } from "lucide-react";
 import { useStudio } from "../../state/useStudio.ts";
 import SchemaEditor from "../SchemaEditor.tsx";
 import NoxiEditor from "../NoxiEditor.tsx";
@@ -45,29 +45,55 @@ export function DataTab() {
       }
     };
 
+    const handleFieldsChange = (f: SchemaField[]) => {
+      const filtered = f.filter(
+        (r) => r.key || r.type || (r.default ?? "") !== "",
+      );
+      setSchemaFields(selectedSchema, filtered);
+    };
+
     return (
-      <div className="p-2 h-full flex flex-col">
-        <div className="flex justify-end mb-2">
-          <button
-            className="px-2 py-1 text-sm rounded bg-neutral-700 hover:bg-neutral-600"
-            onClick={() => setMode(mode === "table" ? "json" : "table")}
-          >
-            {mode === "table" ? "JSON" : "Table"} view
-          </button>
+      <div className="h-full flex flex-col">
+        <div className="px-3 py-2 border-b border-[rgb(var(--cu-border))] bg-[rgb(var(--cu-grey200))] flex items-center justify-end shadow-sm">
+          <div className="flex border border-[rgb(var(--cu-border))] rounded-sm overflow-hidden">
+            <button
+              className={[
+                "h-7 w-7 grid place-items-center",
+                mode === "table"
+                  ? "bg-[#2C1A75] text-[#A89FFF]"
+                  : "bg-[rgb(var(--cu-topbar))] hover:bg-[rgb(var(--cu-grey200))] text-neutral-300",
+              ].join(" ")}
+              onClick={() => setMode("table")}
+              title="Table view"
+            >
+              <Table size={14} />
+            </button>
+            <button
+              className={[
+                "h-7 w-7 grid place-items-center",
+                mode === "json"
+                  ? "bg-[#2C1A75] text-[#A89FFF]"
+                  : "bg-[rgb(var(--cu-topbar))] hover:bg-[rgb(var(--cu-grey200))] text-neutral-300",
+              ].join(" ")}
+              onClick={() => setMode("json")}
+              title="JSON view"
+            >
+              <Braces size={14} />
+            </button>
+          </div>
         </div>
-        {mode === "table" ? (
-          <SchemaEditor
-            fields={schema}
-            onChange={(f) => setSchemaFields(selectedSchema, f)}
-          />
-        ) : (
-          <NoxiEditor
-            className="flex-1"
-            value={json}
-            onChange={handleJsonChange}
-            language="json"
-          />
-        )}
+        <div className="flex-1 overflow-auto p-2">
+          {mode === "table" ? (
+            <SchemaEditor fields={schema} onChange={handleFieldsChange} />
+          ) : (
+            <NoxiEditor
+              className="flex-1"
+              value={json}
+              onChange={handleJsonChange}
+              language="json"
+            />
+          )}
+        </div>
       </div>
     );
   }

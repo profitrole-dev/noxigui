@@ -41,6 +41,7 @@ type StudioState = {
   setSelectedSchema: (name: string | null) => void;
   addSchema: () => void;
   setSchemaFields: (name: string, fields: SchemaField[]) => void;
+  renameSchema: (oldName: string, newName: string) => void;
 
   // tabs
   setTab: (t: Tab) => void;
@@ -239,6 +240,29 @@ export const useStudio = create<StudioState>((set, get) => {
         },
         dirty: { ...s.dirty, data: true },
       }));
+      scheduleSave();
+    },
+
+    renameSchema: (oldName, newName) => {
+      const trimmed = newName.trim();
+      if (!trimmed) return;
+      set((s) => {
+        const data = { ...(s.project.data ?? {}) };
+        if (!data[oldName]) return {};
+        const existing = new Set(Object.keys(data));
+        existing.delete(oldName);
+        let nextName = trimmed;
+        let i = 2;
+        while (existing.has(nextName)) nextName = `${trimmed} ${i++}`;
+        data[nextName] = data[oldName];
+        delete data[oldName];
+        return {
+          project: { ...s.project, data },
+          selectedSchema:
+            s.selectedSchema === oldName ? nextName : s.selectedSchema,
+          dirty: { ...s.dirty, data: true },
+        };
+      });
       scheduleSave();
     },
 

@@ -5,9 +5,9 @@ import { useStudio } from '../../state/useStudio';
 
 function buildRoot(data: Record<string, any>): TreeItem {
   return {
-    id: 'schema-root',
-    name: 'Schemas',
-    type: 'folder',
+    id: 'data-root',
+    name: 'Data',
+    type: 'data',
     children: Object.keys(data).map((name) => ({
       id: `schema:${name}`,
       name,
@@ -18,9 +18,9 @@ function buildRoot(data: Record<string, any>): TreeItem {
 }
 
 export function DataModelsPanel() {
-  const { project, addSchema, selectedSchema, setSelectedSchema } = useStudio();
+  const { project, addSchema, selectedSchema, setSelectedSchema, renameSchema } = useStudio();
   const [root, setRoot] = useState<TreeItem>(() => buildRoot(project.data));
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(['schema-root']));
+  const [expanded, setExpanded] = useState<Set<string>>(new Set(['data-root']));
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export function DataModelsPanel() {
   return (
     <div className="h-full overflow-auto p-2 text-sm">
       <div className="px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide flex items-center justify-between">
-        <span>Schemas</span>
+        <span>Data</span>
         <button
           className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
           onClick={addSchema}
@@ -63,6 +63,10 @@ export function DataModelsPanel() {
           if (first && first.startsWith('schema:'))
             setSelectedSchema(first.slice('schema:'.length));
           else setSelectedSchema(null);
+        }}
+        onRename={(id, nextName) => {
+          if (id.startsWith('schema:'))
+            renameSchema(id.slice('schema:'.length), nextName);
         }}
       />
     </div>
