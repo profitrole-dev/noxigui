@@ -1,6 +1,6 @@
 import React from "react";
 import { SidebarLogo } from "./SidebarLogo";
-import { SidebarSwitch } from "./SidebarSwitch";
+import { SidebarTabs } from "./SidebarTabs";
 import { SidebarSeparator } from "./SidebarSeparator";
 import { SceneTreePanel } from "./panels/SceneTreePanel";
 import { DataModelsPanel } from "./panels/DataModelsPanel";
@@ -24,7 +24,7 @@ export function Sidebar({
   return (
     <div className="sidebar" role="navigation" aria-label="Primary">
       <SidebarLogo initial={appInitial} />
-      <SidebarSwitch activeTab={activeTab} setTab={setTab} />
+      <SidebarTabs activeTab={activeTab} setTab={setTab} />
       <SidebarSeparator />
       <ContextPanelContainer>
         {activeTab === "Layout" && <SceneTreePanel />}

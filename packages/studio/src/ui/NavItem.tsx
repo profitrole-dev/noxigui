@@ -1,5 +1,10 @@
 import React from "react";
 
+/**
+ * A single entry in the sidebar navigation.
+ * `SidebarTabs` composes several `NavItem` components to present
+ * the available sections of the studio.
+ */
 type Props = {
   icon?: React.ReactNode;
   label: string;
