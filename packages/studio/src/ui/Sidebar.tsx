@@ -2,10 +2,10 @@ import React from "react";
 import { SidebarLogo } from "./SidebarLogo";
 import { SidebarTabs } from "./SidebarTabs";
 import { SidebarSeparator } from "./SidebarSeparator";
-import { SceneTreePanel } from "./panels/SceneTreePanel";
-import { DataModelsPanel } from "./panels/DataModelsPanel";
-import { ViewModelsPanel } from "./panels/ViewModelsPanel";
-import { AssetsPanel } from "./panels/AssetsPanel";
+import { SceneTreePanel } from "../layout/panels/SceneTreePanel";
+import { DataModelsPanel } from "../data/panels/DataModelsPanel";
+import { ViewModelsPanel } from "../viewmodels/panels/ViewModelsPanel";
+import { AssetsPanel } from "../assets/panels/AssetsPanel";
 import { ContextPanelContainer } from "./panels/ContextPanelContainer";
 
 export type Tab = "Layout" | "Data" | "ViewModels" | "Assets";

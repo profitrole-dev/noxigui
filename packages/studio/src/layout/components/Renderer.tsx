@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import * as PIXI from "pixi.js";
 import Noxi from "noxi.js";
-import { useStudio } from "./state/useStudio";
-import type { Project } from "./types/project";
-import CanvasStage from "./ui/CanvasStage";
+import { useStudio } from "../../state/useStudio";
+import type { Project } from "../../types/project";
+import CanvasStage from "./CanvasStage";
 
 export function Renderer() {
   const { project } = useStudio();

@@ -1,8 +1,8 @@
 import React from "react";
 import { Plus } from "lucide-react";
-import { useStudio } from "../../state/useStudio.ts";
-import SchemaEditor from "../SchemaEditor.tsx";
-import type { SchemaField } from "../../types/schema.js";
+import { useStudio } from "../state/useStudio";
+import SchemaEditor from "./components/SchemaEditor";
+import type { SchemaField } from "./types/schema.js";
 
 export function DataTab() {
   const { project, selectedSchema, addSchema, setSchemaFields } = useStudio();

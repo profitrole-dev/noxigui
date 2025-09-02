@@ -1,6 +1,6 @@
-import {useStudio} from "../../state/useStudio.ts";
+import { useStudio } from "../state/useStudio";
 import React from "react";
-import NoxiEditor from "../NoxiEditor";
+import NoxiEditor from "./components/NoxiEditor";
 
 
 export function LayoutTab() {

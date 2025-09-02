@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { Plus, FolderPlus } from 'lucide-react'
-import Tree, { type TreeItem, type DropPosition } from '../tree/Tree'
+import Tree, { type TreeItem, type DropPosition } from '../../ui/tree/Tree'
 import { useStudio } from '../../state/useStudio'
-import { ContextPanel } from './ContextPanel'
+import { ContextPanel } from '../../ui/panels/ContextPanel'
 
 // === Вспомогалки ===
 const makeUnique = (base: string, taken: Set<string>, sep = '-') => {

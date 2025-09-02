@@ -4,10 +4,11 @@ import { AppShell } from "./ui/AppShell";
 import { Sidebar } from "./ui/Sidebar";
 import { TopbarActions } from "./ui/TopbarActions";
 import { TopbarTitle } from "./ui/TopbarTitle";
-import { LayoutTab } from "./ui/tabs/LayoutTab";
-import { DataTab } from "./ui/tabs/DataTab";
-import { AssetsTab } from "./ui/tabs/AssetsTab";
-import { Renderer } from "./Renderer";
+import { LayoutTab } from "./layout/LayoutTab";
+import { DataTab } from "./data/DataTab";
+import { AssetsTab } from "./assets/AssetsTab";
+import { ViewModelsTab } from "./viewmodels/ViewModelsTab";
+import { Renderer } from "./layout/components/Renderer";
 import { SplitContainer } from "./ui/SplitContainer";
 import { SplitWindow } from "./ui/SplitWindow";
 
@@ -81,10 +82,10 @@ export default function App() {
     >
       <SplitContainer>
         <SplitWindow>
-          {activeTab === "Layout" && <LayoutTab/>}
-          {activeTab === "Data" && <DataTab/>}
-          {activeTab === "ViewModels" && <div className="p-4">ViewModels editor WIP</div>}
-          {activeTab === "Assets" && <AssetsTab/>}
+          {activeTab === "Layout" && <LayoutTab />}
+          {activeTab === "Data" && <DataTab />}
+          {activeTab === "ViewModels" && <ViewModelsTab />}
+          {activeTab === "Assets" && <AssetsTab />}
         </SplitWindow>
         <SplitWindow>
           <div className="h-full relative">

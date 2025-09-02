@@ -1,5 +1,5 @@
 import React from "react";
-import { ContextPanel } from "./ContextPanel";
+import { ContextPanel } from "../../ui/panels/ContextPanel";
 
 export function ViewModelsPanel() {
   return (

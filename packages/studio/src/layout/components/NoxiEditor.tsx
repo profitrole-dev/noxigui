@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import * as monaco from "monaco-editor";
-import { useNoxiMonacoTheme } from "./theme/useNoxiMonacoTheme";
+import { useNoxiMonacoTheme } from "../../ui/theme/useNoxiMonacoTheme";
 
 export type NoxiEditorProps = {
   value: string;
