@@ -7,15 +7,15 @@ const Noxi = {
      * Create a GUI object from XML.
      *
      * @param xml - Markup describing the UI.
-     * @param renderer - Optional renderer instance. Defaults to Pixi renderer.
-     * @param resolution - Rendering resolution (device pixel ratio).
+     * @param options - Optional settings for creation, including `renderer`
+     *   and `resolution` (device pixel ratio). Defaults to Pixi renderer.
      */
     create(
       xml: string,
-      renderer: Renderer = createPixiRenderer(),
-      resolution?: number
+      options: { renderer?: Renderer; resolution?: number } = {}
     ): GuiObject {
-      const res = resolution ?? renderer.resolution ?? 1;
+      const renderer = options.renderer ?? createPixiRenderer();
+      const res = options.resolution ?? renderer.resolution ?? 1;
       renderer.resolution = res;
       const gui = RuntimeNoxi.gui.create(xml, renderer);
       if (res !== 1) {

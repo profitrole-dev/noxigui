@@ -33,7 +33,7 @@ pnpm -F noxi.js build
 ```ts
 import Noxi from 'noxi.js';
 
-const gui = Noxi.gui.create(xml, undefined, window.devicePixelRatio); // uses the PIXI.js renderer by default
+const gui = Noxi.gui.create(xml, { resolution: window.devicePixelRatio }); // uses the PIXI.js renderer by default
 ```
 
 ### Data binding
