@@ -1,4 +1,5 @@
 import React from "react";
+import { WindowTopBar } from "../WindowTopBar";
 
 export function ContextPanel({
   topbar,
@@ -9,7 +10,7 @@ export function ContextPanel({
 }) {
   return (
     <div className="context-panel">
-      {topbar && <div className="context-panel-topbar">{topbar}</div>}
+      {topbar && <WindowTopBar>{topbar}</WindowTopBar>}
       {children}
     </div>
   );

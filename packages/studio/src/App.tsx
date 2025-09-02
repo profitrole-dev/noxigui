@@ -11,6 +11,7 @@ import { ViewModelsTab } from "./viewmodels/ViewModelsTab";
 import { Renderer } from "./layout/components/Renderer";
 import { SplitContainer } from "./ui/SplitContainer";
 import { SplitWindow } from "./ui/SplitWindow";
+import { CanvasToolbar } from "./layout/components/CanvasToolbar";
 
 type Tab = "Layout" | "Data" | "ViewModels" | "Assets";
 
@@ -30,6 +31,8 @@ export default function App() {
     renameProject, // ← добавь в стор, если ещё нет
     undo,
     redo,
+    setCanvasSize,
+    swapCanvasSize,
   } = useStudio() as any;
 
   useEffect(() => {
@@ -87,9 +90,18 @@ export default function App() {
           {activeTab === "ViewModels" && <ViewModelsTab />}
           {activeTab === "Assets" && <AssetsTab />}
         </SplitWindow>
-        <SplitWindow>
+        <SplitWindow
+          topbar={
+            <CanvasToolbar
+              width={project.screen?.width ?? 1280}
+              height={project.screen?.height ?? 720}
+              onCommitSize={(w, h) => setCanvasSize(w, h)}
+              onSwap={swapCanvasSize}
+            />
+          }
+        >
           <div className="h-full relative">
-            <Renderer/>
+            <Renderer />
           </div>
         </SplitWindow>
       </SplitContainer>

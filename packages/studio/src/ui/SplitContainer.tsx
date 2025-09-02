@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { SplitGutter } from "./SplitGutter";
 
 export function SplitContainer({
                                children,
@@ -30,29 +31,16 @@ export function SplitContainer({
     }
   }, [sizes]);
 
-  const startDrag = (index: number) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    const startX = e.clientX;
-    const startSizes = [...sizes];
+  const handleResize = (index: number, delta: number) => {
     const rect = containerRef.current?.getBoundingClientRect();
     const width = rect?.width || 1;
-
-    const onMouseMove = (ev: MouseEvent) => {
-      const delta = ev.clientX - startX;
-      const deltaPercent = (delta / width) * 100;
-      const next = [...startSizes];
-      next[index] = Math.max(5, startSizes[index] + deltaPercent);
-      next[index + 1] = Math.max(5, startSizes[index + 1] - deltaPercent);
-      setSizes(next);
-    };
-
-    const onMouseUp = () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-    };
-
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
+    const deltaPercent = (delta / width) * 100;
+    setSizes((prev) => {
+      const next = [...prev];
+      next[index] = Math.max(5, prev[index] + deltaPercent);
+      next[index + 1] = Math.max(5, prev[index + 1] - deltaPercent);
+      return next;
+    });
   };
 
   return (
@@ -63,10 +51,7 @@ export function SplitContainer({
             {child}
           </div>
           {i < childArray.length - 1 && (
-            <div
-              className="w-1 h-full cursor-col-resize bg-neutral-800"
-              onMouseDown={startDrag(i)}
-            />
+            <SplitGutter index={i} orientation="vertical" onResize={handleResize} />
           )}
         </React.Fragment>
       ))}

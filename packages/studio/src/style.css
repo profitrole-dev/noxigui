@@ -70,6 +70,3 @@ html, body, #root {
   @apply p-2 text-sm;
 }
 
-.context-panel-topbar {
-  @apply px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide flex items-center justify-between;
-}

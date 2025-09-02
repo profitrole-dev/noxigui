@@ -1,4 +1,5 @@
 import React from "react";
+import { WindowTopBar } from "./WindowTopBar";
 
 export function SplitWindow({
                              topbar,
@@ -9,11 +10,7 @@ export function SplitWindow({
 }) {
   return (
     <div className="flex flex-col h-full">
-      {topbar && (
-        <div className="border-b border-neutral-800 px-2 py-1">
-          {topbar}
-        </div>
-      )}
+      {topbar && <WindowTopBar>{topbar}</WindowTopBar>}
       <div className="flex-1 min-h-0 overflow-hidden">
         {children}
       </div>

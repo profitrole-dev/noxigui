@@ -1,6 +1,5 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef } from "react";
 import { useStudio } from "../../state/useStudio";
-import { CanvasToolbar } from "./CanvasToolbar";
 import { useFitScale } from "../hooks/useFitScale";
 
 export default function CanvasStage({
@@ -10,28 +9,10 @@ export default function CanvasStage({
   children?: React.ReactNode;
   className?: string;
 }) {
-  const { project, setCanvasSize, swapCanvasSize } = useStudio();
+  const { project } = useStudio();
   const { width, height } = project.screen ?? { width: 1280, height: 720 };
 
-  // 1) реф тулбара и его динамическая высота
-  const toolbarRef = useRef<HTMLDivElement>(null);
-  const [toolbarH, setToolbarH] = useState(40); // дефолт 40px (h-10)
-
-  useEffect(() => {
-    const el = toolbarRef.current;
-    if (!el) return;
-    const update = () => setToolbarH(el.offsetHeight || 40);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    window.addEventListener("resize", update);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", update);
-    };
-  }, []);
-
-  // 2) safe-area: пространство для канваса с учётом отступов
+  // safe-area: пространство для канваса с учётом отступов
   const safeRef = useRef<HTMLDivElement>(null);
   const scale = useFitScale(safeRef, width, height);
 
@@ -42,23 +23,12 @@ export default function CanvasStage({
         className || "",
       ].join(" ")}
     >
-      {/* Тулбар прижат к верху, без скруглений */}
-      <div ref={toolbarRef} className="absolute top-0 left-0 right-0">
-        <CanvasToolbar
-          width={width}
-          height={height}
-          onCommitSize={(nw, nh) => setCanvasSize(nw, nh)}
-          onSwap={swapCanvasSize}
-          className="h-10 border-b border-[rgb(var(--cu-border))] bg-[rgb(var(--cu-grey200))]"
-        />
-      </div>
-
-      {/* SAFE-AREA: 8px от всех краёв + под тулбаром ещё его высота */}
+      {/* SAFE-AREA: 8px от всех краёв */}
       <div
         ref={safeRef}
         className="absolute"
         style={{
-          top: toolbarH + 8, // тулбар + 8px
+          top: 8,
           left: 8,
           right: 8,
           bottom: 8,
