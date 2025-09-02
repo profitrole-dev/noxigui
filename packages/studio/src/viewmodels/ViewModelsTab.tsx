@@ -1,6 +1,6 @@
 import React from "react";
 import MonacoEditor from "react-monaco-editor";
-import {useStudio} from "../../state/useStudio.ts";
+import { useStudio } from "../state/useStudio";
 
 
 export function ViewModelsTab() {

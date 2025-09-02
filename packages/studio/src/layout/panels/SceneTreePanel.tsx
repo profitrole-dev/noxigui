@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import Tree, { type TreeItem } from "../tree/Tree";
+import Tree, { type TreeItem } from "../../ui/tree/Tree";
 import { useStudio } from "../../state/useStudio";
-import { ContextPanel } from "./ContextPanel";
+import { ContextPanel } from "../../ui/panels/ContextPanel";
 import {
   Box,
   Component,

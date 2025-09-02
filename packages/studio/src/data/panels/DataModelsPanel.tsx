@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
-import Tree, { type TreeItem } from '../tree/Tree';
+import Tree, { type TreeItem } from '../../ui/tree/Tree';
 import { useStudio } from '../../state/useStudio';
-import { ContextPanel } from './ContextPanel';
+import { ContextPanel } from '../../ui/panels/ContextPanel';
 
 function buildRoot(data: Record<string, any>): TreeItem {
   return {

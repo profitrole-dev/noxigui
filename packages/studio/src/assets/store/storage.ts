@@ -1,6 +1,6 @@
 // storage.ts
 import { get, set, del, keys } from "idb-keyval";
-import type { Project } from "../types/project.js";
+import type { Project } from "../../types/project.js";
 
 const PROJECT_KEY = "noxigui:project:v2";
 const ASSET_PREFIX = "noxigui:asset:";

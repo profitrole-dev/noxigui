@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useStudio } from "../state/useStudio";
+import { useStudio } from "../../state/useStudio";
 import { CanvasToolbar } from "./CanvasToolbar";
-import {useFitScale} from "../hooks/useFitScale";
+import { useFitScale } from "../hooks/useFitScale";
 
 export default function CanvasStage({
                                       children,
