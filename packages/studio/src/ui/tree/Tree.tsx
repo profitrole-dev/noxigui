@@ -28,6 +28,8 @@ export type TreeItem = {
   name: string
   type: TreeItemType
   children?: TreeItem[]
+  /** Дополнительный тип/тег элемента */
+  tag?: string
 }
 
 export type DropPosition = 'inside' | 'before' | 'after'
@@ -74,6 +76,9 @@ export type TreeProps = {
 
   renderIcon?: (item: TreeItem, expanded: boolean) => React.ReactNode
 
+  /** Кастомный рендер подписи узла */
+  renderLabel?: (item: TreeItem) => React.ReactNode
+
   /** Кастомная политика dnd. По умолчанию: inside только в папку. */
   allowDrop?: (source: TreeItem, target: TreeItem, pos: DropPosition) => boolean
 }
@@ -98,6 +103,7 @@ export default function Tree({
   onRename,
   onDelete,
   renderIcon,
+  renderLabel,
   allowDrop,
 }: TreeProps) {
   const itemsMap = useMemo(() => collectMap(items), [items])
@@ -171,6 +177,7 @@ export default function Tree({
           onRename={onRename}
           onDelete={onDelete}
           renderIcon={renderIcon}
+          renderLabel={renderLabel}
           itemsMap={itemsMap}
           canDrop={canDrop}
           draggingIdsRef={draggingIdsRef}
@@ -192,6 +199,7 @@ function TreeNode({
   onRename,
   onDelete,
   renderIcon,
+  renderLabel,
   itemsMap,
   canDrop,
   draggingIdsRef,
@@ -209,6 +217,7 @@ function TreeNode({
   onRename?: (id: string, nextName: string) => void
   onDelete?: (id: string) => void
   renderIcon?: (item: TreeItem, expanded: boolean) => React.ReactNode
+  renderLabel?: (item: TreeItem) => React.ReactNode
   itemsMap: Map<string, TreeItem>
   canDrop: (source: TreeItem, target: TreeItem, pos: DropPosition) => boolean
   draggingIdsRef: React.MutableRefObject<string[] | null>
@@ -364,7 +373,11 @@ function TreeNode({
 
         {/* Имя / инпут */}
         {!editing ? (
-          <span className="truncate">{item.name}</span>
+          renderLabel ? (
+            renderLabel(item)
+          ) : (
+            <span className="truncate">{item.name}</span>
+          )
         ) : (
           <input
             ref={inputRef}
@@ -432,6 +445,7 @@ function TreeNode({
               onRename={onRename}
               onDelete={onDelete}
               renderIcon={renderIcon}
+              renderLabel={renderLabel}
               itemsMap={itemsMap}
               canDrop={canDrop}
               draggingIdsRef={draggingIdsRef}
