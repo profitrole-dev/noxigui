@@ -9,8 +9,8 @@ import {
   MousePointer,
   Square,
   Type as TextIcon,
-  PlusSquare,
-  MinusSquare,
+  ChevronsUp,
+  ChevronsDown,
 } from "lucide-react";
 
 // Tags that should not appear in the scene tree.
@@ -106,9 +106,9 @@ export function SceneTreePanel() {
                 title={allExpanded ? "Collapse all" : "Expand all"}
               >
                 {allExpanded ? (
-                  <MinusSquare size={14} />
+                  <ChevronsUp size={14} />
                 ) : (
-                  <PlusSquare size={14} />
+                  <ChevronsDown size={14} />
                 )}
               </button>
             </div>
@@ -131,9 +131,9 @@ export function SceneTreePanel() {
               title={allExpanded ? "Collapse all" : "Expand all"}
             >
               {allExpanded ? (
-                <MinusSquare size={14} />
+                <ChevronsUp size={14} />
               ) : (
-                <PlusSquare size={14} />
+                <ChevronsDown size={14} />
               )}
             </button>
           </div>

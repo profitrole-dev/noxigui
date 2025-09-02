@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
-import { Plus, FolderPlus, PlusSquare, MinusSquare } from 'lucide-react'
+import { Plus, FolderPlus, ChevronsUp, ChevronsDown } from 'lucide-react'
 import Tree, { type TreeItem, type DropPosition } from '../../ui/tree/Tree'
 import { useStudio } from '../../state/useStudio'
 import { ContextPanel } from '../../ui/panels/ContextPanel'
@@ -306,7 +306,7 @@ export function AssetsPanel() {
               onClick={toggleExpand}
               title={allExpanded ? 'Collapse all' : 'Expand all'}
             >
-              {allExpanded ? <MinusSquare size={14} /> : <PlusSquare size={14} />}
+              {allExpanded ? <ChevronsUp size={14} /> : <ChevronsDown size={14} />}
             </button>
             <button
               className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
