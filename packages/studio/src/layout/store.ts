@@ -11,7 +11,7 @@ export const defaultCanvas = { width: 1280, height: 720 };
 
 export const createLayoutSlice = (
   scheduleSave: () => void
-): StateCreator<any, [], [], LayoutSlice> => (set, get) => ({
+): StateCreator<any, [], [], LayoutSlice> => (set, _get) => ({
   canvas: { ...defaultCanvas },
   setLayout: (layout) => {
     set((s: any) => ({

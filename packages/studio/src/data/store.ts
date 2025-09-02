@@ -11,7 +11,7 @@ export type DataSlice = {
 
 export const createDataSlice = (
   scheduleSave: () => void
-): StateCreator<any, [], [], DataSlice> => (set, get) => ({
+): StateCreator<any, [], [], DataSlice> => (set, _get) => ({
   selectedSchema: null,
   setSelectedSchema: (name) => set({ selectedSchema: name }),
   addSchema: () => {

@@ -7,10 +7,14 @@ import {
   deleteMissingAssetBlobs,
 } from '../assets/store/storage.js';
 import jsonPatch from 'fast-json-patch';
-import { createLayoutSlice, LayoutSlice, defaultCanvas } from '../layout/store';
-import { createDataSlice, DataSlice } from '../data/store';
-import { createAssetsSlice, AssetsSlice } from '../assets/store';
-import { createViewModelsSlice, ViewModelsSlice } from '../viewmodels/store';
+import { createLayoutSlice, defaultCanvas } from '../layout/store.js';
+import { createDataSlice } from '../data/store.js';
+import { createAssetsSlice } from '../assets/store.js';
+import { createViewModelsSlice } from '../viewmodels/store.js';
+import type { LayoutSlice } from '../layout/store.js';
+import type { DataSlice } from '../data/store.js';
+import type { AssetsSlice } from '../assets/store.js';
+import type { ViewModelsSlice } from '../viewmodels/store.js';
 
 const { applyPatch, compare } = jsonPatch;
 
@@ -47,7 +51,7 @@ export type StudioState = LayoutSlice &
     redo: () => void;
   };
 
-export const useStudio = create<StudioState>()((set, get) => {
+export const useStudio = create<StudioState>()((set, get, store) => {
   let saveTimer: ReturnType<typeof setTimeout> | undefined;
 
   const scheduleSave = () => {
@@ -104,10 +108,10 @@ export const useStudio = create<StudioState>()((set, get) => {
     project: { ...defaultProject },
     activeTab: 'Layout',
     dirty: { layout: false, data: false, assets: false },
-    ...createLayoutSlice(scheduleSave)(set, get),
-    ...createDataSlice(scheduleSave)(set, get),
-    ...createAssetsSlice(runProjectCommand)(set, get),
-    ...createViewModelsSlice()(set, get),
+    ...createLayoutSlice(scheduleSave)(set, get, store),
+    ...createDataSlice(scheduleSave)(set, get, store),
+    ...createAssetsSlice(runProjectCommand)(set, get, store),
+    ...createViewModelsSlice()(set, get, store),
 
     setTab: (t) => set({ activeTab: t }),
 
