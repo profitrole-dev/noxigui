@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Plus, ChevronsUp, ChevronsDown } from 'lucide-react';
+import { Plus, ChevronsUpDown, ChevronsDownUp } from 'lucide-react';
 import Tree, { type TreeItem } from '../../ui/tree/Tree';
 import { useStudio } from '../../state/useStudio';
 import { ContextPanel } from '../../ui/panels/ContextPanel';
@@ -62,9 +62,9 @@ export function DataModelsPanel() {
                 title={allExpanded ? 'Collapse all' : 'Expand all'}
               >
                 {allExpanded ? (
-                  <ChevronsUp size={14} />
+                  <ChevronsDownUp size={14} />
                 ) : (
-                  <ChevronsDown size={14} />
+                  <ChevronsUpDown size={14} />
                 )}
               </button>
               <button
