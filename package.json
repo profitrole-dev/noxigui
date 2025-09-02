@@ -17,6 +17,8 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.50.0",
+    "lucide-react": "^0.542.0",
     "pixi.js": "^7.4.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

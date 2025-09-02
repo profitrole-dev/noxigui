@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import * as PIXI from 'pixi.js';
 import { RuntimeInstance } from './runtime';
+import { ContextTreePanel } from './components/ContextTreePanel';
+import type { TreeNode } from './components/ContextTreePanel';
 
 const initialSchema = `
 <Grid Margin="16" RowGap="12" ColumnGap="12">
@@ -62,6 +64,17 @@ type RuntimeHandle = {
 export default function App() {
   const [code, setCode] = useState(initialSchema);
   const [assetsReady, setAssetsReady] = useState(false);
+
+  const treeData: TreeNode[] = [
+    {
+      id: '1',
+      label: 'Root',
+      children: [
+        { id: '1-1', label: 'Child 1' },
+        { id: '1-2', label: 'Child 2' },
+      ],
+    },
+  ];
 
   const pixiRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PIXI.Application | null>(null);
@@ -189,6 +202,7 @@ export default function App() {
         backgroundColor: '#1e1e1e'
       }}
     >
+      <ContextTreePanel title="Tree" nodes={treeData} />
       <MonacoEditor
         language="xml"
         theme="vs-dark"

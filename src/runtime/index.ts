@@ -361,8 +361,22 @@ const Auto = ():Len => ({kind:'auto', v:0});
 const Px   = (n:number):Len => ({kind:'px', v:n});
 const Star = (n=1):Len => ({kind:'star', v:n});
 
-class Row { actual=0; desired=0; constructor(public len:Len){} }
-class Col { actual=0; desired=0; constructor(public len:Len){} }
+class Row {
+  actual = 0;
+  desired = 0;
+  len: Len;
+  constructor(len: Len) {
+    this.len = len;
+  }
+}
+class Col {
+  actual = 0;
+  desired = 0;
+  len: Len;
+  constructor(len: Len) {
+    this.len = len;
+  }
+}
 
 const rowMap = new WeakMap<UIElement, number>();
 const colMap = new WeakMap<UIElement, number>();
