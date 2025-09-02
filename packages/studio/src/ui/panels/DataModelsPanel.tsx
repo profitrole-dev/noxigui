@@ -5,8 +5,8 @@ import { useStudio } from '../../state/useStudio';
 
 function buildRoot(data: Record<string, any>): TreeItem {
   return {
-    id: 'data-root',
-    name: 'Data',
+    id: 'models-root',
+    name: 'Models',
     type: 'data',
     children: Object.keys(data).map((name) => ({
       id: `schema:${name}`,
@@ -18,9 +18,9 @@ function buildRoot(data: Record<string, any>): TreeItem {
 }
 
 export function DataModelsPanel() {
-  const { project, addSchema, selectedSchema, setSelectedSchema, renameSchema } = useStudio();
+  const { project, addSchema, selectedSchema, setSelectedSchema, renameSchema, deleteSchema } = useStudio();
   const [root, setRoot] = useState<TreeItem>(() => buildRoot(project.data));
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(['data-root']));
+  const [expanded, setExpanded] = useState<Set<string>>(new Set(['models-root']));
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export function DataModelsPanel() {
   return (
     <div className="h-full overflow-auto p-2 text-sm">
       <div className="px-2 py-1 text-neutral-400 uppercase text-xs tracking-wide flex items-center justify-between">
-        <span>Data</span>
+        <span>Models</span>
         <button
           className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
           onClick={addSchema}
@@ -67,6 +67,10 @@ export function DataModelsPanel() {
         onRename={(id, nextName) => {
           if (id.startsWith('schema:'))
             renameSchema(id.slice('schema:'.length), nextName);
+        }}
+        onDelete={(id) => {
+          if (id.startsWith('schema:'))
+            deleteSchema(id.slice('schema:'.length));
         }}
       />
     </div>

@@ -42,6 +42,7 @@ type StudioState = {
   addSchema: () => void;
   setSchemaFields: (name: string, fields: SchemaField[]) => void;
   renameSchema: (oldName: string, newName: string) => void;
+  deleteSchema: (name: string) => void;
 
   // tabs
   setTab: (t: Tab) => void;
@@ -108,6 +109,7 @@ export const useStudio = create<StudioState>((set, get) => {
   const runProjectCommand = (
     mutate: (p: Project) => Project,
     sideEffects?: { onExecute?: () => void; onUndo?: () => void },
+    dirtyKey: keyof Dirty = 'assets',
   ) => {
     const before = structuredClone(get().project);
     const after = mutate(structuredClone(before));
@@ -117,7 +119,7 @@ export const useStudio = create<StudioState>((set, get) => {
       execute() {
         set((s) => ({
           project: applyPatch(structuredClone(s.project), patch).newDocument,
-          dirty: { ...s.dirty, assets: true },
+          dirty: { ...s.dirty, [dirtyKey]: true },
         }));
         queueMicrotask(() => scheduleSave());
         sideEffects?.onExecute?.();
@@ -125,7 +127,7 @@ export const useStudio = create<StudioState>((set, get) => {
       undo() {
         set((s) => ({
           project: applyPatch(structuredClone(s.project), inverse).newDocument,
-          dirty: { ...s.dirty, assets: true },
+          dirty: { ...s.dirty, [dirtyKey]: true },
         }));
         queueMicrotask(() => scheduleSave());
         sideEffects?.onUndo?.();
@@ -216,54 +218,89 @@ export const useStudio = create<StudioState>((set, get) => {
     },
 
     addSchema: () => {
-      set((s) => {
-        const existing = new Set(Object.keys(s.project.data ?? {}));
-        const base = "New schema";
-        let name = base;
-        let i = 2;
-        while (existing.has(name)) name = `${base} ${i++}`;
-        const data = { ...s.project.data, [name]: [] as SchemaField[] };
-        return {
-          project: { ...s.project, data },
-          selectedSchema: name,
-          dirty: { ...s.dirty, data: true },
-        };
-      });
-      scheduleSave();
+      let created = "";
+      runProjectCommand(
+        (p) => {
+          const existing = new Set(Object.keys(p.data ?? {}));
+          const base = "New schema";
+          let name = base;
+          let i = 2;
+          while (existing.has(name)) name = `${base} ${i++}`;
+          created = name;
+          return {
+            ...p,
+            data: { ...p.data, [name]: [] as SchemaField[] },
+          };
+        },
+        {
+          onExecute: () => set({ selectedSchema: created }),
+          onUndo: () => set({ selectedSchema: null }),
+        },
+        "data",
+      );
     },
 
     setSchemaFields: (name, fields) => {
-      set((s) => ({
-        project: {
-          ...s.project,
-          data: { ...s.project.data, [name]: fields },
-        },
-        dirty: { ...s.dirty, data: true },
-      }));
-      scheduleSave();
+      runProjectCommand(
+        (p) => ({
+          ...p,
+          data: { ...p.data, [name]: fields },
+        }),
+        undefined,
+        "data",
+      );
     },
 
     renameSchema: (oldName, newName) => {
       const trimmed = newName.trim();
       if (!trimmed) return;
-      set((s) => {
-        const data = { ...(s.project.data ?? {}) };
-        if (!data[oldName]) return {};
-        const existing = new Set(Object.keys(data));
-        existing.delete(oldName);
-        let nextName = trimmed;
-        let i = 2;
-        while (existing.has(nextName)) nextName = `${trimmed} ${i++}`;
-        data[nextName] = data[oldName];
-        delete data[oldName];
-        return {
-          project: { ...s.project, data },
-          selectedSchema:
-            s.selectedSchema === oldName ? nextName : s.selectedSchema,
-          dirty: { ...s.dirty, data: true },
-        };
-      });
-      scheduleSave();
+      let nextName = trimmed;
+      runProjectCommand(
+        (p) => {
+          const data = { ...(p.data ?? {}) };
+          if (!data[oldName]) return p;
+          const existing = new Set(Object.keys(data));
+          existing.delete(oldName);
+          let candidate = trimmed;
+          let i = 2;
+          while (existing.has(candidate)) candidate = `${trimmed} ${i++}`;
+          nextName = candidate;
+          data[nextName] = data[oldName];
+          delete data[oldName];
+          return { ...p, data };
+        },
+        {
+          onExecute: () =>
+            set((s) => ({
+              selectedSchema:
+                s.selectedSchema === oldName ? nextName : s.selectedSchema,
+            })),
+          onUndo: () =>
+            set((s) => ({
+              selectedSchema:
+                s.selectedSchema === nextName ? oldName : s.selectedSchema,
+            })),
+        },
+        "data",
+      );
+    },
+
+    deleteSchema: (name) => {
+      runProjectCommand(
+        (p) => {
+          const data = { ...(p.data ?? {}) };
+          delete data[name];
+          return { ...p, data };
+        },
+        {
+          onExecute: () =>
+            set((s) => ({
+              selectedSchema: s.selectedSchema === name ? null : s.selectedSchema,
+            })),
+          onUndo: () => set({ selectedSchema: name }),
+        },
+        "data",
+      );
     },
 
     setAssets: (assets) =>
