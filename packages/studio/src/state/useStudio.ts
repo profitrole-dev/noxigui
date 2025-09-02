@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { ProjectZ } from "../types/project.js";
 import type { Project } from "../types/project.js";
+import type { SchemaField } from "../types/schema.js";
 import {
   saveProjectToIDB,
   loadProjectFromIDB,
@@ -35,6 +36,11 @@ type StudioState = {
 
   selectAssetAliases: string[] | null;
   clearSelectAssetAliases: () => void;
+
+  selectedSchema: string | null;
+  setSelectedSchema: (name: string | null) => void;
+  addSchema: () => void;
+  setSchemaFields: (name: string, fields: SchemaField[]) => void;
 
   // tabs
   setTab: (t: Tab) => void;
@@ -133,6 +139,8 @@ export const useStudio = create<StudioState>((set, get) => {
     canvas: { ...defaultCanvas },
     selectAssetAliases: null,
     clearSelectAssetAliases: () => set({ selectAssetAliases: null }),
+    selectedSchema: null,
+    setSelectedSchema: (name) => set({ selectedSchema: name }),
 
     // ===== Tabs =====
     setTab: (t) => set({ activeTab: t }),
@@ -201,6 +209,34 @@ export const useStudio = create<StudioState>((set, get) => {
     setData: (data) => {
       set((s) => ({
         project: { ...s.project, data },
+        dirty: { ...s.dirty, data: true },
+      }));
+      scheduleSave();
+    },
+
+    addSchema: () => {
+      set((s) => {
+        const existing = new Set(Object.keys(s.project.data ?? {}));
+        const base = "New schema";
+        let name = base;
+        let i = 2;
+        while (existing.has(name)) name = `${base} ${i++}`;
+        const data = { ...s.project.data, [name]: [] as SchemaField[] };
+        return {
+          project: { ...s.project, data },
+          selectedSchema: name,
+          dirty: { ...s.dirty, data: true },
+        };
+      });
+      scheduleSave();
+    },
+
+    setSchemaFields: (name, fields) => {
+      set((s) => ({
+        project: {
+          ...s.project,
+          data: { ...s.project.data, [name]: fields },
+        },
         dirty: { ...s.dirty, data: true },
       }));
       scheduleSave();

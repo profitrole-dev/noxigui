@@ -9,10 +9,19 @@ import {
   Database,
   Edit2,
   Trash2,
+  Braces,
+  Table as TableIcon,
 } from 'lucide-react'
 
 /** Типы узлов */
-export type TreeItemType = 'folder' | 'view' | 'component' | 'image' | 'data'
+export type TreeItemType =
+  | 'folder'
+  | 'view'
+  | 'component'
+  | 'image'
+  | 'data'
+  | 'schema'
+  | 'dataset'
 
 export type TreeItem = {
   id: string
@@ -39,6 +48,10 @@ export function iconFor(
       return <ImageIcon size={16} />
     case 'data':
       return <Database size={16} />
+    case 'schema':
+      return <Braces size={16} />
+    case 'dataset':
+      return <TableIcon size={16} />
     default:
       return <Layout size={16} />
   }
