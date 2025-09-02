@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Tree, { type TreeItem } from "../../ui/tree/Tree";
 import { useStudio } from "../../state/useStudio";
 import { ContextPanel } from "../../ui/panels/ContextPanel";
@@ -9,6 +9,8 @@ import {
   MousePointer,
   Square,
   Type as TextIcon,
+  ChevronsUp,
+  ChevronsDown,
 } from "lucide-react";
 
 // Tags that should not appear in the scene tree.
@@ -59,6 +61,24 @@ export function SceneTreePanel() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["0"]));
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
+  const collectIds = (it: TreeItem): Set<string> => {
+    const ids = new Set<string>();
+    const walk = (node: TreeItem) => {
+      ids.add(node.id);
+      node.children?.forEach(walk);
+    };
+    walk(it);
+    return ids;
+  };
+
+  const allIds = useMemo(
+    () => (root ? collectIds(root) : new Set<string>()),
+    [root],
+  );
+  const allExpanded = root ? expanded.size === allIds.size : false;
+  const toggleExpand = () =>
+    setExpanded(allExpanded ? new Set() : new Set(allIds));
+
   useEffect(() => {
     const dom = new DOMParser().parseFromString(
       project.layout,
@@ -75,13 +95,51 @@ export function SceneTreePanel() {
 
   if (!root)
     return (
-      <ContextPanel topbar={<span>Scene</span>}>
+      <ContextPanel
+        topbar={
+          <>
+            <span>Scene</span>
+            <div className="flex items-center gap-1">
+              <button
+                className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+                onClick={toggleExpand}
+                title={allExpanded ? "Collapse all" : "Expand all"}
+              >
+                {allExpanded ? (
+                  <ChevronsUp size={14} />
+                ) : (
+                  <ChevronsDown size={14} />
+                )}
+              </button>
+            </div>
+          </>
+        }
+      >
         <div className="px-2 py-1 text-neutral-500">Invalid layout</div>
       </ContextPanel>
     );
 
   return (
-    <ContextPanel topbar={<span>Scene</span>}>
+    <ContextPanel
+      topbar={
+        <>
+          <span>Scene</span>
+          <div className="flex items-center gap-1">
+            <button
+              className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+              onClick={toggleExpand}
+              title={allExpanded ? "Collapse all" : "Expand all"}
+            >
+              {allExpanded ? (
+                <ChevronsUp size={14} />
+              ) : (
+                <ChevronsDown size={14} />
+              )}
+            </button>
+          </div>
+        </>
+      }
+    >
       <Tree
         items={[root]}
         expanded={expanded}

@@ -63,11 +63,15 @@ html, body, #root {
 }
 
 .context-panel-container {
-  @apply flex-1 overflow-auto text-sm;
+  @apply flex-1 overflow-auto text-sm min-h-0;
 }
 
 .context-panel {
-  @apply p-2 text-sm;
+  @apply flex flex-col h-full p-2 text-sm;
+}
+
+.context-panel-body {
+  @apply flex-1 overflow-auto;
 }
 
 .context-panel-topbar {
