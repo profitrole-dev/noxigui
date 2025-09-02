@@ -1,23 +1,23 @@
-import React, { useEffect } from "react";
-import { useStudio } from "./state/useStudio";
-import { AppShell } from "./ui/AppShell";
-import { Sidebar } from "./ui/Sidebar";
-import { TopbarActions } from "./ui/TopbarActions";
-import { TopbarTitle } from "./ui/TopbarTitle";
-import { LayoutTab } from "./ui/tabs/LayoutTab";
-import { DataTab } from "./ui/tabs/DataTab";
-import { AssetsTab } from "./ui/tabs/AssetsTab";
-import { Renderer } from "./Renderer";
+import React, { useEffect } from 'react'
+import { useStudio } from './state/useStudio'
+import { AppShell } from './ui/AppShell'
+import { Sidebar } from './ui/Sidebar'
+import { TopbarActions } from './ui/TopbarActions'
+import { TopbarTitle } from './ui/TopbarTitle'
+import { LayoutTab } from './ui/tabs/LayoutTab'
+import { DataTab } from './ui/tabs/DataTab'
+import { AssetsTab } from './ui/tabs/AssetsTab'
+import { Renderer } from './Renderer'
+import { SplitPane } from './ui/SplitPane'
 
-type Tab = "Layout" | "Data" | "ViewModels" | "Assets";
+type Tab = 'Layout' | 'Data' | 'ViewModels' | 'Assets'
 
 export default function App() {
-  const { hydrate } = useStudio();
+  const { hydrate } = useStudio()
 
   useEffect(() => {
-    hydrate(); // восстановить проект и ассеты из IndexedDB
-  }, [hydrate]);
-
+    hydrate() // восстановить проект и ассеты из IndexedDB
+  }, [hydrate])
 
   const {
     project,
@@ -27,28 +27,35 @@ export default function App() {
     renameProject, // ← добавь в стор, если ещё нет
     undo,
     redo,
-  } = useStudio() as any;
+  } = useStudio() as any
 
   useEffect(() => {
     const isTextInput = (el: any) =>
       el.tagName === 'INPUT' ||
       el.tagName === 'TEXTAREA' ||
       el.isContentEditable ||
-      el.closest?.('.monaco-editor');
+      el.closest?.('.monaco-editor')
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-        if (isTextInput(e.target as HTMLElement)) return;
-        e.preventDefault();
-        e.shiftKey ? redo() : undo();
+        if (isTextInput(e.target as HTMLElement)) return
+        e.preventDefault()
+        e.shiftKey ? redo() : undo()
       }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [undo, redo]);
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [undo, redo])
 
-  const onImport = async () => { /* твой код */ };
-  const onExport = () => { /* твой код */ };
-  const onRun = () => console.log("run");
+  const onImport = async () => {
+    /* твой код */
+  }
+  const onExport = () => {
+    /* твой код */
+  }
+  const onRun = () => console.log('run')
+
+  const defaultEditorWidth =
+    typeof window !== 'undefined' ? window.innerWidth / 2 : 600
 
   return (
     <AppShell
@@ -77,23 +84,30 @@ export default function App() {
         </div>
       }
     >
-      <div className="grid grid-cols-2 h-full">
-        {/* левая панель с редакторами */}
-        <div className="min-h-0 border-r border-neutral-800 overflow-hidden">
-          {/* табы */}
-          {activeTab === "Layout" && <LayoutTab/>}
-          {activeTab === "Data" && <DataTab/>}
-          {activeTab === "ViewModels" && <div className="p-4">ViewModels editor WIP</div>}
-          {activeTab === "Assets" && <AssetsTab/>}
-        </div>
-
-        {/* правая панель с CanvasStage */}
-        <div className="min-h-0 overflow-hidden">
-          <div className="h-full relative">
-            <Renderer/>
+      <SplitPane
+        storageKey="App.mainSplit"
+        defaultLeftWidth={defaultEditorWidth}
+        className="h-full"
+        left={
+          <div className="min-h-0 overflow-hidden">
+            {/* левая панель с редакторами */}
+            {activeTab === 'Layout' && <LayoutTab />}
+            {activeTab === 'Data' && <DataTab />}
+            {activeTab === 'ViewModels' && (
+              <div className="p-4">ViewModels editor WIP</div>
+            )}
+            {activeTab === 'Assets' && <AssetsTab />}
           </div>
-        </div>
-      </div>
+        }
+        right={
+          <div className="min-h-0 overflow-hidden">
+            {/* правая панель с CanvasStage */}
+            <div className="h-full relative">
+              <Renderer />
+            </div>
+          </div>
+        }
+      />
     </AppShell>
-  );
+  )
 }
