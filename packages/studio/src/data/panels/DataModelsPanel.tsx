@@ -47,6 +47,8 @@ export function DataModelsPanel() {
     setSelectedSchema,
     selectedDataset,
     setSelectedDataset,
+    renameSchema,
+    renameDataset,
   } = useStudio();
   const [root, setRoot] = useState<TreeItem>(() =>
     buildRoot(project.data ?? { schemas: {}, datasets: {} })
@@ -79,6 +81,13 @@ export function DataModelsPanel() {
   const allIds = useMemo(() => collectIds(root), [root]);
   const expandAll = () => setExpanded(new Set(allIds));
   const collapseAll = () => setExpanded(new Set());
+
+  const handleRename = (id: string, nextName: string) => {
+    if (id.startsWith('schema:'))
+      renameSchema(id.slice('schema:'.length), nextName);
+    else if (id.startsWith('dataset:'))
+      renameDataset(id.slice('dataset:'.length), nextName);
+  };
 
     return (
       <ContextPanel
@@ -144,6 +153,7 @@ export function DataModelsPanel() {
               setSelectedDataset(null);
             }
           }}
+          onRename={handleRename}
         />
       </ContextPanel>
     );

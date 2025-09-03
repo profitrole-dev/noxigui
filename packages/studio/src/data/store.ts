@@ -9,8 +9,10 @@ export type DataSlice = {
   setSelectedDataset: (name: string | null) => void;
   addSchema: () => void;
   setSchemaFields: (name: string, fields: SchemaField[]) => void;
+  renameSchema: (oldName: string, nextName: string) => void;
   addDataset: (schemaRef: string) => void;
   setDatasetRows: (name: string, rows: Dataset['rows']) => void;
+  renameDataset: (oldName: string, nextName: string) => void;
   setData: (o: any) => void;
 };
 
@@ -53,6 +55,37 @@ export const createDataSlice = (
     }));
     scheduleSave();
   },
+  renameSchema: (oldName, nextName) => {
+    set((s: any) => {
+      const existing = new Set(Object.keys(s.project.data.schemas));
+      existing.delete(oldName);
+      const base = nextName.trim();
+      let name = base;
+      let i = 2;
+      while (existing.has(name)) name = `${base} ${i++}`;
+      const schemas = { ...s.project.data.schemas };
+      const schema = schemas[oldName];
+      if (!schema) return {};
+      delete schemas[oldName];
+      schemas[name] = schema;
+      const datasets = { ...s.project.data.datasets };
+      for (const key of Object.keys(datasets)) {
+        if (datasets[key].schemaRef === oldName) {
+          datasets[key] = { ...datasets[key], schemaRef: name };
+        }
+      }
+      return {
+        project: {
+          ...s.project,
+          data: { ...s.project.data, schemas, datasets },
+        },
+        selectedSchema: s.selectedSchema === oldName ? name : s.selectedSchema,
+        selectedDataset: s.selectedDataset,
+        dirty: { ...s.dirty, data: true },
+      };
+    });
+    scheduleSave();
+  },
   addDataset: (schemaRef) => {
     set((s: any) => {
       const existing = new Set(Object.keys(s.project.data.datasets ?? {}));
@@ -86,6 +119,31 @@ export const createDataSlice = (
       },
       dirty: { ...s.dirty, data: true },
     }));
+    scheduleSave();
+  },
+  renameDataset: (oldName, nextName) => {
+    set((s: any) => {
+      const existing = new Set(Object.keys(s.project.data.datasets));
+      existing.delete(oldName);
+      const base = nextName.trim();
+      let name = base;
+      let i = 2;
+      while (existing.has(name)) name = `${base} ${i++}`;
+      const datasets = { ...s.project.data.datasets };
+      const dataset = datasets[oldName];
+      if (!dataset) return {};
+      delete datasets[oldName];
+      datasets[name] = dataset;
+      return {
+        project: {
+          ...s.project,
+          data: { ...s.project.data, datasets },
+        },
+        selectedDataset: s.selectedDataset === oldName ? name : s.selectedDataset,
+        selectedSchema: s.selectedSchema,
+        dirty: { ...s.dirty, data: true },
+      };
+    });
     scheduleSave();
   },
   setData: (data) => {
