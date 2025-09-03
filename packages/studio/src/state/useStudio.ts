@@ -119,8 +119,9 @@ export const useStudio = create<StudioState>()((set, get, store) => {
       try {
         const loaded = await loadProjectFromIDB();
         if (loaded) {
+          const parsed = ProjectZ.parse(loaded);
           set({
-            project: loaded,
+            project: parsed,
             activeTab: 'Layout',
             dirty: { layout: false, data: false, assets: false },
             canvas: { ...defaultCanvas },

@@ -48,12 +48,14 @@ export function DataModelsPanel() {
     selectedDataset,
     setSelectedDataset,
   } = useStudio();
-  const [root, setRoot] = useState<TreeItem>(() => buildRoot(project.data));
+  const [root, setRoot] = useState<TreeItem>(() =>
+    buildRoot(project.data ?? { schemas: {}, datasets: {} })
+  );
   const [expanded, setExpanded] = useState<Set<string>>(new Set(['schema-root', 'dataset-root']));
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    setRoot(buildRoot(project.data));
+    setRoot(buildRoot(project.data ?? { schemas: {}, datasets: {} }));
   }, [project.data]);
 
   useEffect(() => {
