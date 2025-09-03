@@ -54,7 +54,7 @@ export function DataModelsPanel() {
       <ContextPanel
         topbar={
           <>
-            <span>Schemas</span>
+            <span>Data</span>
             <div className="flex items-center gap-1">
               <button
                 className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"

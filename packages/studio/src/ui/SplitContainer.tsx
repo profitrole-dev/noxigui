@@ -64,7 +64,7 @@ export function SplitContainer({
           </div>
           {i < childArray.length - 1 && (
             <div
-              className="w-1 h-full cursor-col-resize bg-neutral-800"
+              className="w-1 h-full cursor-col-resize bg-neutral-700"
               onMouseDown={startDrag(i)}
             />
           )}
