@@ -46,9 +46,8 @@ export function DataModelsPanel() {
   };
 
   const allIds = useMemo(() => collectIds(root), [root]);
-  const allExpanded = expanded.size === allIds.size;
-  const toggleExpand = () =>
-    setExpanded(allExpanded ? new Set() : new Set(allIds));
+  const expandAll = () => setExpanded(new Set(allIds));
+  const collapseAll = () => setExpanded(new Set());
 
     return (
       <ContextPanel
@@ -58,14 +57,17 @@ export function DataModelsPanel() {
             <div className="flex items-center gap-1">
               <button
                 className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-                onClick={toggleExpand}
-                title={allExpanded ? 'Collapse all' : 'Expand all'}
+                onClick={expandAll}
+                title="Expand all"
               >
-                {allExpanded ? (
-                  <ChevronsDownUp size={14} />
-                ) : (
-                  <ChevronsUpDown size={14} />
-                )}
+                <ChevronsUpDown size={14} />
+              </button>
+              <button
+                className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+                onClick={collapseAll}
+                title="Collapse all"
+              >
+                <ChevronsDownUp size={14} />
               </button>
               <button
                 className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
