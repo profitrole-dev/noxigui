@@ -7,7 +7,7 @@ import { ContextPanel } from '../../ui/panels/ContextPanel';
 function buildRoot(data: Record<string, any>): TreeItem {
   return {
     id: 'schema-root',
-    name: 'Schemas',
+    name: 'Models',
     type: 'folder',
     children: Object.keys(data).map((name) => ({
       id: `schema:${name}`,
