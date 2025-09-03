@@ -9,8 +9,7 @@ import {
   MousePointer,
   Square,
   Type as TextIcon,
-  ChevronsUp,
-  ChevronsDown,
+  ChevronsUpDown, ChevronsDownUp,
 } from "lucide-react";
 
 // Tags that should not appear in the scene tree.
@@ -75,9 +74,8 @@ export function SceneTreePanel() {
     () => (root ? collectIds(root) : new Set<string>()),
     [root],
   );
-  const allExpanded = root ? expanded.size === allIds.size : false;
-  const toggleExpand = () =>
-    setExpanded(allExpanded ? new Set() : new Set(allIds));
+  const expandAll = () => setExpanded(new Set(allIds));
+  const collapseAll = () => setExpanded(new Set());
 
   useEffect(() => {
     const dom = new DOMParser().parseFromString(
@@ -102,14 +100,17 @@ export function SceneTreePanel() {
             <div className="flex items-center gap-1">
               <button
                 className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-                onClick={toggleExpand}
-                title={allExpanded ? "Collapse all" : "Expand all"}
+                onClick={expandAll}
+                title="Expand all"
               >
-                {allExpanded ? (
-                  <ChevronsUp size={14} />
-                ) : (
-                  <ChevronsDown size={14} />
-                )}
+                <ChevronsUpDown size={14} />
+              </button>
+              <button
+                className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+                onClick={collapseAll}
+                title="Collapse all"
+              >
+                <ChevronsDownUp size={14} />
               </button>
             </div>
           </>
@@ -127,14 +128,17 @@ export function SceneTreePanel() {
           <div className="flex items-center gap-1">
             <button
               className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-              onClick={toggleExpand}
-              title={allExpanded ? "Collapse all" : "Expand all"}
+              onClick={expandAll}
+              title="Expand all"
             >
-              {allExpanded ? (
-                <ChevronsUp size={14} />
-              ) : (
-                <ChevronsDown size={14} />
-              )}
+              <ChevronsUpDown size={14} />
+            </button>
+            <button
+              className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+              onClick={collapseAll}
+              title="Collapse all"
+            >
+              <ChevronsDownUp size={14} />
             </button>
           </div>
         </>
