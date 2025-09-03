@@ -22,7 +22,7 @@ export const defaultProject: Project = {
   name: 'Untitled',
   version: '0.1',
   layout: '<Grid/>',
-  data: {},
+  data: { schemas: {}, datasets: {} },
   assets: [],
   screen: { width: 1280, height: 720 },
   meta: {
@@ -72,6 +72,8 @@ export const useStudio = create<StudioState>()((set, get, store) => {
   let cursor = 0;
 
   const runProjectCommand = (
+    dirty: keyof Dirty,
+  ) => (
     mutate: (p: Project) => Project,
     sideEffects?: { onExecute?: () => void; onUndo?: () => void }
   ) => {
@@ -84,7 +86,7 @@ export const useStudio = create<StudioState>()((set, get, store) => {
       execute() {
         set((s) => ({
           project: applyPatch(structuredClone(s.project), patch).newDocument,
-          dirty: { ...s.dirty, assets: true },
+          dirty: { ...s.dirty, [dirty]: true },
         }));
         queueMicrotask(() => scheduleSave());
         sideEffects?.onExecute?.();
@@ -92,7 +94,7 @@ export const useStudio = create<StudioState>()((set, get, store) => {
       undo() {
         set((s) => ({
           project: applyPatch(structuredClone(s.project), inverse).newDocument,
-          dirty: { ...s.dirty, assets: true },
+          dirty: { ...s.dirty, [dirty]: true },
         }));
         queueMicrotask(() => scheduleSave());
         sideEffects?.onUndo?.();
@@ -109,8 +111,8 @@ export const useStudio = create<StudioState>()((set, get, store) => {
     activeTab: 'Layout',
     dirty: { layout: false, data: false, assets: false },
     ...createLayoutSlice(scheduleSave)(set, get, store),
-    ...createDataSlice(scheduleSave)(set, get, store),
-    ...createAssetsSlice(runProjectCommand)(set, get, store),
+    ...createDataSlice(runProjectCommand('data'))(set, get, store),
+    ...createAssetsSlice(runProjectCommand('assets'))(set, get, store),
     ...createViewModelsSlice()(set, get, store),
 
     setTab: (t) => set({ activeTab: t }),

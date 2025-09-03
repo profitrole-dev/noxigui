@@ -5,10 +5,14 @@ import SchemaEditor from "./components/SchemaEditor";
 import type { SchemaField } from "./types/schema.js";
 
 export function DataTab() {
-  const { project, selectedSchema, addSchema, setSchemaFields } = useStudio();
-  const data = project.data;
+  const { project, selectedSchema, selectedDataset, addSchema, setSchemaFields } =
+    useStudio();
+  const schemas = project.data.schemas;
 
-  if (Object.keys(data).length === 0) {
+  if (
+    Object.keys(schemas).length === 0 &&
+    Object.keys(project.data.datasets ?? {}).length === 0
+  ) {
     return (
       <div className="h-full flex items-center justify-center">
         <button
@@ -22,7 +26,7 @@ export function DataTab() {
   }
 
   const schema = selectedSchema
-    ? (data[selectedSchema] as SchemaField[] | undefined)
+    ? (schemas[selectedSchema] as SchemaField[] | undefined)
     : undefined;
   if (selectedSchema && Array.isArray(schema)) {
     return (
@@ -31,6 +35,13 @@ export function DataTab() {
           fields={schema}
           onChange={(f) => setSchemaFields(selectedSchema, f)}
         />
+      </div>
+    );
+  }
+  if (selectedDataset) {
+    return (
+      <div className="h-full flex items-center justify-center text-neutral-400">
+        Dataset editor not implemented
       </div>
     );
   }

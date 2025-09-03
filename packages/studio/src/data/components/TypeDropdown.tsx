@@ -20,7 +20,9 @@ export default function TypeDropdown({
   allowSchemas?: boolean;
 }) {
   const { project } = useStudio();
-  const schemaOptions: DropDownOption[] = Object.keys(project.data ?? {}).map((n) => ({
+  const schemaOptions: DropDownOption[] = Object.keys(
+    project.data.schemas ?? {}
+  ).map((n) => ({
     value: n,
     label: n,
   }));

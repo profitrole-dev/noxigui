@@ -81,6 +81,9 @@ export type TreeProps = {
 
   /** Кастомная политика dnd. По умолчанию: inside только в папку. */
   allowDrop?: (source: TreeItem, target: TreeItem, pos: DropPosition) => boolean
+
+  /** Кастомный рендер кнопок действий. Если возвращает undefined — используются дефолтные */
+  renderActions?: (item: TreeItem) => React.ReactNode | undefined
 }
 
 /** Собираем карту id -> item для быстрых проверок */
@@ -105,6 +108,7 @@ export default function Tree({
   renderIcon,
   renderLabel,
   allowDrop,
+  renderActions,
 }: TreeProps) {
   const itemsMap = useMemo(() => collectMap(items), [items])
 
@@ -178,6 +182,7 @@ export default function Tree({
           onDelete={onDelete}
           renderIcon={renderIcon}
           renderLabel={renderLabel}
+          renderActions={renderActions}
           itemsMap={itemsMap}
           canDrop={canDrop}
           draggingIdsRef={draggingIdsRef}
@@ -200,6 +205,7 @@ function TreeNode({
   onDelete,
   renderIcon,
   renderLabel,
+  renderActions,
   itemsMap,
   canDrop,
   draggingIdsRef,
@@ -218,6 +224,7 @@ function TreeNode({
   onDelete?: (id: string) => void
   renderIcon?: (item: TreeItem, expanded: boolean) => React.ReactNode
   renderLabel?: (item: TreeItem) => React.ReactNode
+  renderActions?: (item: TreeItem) => React.ReactNode | undefined
   itemsMap: Map<string, TreeItem>
   canDrop: (source: TreeItem, target: TreeItem, pos: DropPosition) => boolean
   draggingIdsRef: React.MutableRefObject<string[] | null>
@@ -398,29 +405,40 @@ function TreeNode({
         )}
 
         {/* Кнопки действий */}
-        <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100">
-          <button
-            className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-            title="Rename"
-            onClick={(e) => {
-              e.stopPropagation()
-              setEditing(true)
-              setDraft(item.name)
-            }}
-          >
-            <Edit2 size={14} />
-          </button>
-          <button
-            className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
-            title="Delete"
-            onClick={(e) => {
-              e.stopPropagation()
-              onDelete?.(item.id)
-            }}
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
+        {(() => {
+          const actions = renderActions?.(item)
+          if (actions !== undefined)
+            return (
+              <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100">
+                {actions}
+              </div>
+            )
+          return (
+            <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100">
+              <button
+                className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+                title="Rename"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setEditing(true)
+                  setDraft(item.name)
+                }}
+              >
+                <Edit2 size={14} />
+              </button>
+              <button
+                className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+                title="Delete"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete?.(item.id)
+                }}
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          )
+        })()}
       </div>
 
       {dropHint === 'before' && (
@@ -446,6 +464,7 @@ function TreeNode({
               onDelete={onDelete}
               renderIcon={renderIcon}
               renderLabel={renderLabel}
+              renderActions={renderActions}
               itemsMap={itemsMap}
               canDrop={canDrop}
               draggingIdsRef={draggingIdsRef}
