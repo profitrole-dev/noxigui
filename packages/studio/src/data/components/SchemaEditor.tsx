@@ -1,5 +1,6 @@
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
+import TypeDropdown from './TypeDropdown';
 import type { SchemaField } from '../types/schema.js';
 
 export default function SchemaEditor({
@@ -19,7 +20,7 @@ export default function SchemaEditor({
   };
 
   const addRow = () => {
-    onChange([...fields, { key: '', type: '', default: '' }]);
+    onChange([...fields, { key: '', type: 'Number', default: '' }]);
   };
 
   const removeRow = (idx: number) => {
@@ -47,10 +48,9 @@ export default function SchemaEditor({
               />
             </td>
             <td className="px-2 py-1">
-              <input
-                className="w-full bg-transparent outline-none"
+              <TypeDropdown
                 value={f.type}
-                onChange={(e) => handleChange(idx, 'type', e.target.value)}
+                onChange={(v) => handleChange(idx, 'type', v)}
               />
             </td>
             <td className="px-2 py-1">
