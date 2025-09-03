@@ -9,8 +9,7 @@ import {
   MousePointer,
   Square,
   Type as TextIcon,
-  ChevronsUp,
-  ChevronsDown,
+  ChevronsUpDown, ChevronsDownUp,
 } from "lucide-react";
 
 // Tags that should not appear in the scene tree.
@@ -104,14 +103,14 @@ export function SceneTreePanel() {
                 onClick={expandAll}
                 title="Expand all"
               >
-                <ChevronsDown size={14} />
+                <ChevronsUpDown size={14} />
               </button>
               <button
                 className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
                 onClick={collapseAll}
                 title="Collapse all"
               >
-                <ChevronsUp size={14} />
+                <ChevronsDownUp size={14} />
               </button>
             </div>
           </>
@@ -132,14 +131,14 @@ export function SceneTreePanel() {
               onClick={expandAll}
               title="Expand all"
             >
-              <ChevronsDown size={14} />
+              <ChevronsUpDown size={14} />
             </button>
             <button
               className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
               onClick={collapseAll}
               title="Collapse all"
             >
-              <ChevronsUp size={14} />
+              <ChevronsDownUp size={14} />
             </button>
           </div>
         </>
