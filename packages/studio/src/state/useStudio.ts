@@ -22,7 +22,7 @@ export const defaultProject: Project = {
   name: 'Untitled',
   version: '0.1',
   layout: '<Grid/>',
-  data: {},
+  data: { schemas: {}, datasets: {} },
   assets: [],
   screen: { width: 1280, height: 720 },
   meta: {

@@ -17,7 +17,31 @@ export const ProjectZ = z.object({
   name: z.string(),
   version: z.string().default("0.1"),
   layout: z.string(),
-  data: z.record(z.string(), z.any()).default({}),
+  data: z
+    .object({
+      schemas: z
+        .record(
+          z.string(),
+          z.array(
+            z.object({
+              key: z.string(),
+              type: z.string(),
+              default: z.string().optional(),
+            }),
+          ),
+        )
+        .default({}),
+      datasets: z
+        .record(
+          z.string(),
+          z.object({
+            schemaRef: z.string(),
+            rows: z.array(z.record(z.string(), z.any())).default([]),
+          }),
+        )
+        .default({}),
+    })
+    .default({ schemas: {}, datasets: {} }),
   assets: z.array(AssetZ).default([]),
   meta: z
     .object({

@@ -128,7 +128,7 @@ export function Renderer() {
       try {
         const gui = Noxi.gui.create(project.layout);
         guiRef.current = gui;
-        (gui as any).viewModel = project.data;
+        (gui as any).viewModel = project.data.datasets;
 
         app.stage.addChild(gui.container.getDisplayObject());
         gui.layout({ width: app.renderer.width, height: app.renderer.height });

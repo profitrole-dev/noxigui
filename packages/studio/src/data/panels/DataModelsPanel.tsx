@@ -4,24 +4,52 @@ import Tree, { type TreeItem } from '../../ui/tree/Tree';
 import { useStudio } from '../../state/useStudio';
 import { ContextPanel } from '../../ui/panels/ContextPanel';
 
-function buildRoot(data: Record<string, any>): TreeItem {
+type DataRoot = { schemas: Record<string, any>; datasets: Record<string, any> };
+
+function buildRoot(data: DataRoot): TreeItem {
   return {
-    id: 'schema-root',
-    name: 'Models',
+    id: 'data-root',
+    name: 'Data',
     type: 'folder',
-    children: Object.keys(data).map((name) => ({
-      id: `schema:${name}`,
-      name,
-      type: 'schema',
-      children: [],
-    })),
+    children: [
+      {
+        id: 'schema-root',
+        name: 'Models',
+        type: 'folder',
+        children: Object.keys(data.schemas).map((name) => ({
+          id: `schema:${name}`,
+          name,
+          type: 'schema',
+          children: [],
+        })),
+      },
+      {
+        id: 'dataset-root',
+        name: 'Datasets',
+        type: 'folder',
+        children: Object.keys(data.datasets).map((name) => ({
+          id: `dataset:${name}`,
+          name,
+          type: 'dataset',
+          children: [],
+        })),
+      },
+    ],
   };
 }
 
 export function DataModelsPanel() {
-  const { project, addSchema, selectedSchema, setSelectedSchema } = useStudio();
+  const {
+    project,
+    addSchema,
+    addDataset,
+    selectedSchema,
+    setSelectedSchema,
+    selectedDataset,
+    setSelectedDataset,
+  } = useStudio();
   const [root, setRoot] = useState<TreeItem>(() => buildRoot(project.data));
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(['schema-root']));
+  const [expanded, setExpanded] = useState<Set<string>>(new Set(['schema-root', 'dataset-root']));
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -30,10 +58,11 @@ export function DataModelsPanel() {
 
   useEffect(() => {
     if (selectedSchema) setSelected(new Set([`schema:${selectedSchema}`]));
+    else if (selectedDataset) setSelected(new Set([`dataset:${selectedDataset}`]));
     else setSelected(new Set());
-  }, [selectedSchema]);
+  }, [selectedSchema, selectedDataset]);
 
-  const visible = useMemo(() => [root], [root]);
+  const visible = useMemo(() => root.children ?? [], [root]);
 
   const collectIds = (it: TreeItem): Set<string> => {
     const ids = new Set<string>();
@@ -76,6 +105,16 @@ export function DataModelsPanel() {
               >
                 <Plus size={14} />
               </button>
+              <button
+                className="p-1 rounded hover:bg-neutral-700 text-neutral-300 hover:text-white"
+                onClick={() => {
+                  const first = Object.keys(project.data.schemas)[0];
+                  if (first) addDataset(first);
+                }}
+                title="Add dataset"
+              >
+                <Plus size={14} />
+              </button>
             </div>
           </>
         }
@@ -96,7 +135,12 @@ export function DataModelsPanel() {
             const first = Array.from(next)[0];
             if (first && first.startsWith('schema:'))
               setSelectedSchema(first.slice('schema:'.length));
-            else setSelectedSchema(null);
+            else if (first && first.startsWith('dataset:'))
+              setSelectedDataset(first.slice('dataset:'.length));
+            else {
+              setSelectedSchema(null);
+              setSelectedDataset(null);
+            }
           }}
         />
       </ContextPanel>
