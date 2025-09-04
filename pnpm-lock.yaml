@@ -130,6 +130,9 @@ importers:
 
   packages/studio:
     dependencies:
+      '@noxigui/runtime':
+        specifier: workspace:*
+        version: link:../runtime
       fast-json-patch:
         specifier: ^3.1.1
         version: 3.1.1

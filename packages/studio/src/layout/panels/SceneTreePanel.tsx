@@ -54,8 +54,18 @@ function findByPath(el: Element, path: string): Element | null {
   return curr ?? null;
 }
 
+function findItemById(root: TreeItem, id: string): TreeItem | null {
+  if (root.id === id) return root;
+  if (!root.children) return null;
+  for (const ch of root.children) {
+    const found = findItemById(ch, id);
+    if (found) return found;
+  }
+  return null;
+}
+
 export function SceneTreePanel() {
-  const { project, setLayout } = useStudio();
+  const { project, setLayout, setLayoutSelection } = useStudio();
   const [root, setRoot] = useState<TreeItem | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["0"]));
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -164,7 +174,20 @@ export function SceneTreePanel() {
             return next;
           })
         }
-        onSelect={setSelected}
+        onSelect={(sel) => {
+          setSelected(sel);
+          const first = sel.values().next().value as string | undefined;
+          if (!first) {
+            setLayoutSelection(null);
+          } else {
+            const item = root ? findItemById(root, first) : null;
+            if (item) {
+              setLayoutSelection({ id: first, tag: item.tag ?? '', name: item.name });
+            } else {
+              setLayoutSelection(null);
+            }
+          }
+        }}
         onRename={(id, nextName) => {
           const dom = new DOMParser().parseFromString(
             project.layout,

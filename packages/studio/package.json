@@ -16,6 +16,7 @@
     "lucide-react": "^0.542.0",
     "monaco-editor": "^0.52.2",
     "noxi.js": "workspace:*",
+    "@noxigui/runtime": "workspace:*",
     "pixi.js": "^7.4.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
