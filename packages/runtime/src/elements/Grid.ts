@@ -16,6 +16,7 @@ export class Grid extends UIElement {
 
   debug = false;
   debugG: RenderGraphics;
+  debugHtml?: HTMLElement;
 
   constructor(renderer: Renderer) {
     super();

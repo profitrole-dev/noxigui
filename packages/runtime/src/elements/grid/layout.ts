@@ -161,6 +161,9 @@ export function arrangeGrid(g: Grid, rect: Rect) {
 
   if (g.debug) {
     import('./debug.js').then(m => m.drawDebug(g, xs.map(v => v + inner.x), ys.map(v => v + inner.y)));
+    if (typeof document !== 'undefined') {
+      import('./debug-html.js').then(m => m.drawDebugHtml(g, xs.map(v => v + inner.x), ys.map(v => v + inner.y)));
+    }
   }
 }
 
