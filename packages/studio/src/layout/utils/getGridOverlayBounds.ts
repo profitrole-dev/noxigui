@@ -37,12 +37,22 @@ export function getGridOverlayBounds(
   for (const p of parts) {
     const idx = Number(p);
     const kids = getKids(el);
-    el = kids[idx];
-    if (!el) return null;
-    const final = el.final ?? { x: 0, y: 0 };
-    const margin = el.margin ?? { l: 0, t: 0 };
-    const local: Mat = [1, 0, 0, 1, final.x - margin.l, final.y - margin.t];
+    const child = kids[idx];
+    if (!child) return null;
+    const parentMargin = el.margin ?? { l: 0, t: 0 };
+    const parentPadding = (el as any).padding ?? { l: 0, t: 0 };
+    const final = child.final ?? { x: 0, y: 0 };
+    const margin = child.margin ?? { l: 0, t: 0 };
+    const local: Mat = [
+      1,
+      0,
+      0,
+      1,
+      parentMargin.l + parentPadding.l + final.x - margin.l,
+      parentMargin.t + parentPadding.t + final.y - margin.t,
+    ];
     m = mul(m, local);
+    el = child;
   }
   if (!(el instanceof Grid)) return null;
   const margin = el.margin ?? { l: 0, t: 0, r: 0, b: 0 };
