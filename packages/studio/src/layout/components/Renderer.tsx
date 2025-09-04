@@ -185,19 +185,40 @@ function SelectionOverlay({
 
   const parts = layoutSelection.id.split(".").slice(1);
   let el: any = gui.root;
+
+  // 2x3 matrix: [a, b, c, d, tx, ty]
+  type Mat = [number, number, number, number, number, number];
+  const mul = (m1: Mat, m2: Mat): Mat => [
+    m1[0] * m2[0] + m1[2] * m2[1],
+    m1[1] * m2[0] + m1[3] * m2[1],
+    m1[0] * m2[2] + m1[2] * m2[3],
+    m1[1] * m2[2] + m1[3] * m2[3],
+    m1[0] * m2[4] + m1[2] * m2[5] + m1[4],
+    m1[1] * m2[4] + m1[3] * m2[5] + m1[5],
+  ];
+  const pt = (m: Mat, x: number, y: number) => ({
+    x: m[0] * x + m[2] * y + m[4],
+    y: m[1] * x + m[3] * y + m[5],
+  });
+
+  let m: Mat = [1, 0, 0, 1, el.final?.x ?? 0, el.final?.y ?? 0];
   for (const p of parts) {
     const idx = Number(p);
     const kids = getKids(el);
     el = kids[idx];
     if (!el) return null;
+    const local: Mat = [1, 0, 0, 1, el.final?.x ?? 0, el.final?.y ?? 0];
+    m = mul(m, local);
   }
   if (!(el instanceof Grid)) return null;
 
   const color = "#3da5ff";
-  const x = el.final?.x ?? 0;
-  const y = el.final?.y ?? 0;
-  const w = el.final.width;
-  const h = el.final.height;
+  const topLeft = pt(m, 0, 0);
+  const bottomRight = pt(m, el.final.width, el.final.height);
+  const x = topLeft.x;
+  const y = topLeft.y;
+  const w = bottomRight.x - topLeft.x;
+  const h = bottomRight.y - topLeft.y;
 
   return (
     <div
