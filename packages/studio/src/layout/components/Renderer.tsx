@@ -17,8 +17,13 @@ function findWithGlobal(root: any, path: string) {
   let x = 0, y = 0;
   for (const p of parts) {
     if (!curr) return { el: null, x, y };
-    x += curr.final?.x ?? 0;
-    y += curr.final?.y ?? 0;
+    // Only accumulate ancestors that have their own container.
+    // Elements like Grid don't create a container, and their children's
+    // final coordinates are already in the parent's space.
+    if ((curr as any).container) {
+      x += curr.final?.x ?? 0;
+      y += curr.final?.y ?? 0;
+    }
     const kids = getChildren(curr);
     curr = kids[Number(p)];
   }
