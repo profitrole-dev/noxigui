@@ -31,18 +31,25 @@ export function getGridOverlayBounds(
   if (!gui || !layoutSelection || layoutSelection.tag.toLowerCase() !== "grid") return null;
   const parts = layoutSelection.id.split(".").slice(1);
   let el: any = gui.root;
-  let m: Mat = [1, 0, 0, 1, el.final?.x ?? 0, el.final?.y ?? 0];
+  const rootFinal = el.final ?? { x: 0, y: 0 };
+  const rootMargin = el.margin ?? { l: 0, t: 0 };
+  let m: Mat = [1, 0, 0, 1, rootFinal.x - rootMargin.l, rootFinal.y - rootMargin.t];
   for (const p of parts) {
     const idx = Number(p);
     const kids = getKids(el);
     el = kids[idx];
     if (!el) return null;
-    const local: Mat = [1, 0, 0, 1, el.final?.x ?? 0, el.final?.y ?? 0];
+    const final = el.final ?? { x: 0, y: 0 };
+    const margin = el.margin ?? { l: 0, t: 0 };
+    const local: Mat = [1, 0, 0, 1, final.x - margin.l, final.y - margin.t];
     m = mul(m, local);
   }
   if (!(el instanceof Grid)) return null;
+  const margin = el.margin ?? { l: 0, t: 0, r: 0, b: 0 };
+  const width = el.final.width + margin.l + margin.r;
+  const height = el.final.height + margin.t + margin.b;
   const topLeft = pt(m, 0, 0);
-  const bottomRight = pt(m, el.final.width, el.final.height);
+  const bottomRight = pt(m, width, height);
   return {
     x: topLeft.x,
     y: topLeft.y,
