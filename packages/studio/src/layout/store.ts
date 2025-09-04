@@ -5,6 +5,8 @@ export type LayoutSlice = {
   setLayout: (layout: string) => void;
   setCanvasSize: (w: number, h: number) => void;
   swapCanvasSize: () => void;
+  selectedPath: string | null;
+  setSelectedPath: (path: string | null) => void;
 };
 
 export const defaultCanvas = { width: 1280, height: 720 };
@@ -13,6 +15,7 @@ export const createLayoutSlice = (
   scheduleSave: () => void
 ): StateCreator<any, [], [], LayoutSlice> => (set, _get) => ({
   canvas: { ...defaultCanvas },
+  selectedPath: null,
   setLayout: (layout) => {
     set((s: any) => ({
       project: { ...s.project, layout },
@@ -26,7 +29,7 @@ export const createLayoutSlice = (
       const w = Number.isFinite(width) ? Math.max(1, Math.round(width)) : prev.width;
       const h = Number.isFinite(height) ? Math.max(1, Math.round(height)) : prev.height;
       const next = { ...s.project, screen: { width: w, height: h } };
-      queueMicrotask(() => scheduleSave());
+    queueMicrotask(() => scheduleSave());
       return { project: next };
     }),
   swapCanvasSize: () =>
@@ -36,4 +39,5 @@ export const createLayoutSlice = (
       queueMicrotask(() => scheduleSave());
       return { project: next };
     }),
+  setSelectedPath: (path) => set({ selectedPath: path }),
 });

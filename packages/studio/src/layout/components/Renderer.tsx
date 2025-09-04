@@ -1,15 +1,43 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as PIXI from "pixi.js";
 import Noxi from "noxi.js";
+import { Grid } from "@noxigui/runtime";
 import { useStudio } from "../../state/useStudio";
 import type { Project } from "../../types/project";
 import CanvasStage from "./CanvasStage";
+import GridOverlay from "./GridOverlay";
+
+function getChildren(u: any) {
+  return (u?.children as any[]) ?? (u?.child ? [u.child] : []);
+}
+
+function findWithGlobal(root: any, path: string) {
+  const parts = path.split(".").slice(1);
+  let curr: any = root;
+  let x = 0, y = 0;
+  for (const p of parts) {
+    if (!curr) return { el: null, x, y };
+    x += curr.final?.x ?? 0;
+    y += curr.final?.y ?? 0;
+    const kids = getChildren(curr);
+    curr = kids[Number(p)];
+  }
+  if (!curr) return { el: null, x, y };
+  x += curr.final?.x ?? 0;
+  y += curr.final?.y ?? 0;
+  return { el: curr, x, y };
+}
 
 export function Renderer() {
-  const { project } = useStudio();
+  const { project, selectedPath } = useStudio();
   const mountRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PIXI.Application | null>(null);
   const guiRef = useRef<ReturnType<typeof Noxi.gui.create> | null>(null);
+  const [overlayInfo, setOverlayInfo] = useState<{
+    grid: Grid;
+    x: number;
+    y: number;
+  } | null>(null);
 
   // хранить прошлую карту alias->src, чтобы делать дифф
   const prevAssetsRef = useRef<Record<string, string>>({});
@@ -132,6 +160,16 @@ export function Renderer() {
 
         app.stage.addChild(gui.container.getDisplayObject());
         gui.layout({ width: app.renderer.width, height: app.renderer.height });
+        if (selectedPath) {
+          const res = findWithGlobal(gui.root, selectedPath);
+          if (res.el instanceof Grid) {
+            setOverlayInfo({ grid: res.el, x: res.x, y: res.y });
+          } else {
+            setOverlayInfo(null);
+          }
+        } else {
+          setOverlayInfo(null);
+        }
       } catch (e) {
         console.warn("Runtime reload error:", e);
       }
@@ -149,12 +187,37 @@ export function Renderer() {
 
     app.renderer.resize(w, h);
     gui?.layout({ width: w, height: h });
-  }, [project.screen?.width, project.screen?.height]);
+    if (selectedPath && gui) {
+      const res = findWithGlobal(gui.root, selectedPath);
+      if (res.el instanceof Grid) setOverlayInfo({ grid: res.el, x: res.x, y: res.y });
+    }
+  }, [project.screen?.width, project.screen?.height, selectedPath]);
+
+  useEffect(() => {
+    const gui = guiRef.current;
+    if (!gui) {
+      setOverlayInfo(null);
+      return;
+    }
+    if (!selectedPath) {
+      setOverlayInfo(null);
+      return;
+    }
+    const res = findWithGlobal(gui.root, selectedPath);
+    if (res.el instanceof Grid) {
+      setOverlayInfo({ grid: res.el, x: res.x, y: res.y });
+    } else {
+      setOverlayInfo(null);
+    }
+  }, [selectedPath, project.layout]);
 
   return (
     <div className="w-full h-full relative">
       <CanvasStage>
         <div ref={mountRef} className="w-full h-full" />
+        {overlayInfo && (
+          <GridOverlay grid={overlayInfo.grid} offsetX={overlayInfo.x} offsetY={overlayInfo.y} />
+        )}
       </CanvasStage>
     </div>
   );

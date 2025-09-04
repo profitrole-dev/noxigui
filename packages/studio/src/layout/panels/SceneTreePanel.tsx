@@ -55,10 +55,13 @@ function findByPath(el: Element, path: string): Element | null {
 }
 
 export function SceneTreePanel() {
-  const { project, setLayout } = useStudio();
+  const { project, setLayout, selectedPath, setSelectedPath } = useStudio();
   const [root, setRoot] = useState<TreeItem | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["0"]));
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const selected = useMemo(
+    () => (selectedPath ? new Set([selectedPath]) : new Set<string>()),
+    [selectedPath],
+  );
 
   const collectIds = (it: TreeItem): Set<string> => {
     const ids = new Set<string>();
@@ -164,7 +167,10 @@ export function SceneTreePanel() {
             return next;
           })
         }
-        onSelect={setSelected}
+        onSelect={(ids) => {
+          const first = ids.values().next().value as string | undefined;
+          setSelectedPath(first ?? null);
+        }}
         onRename={(id, nextName) => {
           const dom = new DOMParser().parseFromString(
             project.layout,
