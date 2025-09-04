@@ -51,9 +51,34 @@ test('overlay bounds include margins and paddings along element path', () => {
     height: 200,
   });
   assert.deepEqual(getGridOverlayBounds(gui, childSel), {
-    x: 92,
-    y: 122,
+    x: 70,
+    y: 88,
     width: 78,
     height: 90,
+  });
+});
+
+test('overlay aligns with grid inside padded border', () => {
+  const root = new Grid(renderer);
+  root.final = { x: 0, y: 0, width: 200, height: 150 } as any;
+
+  const border = new BorderPanel(renderer);
+  border.padding = { l: 12, t: 12, r: 0, b: 0 } as any;
+  border.final = { x: 0, y: 0, width: 100, height: 80 } as any;
+
+  const child = new Grid(renderer);
+  child.final = { x: 12, y: 12, width: 50, height: 40 } as any;
+
+  border.child = child;
+  root.add(border);
+  const gui = { root } as any;
+
+  const sel: LayoutSelection = { id: '0.0.0', tag: 'grid', name: 'child' };
+
+  assert.deepEqual(getGridOverlayBounds(gui, sel), {
+    x: 12,
+    y: 12,
+    width: 50,
+    height: 40,
   });
 });

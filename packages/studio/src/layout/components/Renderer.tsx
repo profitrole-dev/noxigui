@@ -191,7 +191,7 @@ function SelectionOverlay({
       <div
         style={{
           position: "absolute",
-          top: -2,
+          top: 0,
           left: 0,
           transform: "translateY(-100%)",
           background: color,
