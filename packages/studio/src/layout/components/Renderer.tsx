@@ -185,19 +185,17 @@ function SelectionOverlay({
 
   const parts = layoutSelection.id.split(".").slice(1);
   let el: any = gui.root;
-  let x = el.final?.x ?? 0;
-  let y = el.final?.y ?? 0;
   for (const p of parts) {
     const idx = Number(p);
     const kids = getKids(el);
     el = kids[idx];
     if (!el) return null;
-    x += el.final?.x ?? 0;
-    y += el.final?.y ?? 0;
   }
   if (!(el instanceof Grid)) return null;
 
   const color = "#3da5ff";
+  const x = el.final?.x ?? 0;
+  const y = el.final?.y ?? 0;
   const w = el.final.width;
   const h = el.final.height;
 
@@ -216,8 +214,9 @@ function SelectionOverlay({
       <div
         style={{
           position: "absolute",
-          top: 0,
+          top: -2,
           left: 0,
+          transform: "translateY(-100%)",
           background: color,
           color: "#fff",
           fontSize: 10,
