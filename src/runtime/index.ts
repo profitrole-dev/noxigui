@@ -52,6 +52,7 @@ type Size = { width: number; height: number };
 type Rect = { x: number; y: number; width: number; height: number };
 
 abstract class UIElement {
+  tag = '';
   desired = { width: 0, height: 0 };
   final: Rect = { x: 0, y: 0, width: 0, height: 0 };
   margin = { l: 0, t: 0, r: 0, b: 0 };
@@ -361,13 +362,19 @@ const Auto = ():Len => ({kind:'auto', v:0});
 const Px   = (n:number):Len => ({kind:'px', v:n});
 const Star = (n=1):Len => ({kind:'star', v:n});
 
-class Row { actual=0; desired=0; constructor(public len:Len){} }
-class Col { actual=0; desired=0; constructor(public len:Len){} }
+class Row { actual=0; desired=0; len: Len; constructor(len: Len){ this.len = len; } }
+class Col { actual=0; desired=0; len: Len; constructor(len: Len){ this.len = len; } }
 
 const rowMap = new WeakMap<UIElement, number>();
 const colMap = new WeakMap<UIElement, number>();
 const rowSpan = new WeakMap<UIElement, number>();
 const colSpan = new WeakMap<UIElement, number>();
+
+let gridIdCounter = 1;
+const gridMap = new Map<number, Grid>();
+
+export type GridOverlay = { x: number; y: number; width: number; height: number; cols: number[]; rows: number[] };
+export type ElementNode = { tag: string; id?: number; children: ElementNode[] };
 
 export class Grid extends UIElement {
   rows: Row[] = [];
@@ -376,9 +383,9 @@ export class Grid extends UIElement {
   rowGap = 0;
   colGap = 0;
 
-  // debug overlay
-  debug = false;
-  debugG = new PIXI.Graphics();
+  id = 0;
+  xs: number[] = [];
+  ys: number[] = [];
 
   add(ch: UIElement){ this.children.push(ch); }
   static setRow(el: UIElement, i:number){ rowMap.set(el, i|0); }
@@ -553,136 +560,10 @@ export class Grid extends UIElement {
       ch.arrange({ x, y, width: w, height: h });
     }
 
-    this.drawDebug(xs, ys);
+    this.xs = xs;
+    this.ys = ys;
   }
-
-  private drawDebug(xs: number[], ys: number[]) {
-    const g = this.debugG;
-    g.visible = this.debug;
-    g.clear();
-    if (!this.debug) return;
-    if (this.final.width <= 0 || this.final.height <= 0) return;
-
-    const x0 = this.final.x, y0 = this.final.y;
-    const w0 = this.final.width, h0 = this.final.height;
-
-    // --- стили
-    const STROKE = 0x00ffff;
-    const STROKE_ALPHA = 0.7;
-    const GRID_LINE_ALPHA = 0.45;
-    const GAP_FILL = 0xff00ff;
-    const GAP_ALPHA = 0.10;
-    const MARGIN_FILL = 0xff9900;
-    const MARGIN_ALPHA = 0.22;
-    const PADDING_FILL = 0x66ccff;
-    const PADDING_ALPHA = 0.18;
-
-    // рамка всего грида
-    g.lineStyle({ width: 2, color: STROKE, alpha: STROKE_ALPHA, alignment: 0 });
-    g.drawRect(x0, y0, w0, h0);
-
-    // подсветка колонок (только трек, без gap)
-    const colorForCol = (c: Col) =>
-      c.len.kind === 'px' ? 0x3da5ff : c.len.kind === 'auto' ? 0x5fff7a : 0xffb347;
-
-    for (let c = 0; c < this.cols.length; c++) {
-      const cx = xs[c] + c * this.colGap;
-      const trackW = (xs[c + 1] - xs[c]); // без gap справа
-      g.lineStyle(0);
-      g.beginFill(colorForCol(this.cols[c]), 0.06);
-      g.drawRect(cx, y0, trackW, h0);
-      g.endFill();
-    }
-
-    // подсветка GAP-полос
-    for (let c = 0; c < this.cols.length - 1; c++) {
-      const gx = xs[c + 1] + c * this.colGap;
-      g.beginFill(GAP_FILL, GAP_ALPHA);
-      g.drawRect(gx, y0, this.colGap, h0);
-      g.endFill();
-    }
-    for (let r = 0; r < this.rows.length - 1; r++) {
-      const gy = ys[r + 1] + r * this.rowGap;
-      g.beginFill(GAP_FILL, GAP_ALPHA);
-      g.drawRect(x0, gy, w0, this.rowGap);
-      g.endFill();
-    }
-
-    // вертикальные и горизонтальные линии сетки (с учётом gap)
-    g.lineStyle({ width: 2, color: STROKE, alpha: GRID_LINE_ALPHA, alignment: 0 });
-    for (let c = 0; c <= this.cols.length; c++) {
-      const bx = (c < this.cols.length)
-        ? xs[c] + c * this.colGap
-        : xs[c] + (c - 1) * this.colGap;
-      g.moveTo(bx, y0); g.lineTo(bx, y0 + h0);
-    }
-    for (let r = 0; r <= this.rows.length; r++) {
-      const by = (r < this.rows.length)
-        ? ys[r] + r * this.rowGap
-        : ys[r] + (r - 1) * this.rowGap;
-      g.moveTo(x0, by); g.lineTo(x0 + w0, by);
-    }
-
-    // контуры ячеек (треки, без gap)
-    for (let r = 0; r < this.rows.length; r++) {
-      for (let c = 0; c < this.cols.length; c++) {
-        const cx = xs[c] + c * this.colGap;
-        const cy = ys[r] + r * this.rowGap;
-        const cw = (xs[c + 1] - xs[c]);
-        const ch = (ys[r + 1] - ys[r]);
-        g.lineStyle({ width: 1, color: STROKE, alpha: 0.5, alignment: 0 });
-        g.drawRect(cx, cy, cw, ch);
-      }
-    }
-
-    // функции колец (margin/padding)
-    const ring = (x:number,y:number,w:number,h:number,l:number,t:number,rn:number,b:number,color:number,alpha:number) => {
-      if (w <= 0 || h <= 0) return;
-      g.lineStyle(0);
-      g.beginFill(color, alpha);
-      if (t > 0) g.drawRect(x, y, w, t);
-      if (b > 0) g.drawRect(x, y + h - b, w, b);
-      const midH = h - t - b;
-      if (midH > 0) {
-        if (l > 0) g.drawRect(x, y + t, l, midH);
-        if (rn > 0) g.drawRect(x + w - rn, y + t, rn, midH);
-      }
-      g.endFill();
-    };
-
-    // margin/padding для непосредственных детей этого грида
-    for (const ch of this.children) {
-      // slot прямоугольник, куда мы вызывали arrange для ребёнка
-      let r = (rowMap.get(ch) ?? 0) | 0;
-      let c = (colMap.get(ch) ?? 0) | 0;
-      r = Math.min(Math.max(0, r), this.rows.length - 1);
-      c = Math.min(Math.max(0, c), this.cols.length - 1);
-      let rs = (rowSpan.get(ch) ?? 1) | 0;
-      let cs = (colSpan.get(ch) ?? 1) | 0;
-      rs = Math.min(Math.max(1, rs), this.rows.length - r);
-      cs = Math.min(Math.max(1, cs), this.cols.length - c);
-
-      const slotX = xs[c] + c * this.colGap;
-      const slotY = ys[r] + r * this.rowGap;
-      const slotW = (xs[c + cs] - xs[c]) + (cs - 1) * this.colGap;
-      const slotH = (ys[r + rs] - ys[r]) + (rs - 1) * this.rowGap;
-
-      // margin (кольцо между слотом и ch.final; считаем по значениям margin)
-      const m = ch.margin;
-      if (m.l || m.t || m.r || m.b) {
-        ring(slotX, slotY, slotW, slotH, m.l, m.t, m.r, m.b, MARGIN_FILL, MARGIN_ALPHA);
-      }
-
-      // padding — только для BorderPanel (кольцо внутри самой панели)
-      if (ch instanceof BorderPanel) {
-        const pad = ch.padding;
-        const bx = ch.final.x, by = ch.final.y, bw = ch.final.width, bh = ch.final.height;
-        if (pad.l || pad.t || pad.r || pad.b) {
-          ring(bx, by, bw, bh, pad.l, pad.t, pad.r, pad.b, PADDING_FILL, PADDING_ALPHA);
-        }
-      }
-    }
-  }
+  
 }
 
 // ===== Хелперы =====
@@ -734,6 +615,7 @@ function parseElement(node: Element): UIElement | null {
       const fill = node.getAttribute('Foreground') ?? '#ffffff';
       const fontSize = parseFloat(node.getAttribute('FontSize') ?? '16');
       const leaf = new PixiText(new PIXI.Text(text, { fill, fontSize }));
+      leaf.tag = 'TextBlock';
       parseSizeAttrs(node, leaf);
       const m = node.getAttribute('Margin'); if (m) leaf.margin = parseMargin(m);
       const ha = node.getAttribute('HorizontalAlignment'); if (ha) leaf.hAlign = ha as any;
@@ -744,6 +626,7 @@ function parseElement(node: Element): UIElement | null {
 
     case 'Border': {
       const panel = new BorderPanel({ background: parseColor(node.getAttribute('Background')) });
+      panel.tag = 'Border';
       parseSizeAttrs(node, panel);
       const m = node.getAttribute('Margin');  if (m) panel.margin = parseMargin(m);
       const p = node.getAttribute('Padding'); if (p) panel.padding = parseMargin(p);
@@ -758,10 +641,12 @@ function parseElement(node: Element): UIElement | null {
 
     case 'Grid': {
       const g = new Grid();
+      g.tag = 'Grid';
+      g.id = gridIdCounter++;
+      gridMap.set(g.id, g);
       const rgAttr = node.getAttribute('RowGap');     if (rgAttr != null) g.rowGap = parseFloat(rgAttr) || 0;
       const cgAttr = node.getAttribute('ColumnGap');  if (cgAttr != null) g.colGap = parseFloat(cgAttr) || 0;
       const m = node.getAttribute('Margin');          if (m) g.margin = parseMargin(m);
-      const dbg = node.getAttribute('Debug');         if (dbg && dbg.toLowerCase() === 'true') g.debug = true;
       applyGridAttachedProps(node, g);
 
       // defs
@@ -790,6 +675,7 @@ function parseElement(node: Element): UIElement | null {
       let tex: PIXI.Texture | undefined;
       try { tex = PIXI.Assets.get(key) as PIXI.Texture | undefined; } catch {}
       const img = new PixiImage(tex);
+      img.tag = 'Image';
       parseSizeAttrs(node, img);
       const m = node.getAttribute('Margin'); if (m) img.margin = parseMargin(m);
       const stretch = node.getAttribute('Stretch');
@@ -811,6 +697,7 @@ function parseElement(node: Element): UIElement | null {
 
     case 'ContentPresenter': {
       const cp = new ContentPresenter();
+      cp.tag = 'ContentPresenter';
       const m = node.getAttribute('Margin'); if (m) cp.margin = parseMargin(m);
       applyGridAttachedProps(node, cp);
       return cp;
@@ -845,7 +732,19 @@ function parseElement(node: Element): UIElement | null {
 }
 
 // ===== Сборка PIXI-иерархии =====
+function buildTree(u: UIElement): ElementNode {
+  const node: ElementNode = { tag: u.tag, children: [] };
+  if (u instanceof Grid) node.id = u.id;
+  const kids = (u as any).children as UIElement[] | undefined;
+  if (kids) kids.forEach(ch => node.children.push(buildTree(ch)));
+  const child = (u as any).child as UIElement | undefined;
+  if (child) node.children.push(buildTree(child));
+  return node;
+}
+
 function parse(xml: string) {
+  gridIdCounter = 1;
+  gridMap.clear();
   const dom = new DOMParser().parseFromString(xml, 'application/xml');
   const rootEl = dom.documentElement;
   if (rootEl.tagName !== 'Grid') throw new Error('Root must be <Grid>');
@@ -877,33 +776,30 @@ function parse(xml: string) {
 
     if (u instanceof Grid) {
       for (const ch of u.children) collect(into, ch);
-      u.debugG.zIndex = 100000;                    // оверлей сверху
-      if (u.debugG.parent !== into) {
-        u.debugG.parent?.removeChild(u.debugG);
-        into.addChild(u.debugG);
-      }
       return;
     }
   }
   collect(container, root);
 
-  return { root, container };
+  const tree = buildTree(root);
+  return { root, container, tree };
 }
 
 // ===== Публичное API =====
 export const RuntimeInstance = {
   create(xml: string) {
-    const { root, container } = parse(xml);
+    const { root, container, tree } = parse(xml);
 
-    // вкл/выкл подсветку на всех гридах
-    const visit = (u: UIElement, f:(g:Grid)=>void) => {
-      if (u instanceof Grid) f(u);
-      const kids = (u as any).children as UIElement[]|undefined;
-      if (kids) kids.forEach(k => visit(k, f));
-      const child = (u as any).child as UIElement|undefined;
-      if (child) visit(child, f);
+    const highlightGrid = (id: number): GridOverlay | null => {
+      const g = gridMap.get(id);
+      if (!g) return null;
+      const { x, y, width, height } = g.final;
+      const cols: number[] = [];
+      for (let c = 1; c < g.cols.length; c++) cols.push(g.xs[c] + c * g.colGap);
+      const rows: number[] = [];
+      for (let r = 1; r < g.rows.length; r++) rows.push(g.ys[r] + r * g.rowGap);
+      return { x, y, width, height, cols, rows };
     };
-    const setGridDebug = (on:boolean) => visit(root, g => { g.debug = on; });
 
     const layout = (size: Size) => {
       root.measure(size);
@@ -912,6 +808,6 @@ export const RuntimeInstance = {
 
     const destroy = () => container.destroy({ children: true });
 
-    return { container, layout, destroy, setGridDebug };
+    return { container, layout, destroy, highlightGrid, tree };
   }
 };

@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import * as PIXI from 'pixi.js';
 import { RuntimeInstance } from './runtime';
+import type { ElementNode, GridOverlay } from './runtime';
 
 const initialSchema = `
 <Grid Margin="16" RowGap="12" ColumnGap="12">
@@ -57,11 +58,100 @@ type RuntimeHandle = {
   container: PIXI.Container;
   layout: (size: { width: number; height: number }) => void;
   destroy: () => void;
+  highlightGrid: (id: number) => GridOverlay | null;
+  tree: ElementNode;
 };
+
+function TreeNode({ node, onSelect }: { node: ElementNode; onSelect: (id?: number) => void }) {
+  return (
+    <li>
+      <div
+        onClick={() => onSelect(node.id)}
+        style={{ cursor: node.id ? 'pointer' : 'default' }}
+      >
+        {node.tag}{node.id ? ` #${node.id}` : ''}
+      </div>
+      {node.children.length > 0 && (
+        <ul style={{ paddingLeft: '1em', listStyle: 'none' }}>
+          {node.children.map((ch, i) => (
+            <TreeNode key={i} node={ch} onSelect={onSelect} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
+function ElementTree({ tree, onSelect }: { tree: ElementNode; onSelect: (id?: number) => void }) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        maxHeight: '100%',
+        overflow: 'auto',
+        background: 'rgba(0,0,0,0.5)',
+        color: '#fff',
+        fontSize: 12,
+        padding: 4,
+      }}
+    >
+      <ul style={{ listStyle: 'none', margin: 0, paddingLeft: 0 }}>
+        <TreeNode node={tree} onSelect={onSelect} />
+      </ul>
+    </div>
+  );
+}
+
+function GridOverlayComponent({ data }: { data: GridOverlay }) {
+  return (
+    <div style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }}>
+      <div
+        style={{
+          position: 'absolute',
+          left: data.x,
+          top: data.y,
+          width: data.width,
+          height: data.height,
+          border: '2px solid cyan',
+        }}
+      />
+      {data.cols.map((x, i) => (
+        <div
+          key={`c${i}`}
+          style={{
+            position: 'absolute',
+            left: x,
+            top: data.y,
+            width: 1,
+            height: data.height,
+            background: 'rgba(0,255,255,0.5)',
+          }}
+        />
+      ))}
+      {data.rows.map((y, i) => (
+        <div
+          key={`r${i}`}
+          style={{
+            position: 'absolute',
+            left: data.x,
+            top: y,
+            width: data.width,
+            height: 1,
+            background: 'rgba(0,255,255,0.5)',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function App() {
   const [code, setCode] = useState(initialSchema);
   const [assetsReady, setAssetsReady] = useState(false);
+  const [tree, setTree] = useState<ElementNode | null>(null);
+  const [overlay, setOverlay] = useState<GridOverlay | null>(null);
 
   const pixiRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PIXI.Application | null>(null);
@@ -146,12 +236,15 @@ export default function App() {
       try { runtimeRef.current.destroy(); } catch {}
       app.stage.removeChildren().forEach(ch => ch.destroy());
       runtimeRef.current = null;
+      setTree(null);
+      setOverlay(null);
     }
 
     try {
       const runtime = RuntimeInstance.create(code);
       runtimeRef.current = runtime;
-      // runtime.setGridDebug(true);
+      setTree(runtime.tree);
+      setOverlay(null);
 
       app.stage.addChild(runtime.container);
 
@@ -178,6 +271,12 @@ export default function App() {
       console.warn('Invalid schema:', e);
     }
   }, [code, assetsReady]);
+
+  const handleSelect = (id?: number) => {
+    if (!runtimeRef.current) return;
+    if (id != null) setOverlay(runtimeRef.current.highlightGrid(id));
+    else setOverlay(null);
+  };
 
   return (
     <div
@@ -211,7 +310,10 @@ export default function App() {
           backgroundColor: '#2a2a2a',
           position: 'relative',
         }}
-      />
+      >
+        {tree && <ElementTree tree={tree} onSelect={handleSelect} />}
+        {overlay && <GridOverlayComponent data={overlay} />}
+      </div>
     </div>
   );
 }
