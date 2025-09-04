@@ -5,6 +5,8 @@ export type LayoutSlice = {
   setLayout: (layout: string) => void;
   setCanvasSize: (w: number, h: number) => void;
   swapCanvasSize: () => void;
+  selectedLayoutIds: Set<string>;
+  selectLayout: (ids: Set<string>) => void;
 };
 
 export const defaultCanvas = { width: 1280, height: 720 };
@@ -13,6 +15,7 @@ export const createLayoutSlice = (
   scheduleSave: () => void
 ): StateCreator<any, [], [], LayoutSlice> => (set, _get) => ({
   canvas: { ...defaultCanvas },
+  selectedLayoutIds: new Set<string>(),
   setLayout: (layout) => {
     set((s: any) => ({
       project: { ...s.project, layout },
@@ -20,6 +23,7 @@ export const createLayoutSlice = (
     }));
     scheduleSave();
   },
+  selectLayout: (ids) => set({ selectedLayoutIds: new Set(ids) }),
   setCanvasSize: (width, height) =>
     set((s: any) => {
       const prev = s.project.screen ?? { width: 1280, height: 720 };

@@ -8,7 +8,7 @@ import { LayoutTab } from "./layout/LayoutTab";
 import { DataTab } from "./data/DataTab";
 import { AssetsTab } from "./assets/AssetsTab";
 import { ViewModelsTab } from "./viewmodels/ViewModelsTab";
-import { Renderer } from "./layout/components/Renderer";
+import HtmlRenderer from "./layout/components/HtmlRenderer";
 import { SplitContainer } from "./ui/SplitContainer";
 import { SplitWindow } from "./ui/SplitWindow";
 
@@ -89,7 +89,7 @@ export default function App() {
         </SplitWindow>
         <SplitWindow>
           <div className="h-full relative">
-            <Renderer/>
+            <HtmlRenderer />
           </div>
         </SplitWindow>
       </SplitContainer>
