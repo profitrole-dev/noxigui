@@ -2,6 +2,10 @@ import type { StateCreator } from 'zustand';
 
 export type LayoutSlice = {
   canvas: { width: number; height: number };
+  layoutSelection: { id: string; tag: string; name: string } | null;
+  setLayoutSelection: (
+    sel: { id: string; tag: string; name: string } | null
+  ) => void;
   setLayout: (layout: string) => void;
   setCanvasSize: (w: number, h: number) => void;
   swapCanvasSize: () => void;
@@ -13,6 +17,8 @@ export const createLayoutSlice = (
   scheduleSave: () => void
 ): StateCreator<any, [], [], LayoutSlice> => (set, _get) => ({
   canvas: { ...defaultCanvas },
+  layoutSelection: null,
+  setLayoutSelection: (sel) => set({ layoutSelection: sel }),
   setLayout: (layout) => {
     set((s: any) => ({
       project: { ...s.project, layout },
