@@ -169,7 +169,7 @@ function SelectionOverlay({
 }: {
   guiRef: React.MutableRefObject<ReturnType<typeof Noxi.gui.create> | null>;
 }) {
-  useStudio((s) => s.project); // subscribe to project changes
+  const project = useStudio((s) => s.project); // subscribe to project changes
   const layoutSelection = useStudio((s) => s.layoutSelection);
   if (!layoutSelection || layoutSelection.tag.toLowerCase() !== "grid") return null;
   const gui = guiRef.current;
@@ -213,8 +213,15 @@ function SelectionOverlay({
   if (!(el instanceof Grid)) return null;
 
   const color = "#3da5ff";
+  const size =
+    parts.length === 0
+      ? {
+          width: project.screen?.width ?? el.final.width,
+          height: project.screen?.height ?? el.final.height,
+        }
+      : { width: el.final.width, height: el.final.height };
   const topLeft = pt(m, 0, 0);
-  const bottomRight = pt(m, el.final.width, el.final.height);
+  const bottomRight = pt(m, size.width, size.height);
   const x = topLeft.x;
   const y = topLeft.y;
   const w = bottomRight.x - topLeft.x;
