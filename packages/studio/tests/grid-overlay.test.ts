@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Grid, BorderPanel } from '@noxigui/runtime';
+import { Grid, BorderPanel, ScrollViewer } from '@noxigui/runtime';
 import { getGridOverlayBounds, LayoutSelection } from '../src/layout/utils/getGridOverlayBounds.js';
 
 const graphicsObj: any = { visible: false, clear() {}, lineStyle() {}, drawRect() {}, beginFill() {}, endFill() {}, moveTo() {}, lineTo() {} };
@@ -18,7 +18,9 @@ const renderer = {
       setMask() {},
       setPosition() {},
       setSortableChildren() {},
-      getDisplayObject() { return {}; },
+      addEventListener() {},
+      setEventMode() {},
+      getDisplayObject() { return { addEventListener() {} }; },
     } as any;
   },
 } as any;
@@ -80,5 +82,30 @@ test('overlay aligns with grid inside padded border', () => {
     y: 12,
     width: 50,
     height: 40,
+  });
+});
+
+test('overlay accounts for ScrollViewer scroll offsets', () => {
+  const root = new Grid(renderer);
+  root.final = { x: 0, y: 0, width: 200, height: 200 } as any;
+
+  const viewer = new ScrollViewer(renderer);
+  viewer.final = { x: 0, y: 0, width: 100, height: 100 } as any;
+  (viewer as any)._vy = 30;
+
+  const child = new Grid(renderer);
+  child.final = { x: 0, y: 30, width: 80, height: 60 } as any;
+
+  viewer.setContent(child);
+  root.add(viewer);
+
+  const gui = { root } as any;
+  const sel: LayoutSelection = { id: '0.0.0', tag: 'grid', name: 'child' };
+
+  assert.deepEqual(getGridOverlayBounds(gui, sel), {
+    x: 0,
+    y: 0,
+    width: 80,
+    height: 60,
   });
 });
