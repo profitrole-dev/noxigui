@@ -51,19 +51,20 @@ export function getGridOverlayBounds(
     const child = kids[idx];
     if (!child) return null;
     const final = child.final ?? { x: 0, y: 0 };
-    const margin = child.margin ?? { l: 0, t: 0 };
     const hx = (el as any).horizontalOffset ?? 0;
     const vy = (el as any).verticalOffset ?? 0;
-    const local: Mat = [1, 0, 0, 1, final.x - margin.l - hx, final.y - margin.t - vy];
+    const local: Mat = [1, 0, 0, 1, final.x - hx, final.y - vy];
     m = mul(m, local);
     el = child;
   }
   if (!(el instanceof Grid)) return null;
   const margin = el.margin ?? { l: 0, t: 0, r: 0, b: 0 };
-  const width = el.final.width + margin.l + margin.r;
-  const height = el.final.height + margin.t + margin.b;
-  const topLeft = pt(m, 0, 0);
-  const bottomRight = pt(m, width, height);
+  const topLeft = parts.length === 0 ? { x: m[4], y: m[5] } : pt(m, -margin.l, -margin.t);
+  const bottomRight = pt(
+    m,
+    el.final.width + (parts.length === 0 ? margin.l + margin.r : margin.r),
+    el.final.height + (parts.length === 0 ? margin.t + margin.b : margin.b),
+  );
   return {
     x: topLeft.x,
     y: topLeft.y,

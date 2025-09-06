@@ -37,7 +37,7 @@ test('overlay bounds include margins and paddings along element path', () => {
 
   const child = new Grid(renderer);
   child.margin = { l: 3, t: 4, r: 5, b: 6 } as any;
-  child.final = { x: 50, y: 60, width: 70, height: 80 } as any;
+  child.final = { x: 8, y: 10, width: 70, height: 80 } as any;
 
   panel.child = child;
   root.add(panel);
@@ -53,8 +53,8 @@ test('overlay bounds include margins and paddings along element path', () => {
     height: 200,
   });
   assert.deepEqual(getGridOverlayBounds(gui, childSel), {
-    x: 70,
-    y: 88,
+    x: 35,
+    y: 46,
     width: 78,
     height: 90,
   });
