@@ -24,10 +24,16 @@ export function getElementBounds(root: any, id: string): Rect | null {
   }
   let x = 0;
   let y = 0;
-  for (const node of path) {
+  for (let i = 0; i < path.length; i++) {
+    const node = path[i];
     const m = node.margin ?? { l: 0, t: 0, r: 0, b: 0 };
     x += (node.final?.x ?? 0) - m.l + (node.horizontalOffset ?? 0);
     y += (node.final?.y ?? 0) - m.t + (node.verticalOffset ?? 0);
+    if (i < path.length - 1) {
+      const p = node.padding ?? { l: 0, t: 0, r: 0, b: 0 };
+      x += p.l;
+      y += p.t;
+    }
   }
   const target = path[path.length - 1];
   const margin = target.margin ?? { l: 0, t: 0, r: 0, b: 0 };

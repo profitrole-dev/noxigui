@@ -44,10 +44,16 @@ const getElementBounds = (root: any, id: string) => {
   }
   let x = 0;
   let y = 0;
-  for (const node of path) {
+  for (let i = 0; i < path.length; i++) {
+    const node = path[i];
     const m = node.margin ?? { l: 0, t: 0, r: 0, b: 0 };
     x += (node.final?.x ?? 0) - m.l + (node.horizontalOffset ?? 0);
     y += (node.final?.y ?? 0) - m.t + (node.verticalOffset ?? 0);
+    if (i < path.length - 1) {
+      const p = node.padding ?? { l: 0, t: 0, r: 0, b: 0 };
+      x += p.l;
+      y += p.t;
+    }
   }
   const target = path[path.length - 1];
   const margin = target.margin ?? { l: 0, t: 0, r: 0, b: 0 };
@@ -93,7 +99,7 @@ test('overlay bounds include margins and paddings along element path', () => {
 
   const child = new Grid(renderer);
   child.margin = { l: 3, t: 4, r: 5, b: 6 } as any;
-  child.final = { x: 8, y: 10, width: 70, height: 80 } as any;
+  child.final = { x: 3, y: 4, width: 70, height: 80 } as any;
 
   panel.child = child;
   root.add(panel);
@@ -125,7 +131,7 @@ test('overlay aligns with grid inside padded border', () => {
   border.final = { x: 0, y: 0, width: 100, height: 80 } as any;
 
   const child = new Grid(renderer);
-  child.final = { x: 12, y: 12, width: 50, height: 40 } as any;
+  child.final = { x: 0, y: 0, width: 50, height: 40 } as any;
 
   border.child = child;
   root.add(border);
