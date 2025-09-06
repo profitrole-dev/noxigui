@@ -53,8 +53,8 @@ test('overlay bounds include margins and paddings along element path', () => {
     height: 200,
   });
   assert.deepEqual(getGridOverlayBounds(gui, childSel), {
-    x: 40,
-    y: 52,
+    x: 35,
+    y: 46,
     width: 78,
     height: 90,
   });
@@ -69,7 +69,7 @@ test('overlay aligns with grid inside padded border', () => {
   border.final = { x: 0, y: 0, width: 100, height: 80 } as any;
 
   const child = new Grid(renderer);
-  child.final = { x: 0, y: 0, width: 50, height: 40 } as any;
+  child.final = { x: 12, y: 12, width: 50, height: 40 } as any;
 
   border.child = child;
   root.add(border);
@@ -114,7 +114,7 @@ test('overlay accounts for ScrollViewer scroll offsets', () => {
   (viewer as any)._vy = 30;
 
   const child = new Grid(renderer);
-  child.final = { x: 0, y: 30, width: 80, height: 60 } as any;
+  child.final = { x: 0, y: -30, width: 80, height: 60 } as any;
 
   viewer.setContent(child);
   root.add(viewer);

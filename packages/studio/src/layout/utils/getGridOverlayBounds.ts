@@ -11,10 +11,6 @@ const mul = (m1: Mat, m2: Mat): Mat => [
   m1[0] * m2[4] + m1[2] * m2[5] + m1[4],
   m1[1] * m2[4] + m1[3] * m2[5] + m1[5],
 ];
-const pt = (m: Mat, x: number, y: number) => ({
-  x: m[0] * x + m[2] * y + m[4],
-  y: m[1] * x + m[3] * y + m[5],
-});
 
 const getKids = (el: any): any[] => {
   const kids: any[] = [];
@@ -33,10 +29,7 @@ export function getGridOverlayBounds(
   if (!gui || !layoutSelection || layoutSelection.tag.toLowerCase() !== "grid") return null;
   const parts = layoutSelection.id.split(".").slice(1);
   let el: any = gui.root;
-  const rootPad = (el as any).padding ?? { l: 0, t: 0 };
-  const rootHx = (el as any).horizontalOffset ?? 0;
-  const rootVy = (el as any).verticalOffset ?? 0;
-  let m: Mat = [1, 0, 0, 1, rootPad.l - rootHx, rootPad.t - rootVy];
+  let m: Mat = [1, 0, 0, 1, 0, 0];
   for (const p of parts) {
     const idx = Number(p);
     const kids = getKids(el);
@@ -45,23 +38,24 @@ export function getGridOverlayBounds(
     const final = child.final ?? { x: 0, y: 0 };
     const hx = (el as any).horizontalOffset ?? 0;
     const vy = (el as any).verticalOffset ?? 0;
-    const pad = (el as any).padding ?? { l: 0, t: 0 };
-    const local: Mat = [1, 0, 0, 1, final.x + pad.l - hx, final.y + pad.t - vy];
+    const local: Mat = [1, 0, 0, 1, final.x + hx, final.y + vy];
     m = mul(m, local);
     el = child;
   }
   if (!(el instanceof Grid)) return null;
   const margin = el.margin ?? { l: 0, t: 0, r: 0, b: 0 };
-  const topLeft = parts.length === 0 ? { x: m[4], y: m[5] } : pt(m, -margin.l, -margin.t);
-  const bottomRight = pt(
-    m,
-    el.final.width + (parts.length === 0 ? margin.l + margin.r : margin.r),
-    el.final.height + (parts.length === 0 ? margin.t + margin.b : margin.b),
-  );
+  if (parts.length === 0) {
+    return {
+      x: 0,
+      y: 0,
+      width: el.final.width + margin.l + margin.r,
+      height: el.final.height + margin.t + margin.b,
+    };
+  }
   return {
-    x: topLeft.x,
-    y: topLeft.y,
-    width: bottomRight.x - topLeft.x,
-    height: bottomRight.y - topLeft.y,
+    x: m[4] - margin.l,
+    y: m[5] - margin.t,
+    width: el.final.width + margin.l + margin.r,
+    height: el.final.height + margin.t + margin.b,
   };
 }
