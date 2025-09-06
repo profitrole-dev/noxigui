@@ -4,11 +4,17 @@
     "noEmit": false,
     "outDir": "dist",
     "types": ["node"],
+    "baseUrl": ".",
     "allowImportingTsExtensions": false,
     "allowSyntheticDefaultImports": true,
     "erasableSyntaxOnly": false,
     "moduleResolution": "node",
     "verbatimModuleSyntax": false
   },
-  "include": ["tests", "src/state/**/*", "src/types/**/*"]
+  "include": [
+    "tests",
+    "src/layout/**/*",
+    "src/state/**/*",
+    "src/types/**/*"
+  ]
 }

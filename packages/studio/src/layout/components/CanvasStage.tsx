@@ -5,9 +5,11 @@ import { useFitScale } from "../hooks/useFitScale";
 
 export default function CanvasStage({
                                       children,
+                                      overlay,
                                       className,
                                     }: {
   children?: React.ReactNode;
+  overlay?: React.ReactNode;
   className?: string;
 }) {
   const { project, setCanvasSize, swapCanvasSize } = useStudio();
@@ -72,20 +74,27 @@ export default function CanvasStage({
             transformOrigin: "center",
           }}
         >
-          <div
-            className="relative border border-[rgb(var(--cu-border))] overflow-hidden"
-            style={{
-              width,
-              height,
-              backgroundImage: `
+          <div className="relative" style={{ width, height }}>
+            <div
+              className="relative border border-[rgb(var(--cu-border))] overflow-hidden"
+              style={{
+                width: "100%",
+                height: "100%",
+                backgroundImage: `
                 linear-gradient(90deg, rgba(255,255,255,0.08) 1px, rgba(255,255,255,0.02) 1px),
                 linear-gradient(0deg,  rgba(255,255,255,0.08) 1px, rgba(255,255,255,0.02) 1px)
               `,
-              backgroundSize: "24px 24px",
-              backgroundColor: "rgb(var(--cu-topbar))",
-            }}
-          >
-            <div className="relative w-full h-full">{children}</div>
+                backgroundSize: "24px 24px",
+                backgroundColor: "rgb(var(--cu-topbar))",
+              }}
+            >
+              <div className="relative w-full h-full">{children}</div>
+            </div>
+            {overlay && (
+              <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                {overlay}
+              </div>
+            )}
           </div>
         </div>
       </div>

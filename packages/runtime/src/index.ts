@@ -18,3 +18,4 @@ export * from './elements/ItemsControl.js';
 export * from './observable.js';
 export * from './viewmodel.js';
 export * from './binding.js';
+export { getElementBounds } from './bounds.js';
