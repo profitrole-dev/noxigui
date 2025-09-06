@@ -35,6 +35,7 @@ export function getGridOverlayBounds(
   let el: any = gui.root;
   const rootFinal = el.final ?? { x: 0, y: 0 };
   const rootMargin = el.margin ?? { l: 0, t: 0 };
+  const rootPad = (el as any).padding ?? { l: 0, t: 0 };
   const rootHx = (el as any).horizontalOffset ?? 0;
   const rootVy = (el as any).verticalOffset ?? 0;
   let m: Mat = [
@@ -42,8 +43,8 @@ export function getGridOverlayBounds(
     0,
     0,
     1,
-    rootFinal.x - rootMargin.l - rootHx,
-    rootFinal.y - rootMargin.t - rootVy,
+    rootFinal.x + rootPad.l - rootMargin.l - rootHx,
+    rootFinal.y + rootPad.t - rootMargin.t - rootVy,
   ];
   for (const p of parts) {
     const idx = Number(p);
@@ -53,7 +54,8 @@ export function getGridOverlayBounds(
     const final = child.final ?? { x: 0, y: 0 };
     const hx = (el as any).horizontalOffset ?? 0;
     const vy = (el as any).verticalOffset ?? 0;
-    const local: Mat = [1, 0, 0, 1, final.x - hx, final.y - vy];
+    const pad = (el as any).padding ?? { l: 0, t: 0 };
+    const local: Mat = [1, 0, 0, 1, final.x + pad.l - hx, final.y + pad.t - vy];
     m = mul(m, local);
     el = child;
   }
