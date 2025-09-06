@@ -85,6 +85,26 @@ test('overlay aligns with grid inside padded border', () => {
   });
 });
 
+test('root final offsets do not affect child overlays', () => {
+  const root = new Grid(renderer);
+  root.final = { x: 26, y: 94, width: 600, height: 400 } as any;
+
+  const child = new Grid(renderer);
+  child.final = { x: 10, y: 345, width: 100, height: 50 } as any;
+
+  root.add(child);
+  const gui = { root } as any;
+
+  const sel: LayoutSelection = { id: '0.0', tag: 'grid', name: 'child' };
+
+  assert.deepEqual(getGridOverlayBounds(gui, sel), {
+    x: 10,
+    y: 345,
+    width: 100,
+    height: 50,
+  });
+});
+
 test('overlay accounts for ScrollViewer scroll offsets', () => {
   const root = new Grid(renderer);
   root.final = { x: 0, y: 0, width: 200, height: 200 } as any;
