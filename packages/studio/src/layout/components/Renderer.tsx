@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import * as PIXI from "pixi.js";
 import Noxi from "noxi.js";
-import { Grid } from "@noxigui/runtime";
 import { useStudio } from "../../state/useStudio";
 import type { Project } from "../../types/project";
 import CanvasStage from "./CanvasStage";
+import { getGridOverlayBounds } from "../utils/getGridOverlayBounds.js";
 
 export function Renderer() {
   const { project } = useStudio();
@@ -169,37 +169,12 @@ function SelectionOverlay({
 }: {
   guiRef: React.MutableRefObject<ReturnType<typeof Noxi.gui.create> | null>;
 }) {
-  useStudio((s) => s.project); // subscribe to project changes
   const layoutSelection = useStudio((s) => s.layoutSelection);
-  if (!layoutSelection || layoutSelection.tag.toLowerCase() !== "grid") return null;
   const gui = guiRef.current;
-  if (!gui) return null;
-
-  const getKids = (el: any): any[] => {
-    const kids: any[] = [];
-    if (Array.isArray(el.children)) kids.push(...el.children);
-    const child = (el as any).child;
-    if (child) kids.push(child);
-    return kids;
-  };
-
-  const parts = layoutSelection.id.split(".").slice(1);
-  let el: any = gui.root;
-  let x = el.final?.x ?? 0;
-  let y = el.final?.y ?? 0;
-  for (const p of parts) {
-    const idx = Number(p);
-    const kids = getKids(el);
-    el = kids[idx];
-    if (!el) return null;
-    x += el.final?.x ?? 0;
-    y += el.final?.y ?? 0;
-  }
-  if (!(el instanceof Grid)) return null;
-
+  const bounds = getGridOverlayBounds(gui, layoutSelection);
+  if (!bounds || !layoutSelection) return null;
+  const { x, y, width: w, height: h } = bounds;
   const color = "#3da5ff";
-  const w = el.final.width;
-  const h = el.final.height;
 
   return (
     <div
@@ -218,6 +193,7 @@ function SelectionOverlay({
           position: "absolute",
           top: 0,
           left: 0,
+          transform: "translateY(-100%)",
           background: color,
           color: "#fff",
           fontSize: 10,

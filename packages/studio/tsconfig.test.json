@@ -10,5 +10,10 @@
     "moduleResolution": "node",
     "verbatimModuleSyntax": false
   },
-  "include": ["tests", "src/state/**/*", "src/types/**/*"]
+  "include": [
+    "tests",
+    "src/layout/**/*",
+    "src/state/**/*",
+    "src/types/**/*"
+  ]
 }
