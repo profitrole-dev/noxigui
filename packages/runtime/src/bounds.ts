@@ -22,6 +22,7 @@ export function getElementBounds(root: any, id: string): Rect | null {
     el = child;
     path.push(el);
   }
+  const rootMargin = path[0].margin ?? { l: 0, t: 0, r: 0, b: 0 };
   let x = 0;
   let y = 0;
   for (let i = 0; i < path.length; i++) {
@@ -37,6 +38,10 @@ export function getElementBounds(root: any, id: string): Rect | null {
   }
   const target = path[path.length - 1];
   const margin = target.margin ?? { l: 0, t: 0, r: 0, b: 0 };
+  if (path.length > 1) {
+    x += rootMargin.l;
+    y += rootMargin.t;
+  }
   return {
     x,
     y,

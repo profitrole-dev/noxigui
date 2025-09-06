@@ -44,6 +44,7 @@ const getElementBounds = (root: any, id: string) => {
   }
   let x = 0;
   let y = 0;
+  const rootMargin = path[0].margin ?? { l: 0, t: 0, r: 0, b: 0 };
   for (let i = 0; i < path.length; i++) {
     const node = path[i];
     const m = node.margin ?? { l: 0, t: 0, r: 0, b: 0 };
@@ -57,6 +58,10 @@ const getElementBounds = (root: any, id: string) => {
   }
   const target = path[path.length - 1];
   const margin = target.margin ?? { l: 0, t: 0, r: 0, b: 0 };
+  if (path.length > 1) {
+    x += rootMargin.l;
+    y += rootMargin.t;
+  }
   return {
     x,
     y,
@@ -115,8 +120,8 @@ test('overlay bounds include margins and paddings along element path', () => {
     height: 200,
   });
   assert.deepEqual(getGridOverlayBounds(gui, childSel), {
-    x: 35,
-    y: 46,
+    x: 45,
+    y: 66,
     width: 78,
     height: 90,
   });
@@ -170,5 +175,35 @@ test('overlay accounts for ScrollViewer scroll offsets', () => {
     y: 0,
     width: 80,
     height: 60,
+  });
+});
+
+test('overlay includes root margins in child bounds', () => {
+  const root = new Grid(renderer);
+  root.margin = { l: 60, t: 60, r: 0, b: 0 } as any;
+  root.final = { x: 60, y: 60, width: 200, height: 200 } as any;
+
+  const main = new Grid(renderer);
+  main.final = { x: 0, y: 278, width: 180, height: 100 } as any;
+
+  const border = new BorderPanel(renderer);
+  border.padding = { l: 12, t: 12, r: 0, b: 0 } as any;
+  border.final = { x: 0, y: 0, width: 100, height: 80 } as any;
+
+  const header = new Grid(renderer);
+  header.final = { x: 0, y: 0, width: 50, height: 40 } as any;
+
+  border.child = header;
+  main.add(border);
+  root.add(main);
+
+  const gui = { root, getElementBounds: (id: string) => getElementBounds(root, id) } as any;
+  const sel: LayoutSelection = { id: '0.0.0.0', tag: 'grid', name: 'header' };
+
+  assert.deepEqual(getGridOverlayBounds(gui, sel), {
+    x: 72,
+    y: 350,
+    width: 50,
+    height: 40,
   });
 });
