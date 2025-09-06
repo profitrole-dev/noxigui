@@ -22,26 +22,27 @@ export function getElementBounds(root: any, id: string): Rect | null {
     el = child;
     path.push(el);
   }
-  const rootMargin = path[0].margin ?? { l: 0, t: 0, r: 0, b: 0 };
-  let x = 0;
-  let y = 0;
-  for (let i = 0; i < path.length; i++) {
-    const node = path[i];
-    const m = node.margin ?? { l: 0, t: 0, r: 0, b: 0 };
-    x += (node.final?.x ?? 0) - m.l + (node.horizontalOffset ?? 0);
-    y += (node.final?.y ?? 0) - m.t + (node.verticalOffset ?? 0);
-    if (i < path.length - 1) {
-      const p = node.padding ?? { l: 0, t: 0, r: 0, b: 0 };
-      x += p.l;
-      y += p.t;
-    }
+
+  const rootMargin = root.margin ?? { l: 0, t: 0, r: 0, b: 0 };
+
+  // start from the root's outer position relative to the canvas
+  let x = (root.final?.x ?? 0) - rootMargin.l;
+  let y = (root.final?.y ?? 0) - rootMargin.t;
+
+  for (let i = 0; i < path.length - 1; i++) {
+    const parent = path[i];
+    const child = path[i + 1];
+    const p = parent.padding ?? { l: 0, t: 0, r: 0, b: 0 };
+    x += (parent.horizontalOffset ?? 0) + p.l;
+    y += (parent.verticalOffset ?? 0) + p.t;
+    const cm = child.margin ?? { l: 0, t: 0, r: 0, b: 0 };
+    x += (child.final?.x ?? 0) - cm.l;
+    y += (child.final?.y ?? 0) - cm.t;
   }
+
   const target = path[path.length - 1];
   const margin = target.margin ?? { l: 0, t: 0, r: 0, b: 0 };
-  if (path.length > 1) {
-    x += rootMargin.l;
-    y += rootMargin.t;
-  }
+
   return {
     x,
     y,

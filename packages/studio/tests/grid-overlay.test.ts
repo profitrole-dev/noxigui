@@ -127,6 +127,26 @@ test('overlay bounds include margins and paddings along element path', () => {
   });
 });
 
+test('overlay for root child grid uses exact final offset', () => {
+  const root = new Grid(renderer);
+  root.final = { x: 0, y: 0, width: 200, height: 200 } as any;
+
+  const child = new Grid(renderer);
+  child.final = { x: 30, y: 40, width: 50, height: 60 } as any;
+
+  root.add(child);
+  const gui = { root, getElementBounds: (id: string) => getElementBounds(root, id) } as any;
+
+  const sel: LayoutSelection = { id: '0.0', tag: 'grid', name: 'child' };
+
+  assert.deepEqual(getGridOverlayBounds(gui, sel), {
+    x: 30,
+    y: 40,
+    width: 50,
+    height: 60,
+  });
+});
+
 test('overlay aligns with grid inside padded border', () => {
   const root = new Grid(renderer);
   root.final = { x: 0, y: 0, width: 200, height: 150 } as any;
