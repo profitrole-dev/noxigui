@@ -4,6 +4,7 @@
     "noEmit": false,
     "outDir": "dist",
     "types": ["node"],
+    "baseUrl": ".",
     "allowImportingTsExtensions": false,
     "allowSyntheticDefaultImports": true,
     "erasableSyntaxOnly": false,

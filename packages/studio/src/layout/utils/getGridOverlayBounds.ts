@@ -1,61 +1,12 @@
-import { Grid } from "@noxigui/runtime";
-
 export type LayoutSelection = { id: string; tag: string; name: string };
 
-type Mat = [number, number, number, number, number, number];
-const mul = (m1: Mat, m2: Mat): Mat => [
-  m1[0] * m2[0] + m1[2] * m2[1],
-  m1[1] * m2[0] + m1[3] * m2[1],
-  m1[0] * m2[2] + m1[2] * m2[3],
-  m1[1] * m2[2] + m1[3] * m2[3],
-  m1[0] * m2[4] + m1[2] * m2[5] + m1[4],
-  m1[1] * m2[4] + m1[3] * m2[5] + m1[5],
-];
-
-const getKids = (el: any): any[] => {
-  const kids: any[] = [];
-  if (Array.isArray(el.children)) kids.push(...el.children);
-  const child = (el as any).child;
-  if (child) kids.push(child);
-  const content = (el as any).content;
-  if (content) kids.push(content);
-  return kids;
-};
-
 export function getGridOverlayBounds(
-  gui: { root: any } | null,
+  gui: { root: any; getElementBounds?: (id: string) => { x: number; y: number; width: number; height: number } | null } | null,
   layoutSelection: LayoutSelection | null,
 ): { x: number; y: number; width: number; height: number } | null {
   if (!gui || !layoutSelection || layoutSelection.tag.toLowerCase() !== "grid") return null;
-  const parts = layoutSelection.id.split(".").slice(1);
-  let el: any = gui.root;
-  let m: Mat = [1, 0, 0, 1, 0, 0];
-  for (const p of parts) {
-    const idx = Number(p);
-    const kids = getKids(el);
-    const child = kids[idx];
-    if (!child) return null;
-    const final = child.final ?? { x: 0, y: 0 };
-    const hx = (el as any).horizontalOffset ?? 0;
-    const vy = (el as any).verticalOffset ?? 0;
-    const local: Mat = [1, 0, 0, 1, final.x + hx, final.y + vy];
-    m = mul(m, local);
-    el = child;
+  if (typeof gui.getElementBounds === "function") {
+    return gui.getElementBounds(layoutSelection.id);
   }
-  if (!(el instanceof Grid)) return null;
-  const margin = el.margin ?? { l: 0, t: 0, r: 0, b: 0 };
-  if (parts.length === 0) {
-    return {
-      x: 0,
-      y: 0,
-      width: el.final.width + margin.l + margin.r,
-      height: el.final.height + margin.t + margin.b,
-    };
-  }
-  return {
-    x: m[4] - margin.l,
-    y: m[5] - margin.t,
-    width: el.final.width + margin.l + margin.r,
-    height: el.final.height + margin.t + margin.b,
-  };
+  return null;
 }

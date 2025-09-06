@@ -1,6 +1,7 @@
 import type { Size, UIElement } from '@noxigui/core';
 import { Grid } from './elements/Grid.js';
 import type { Renderer, RenderContainer } from './renderer.js';
+import { getElementBounds } from './bounds.js';
 import { Parser } from '@noxigui/parser';
 import { TemplateStore } from './template.js';
 import type { Binding } from './binding.js';
@@ -74,5 +75,9 @@ export class GuiObject {
       if (child) visit(child, f);
     };
     visit(this.root, g => { g.debug = on; });
+  }
+
+  getElementBounds(id: string) {
+    return getElementBounds(this.root, id);
   }
 }

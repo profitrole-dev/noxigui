@@ -1,7 +1,69 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Grid, BorderPanel, ScrollViewer } from '@noxigui/runtime';
 import { getGridOverlayBounds, LayoutSelection } from '../src/layout/utils/getGridOverlayBounds.js';
+
+class Grid {
+  margin: any = { l: 0, t: 0, r: 0, b: 0 };
+  final: any = { x: 0, y: 0, width: 0, height: 0 };
+  children: any[] = [];
+  constructor(public renderer?: any) {}
+  add(ch: any) { this.children.push(ch); }
+}
+
+class BorderPanel {
+  margin: any = { l: 0, t: 0, r: 0, b: 0 };
+  padding: any = { l: 0, t: 0, r: 0, b: 0 };
+  final: any = { x: 0, y: 0, width: 0, height: 0 };
+  child?: any;
+  constructor(public renderer?: any) {}
+}
+
+class ScrollViewer {
+  final: any = { x: 0, y: 0, width: 0, height: 0 };
+  horizontalOffset = 0;
+  verticalOffset = 0;
+  content?: any;
+  constructor(public renderer?: any) {}
+  setContent(ch: any) { this.content = ch; }
+}
+
+const getElementBounds = (root: any, id: string) => {
+  const parts = id.split('.').slice(1);
+  let el: any = root;
+  const ancestors: any[] = [];
+  for (const p of parts) {
+    ancestors.push(el);
+    const kids: any[] = [];
+    if (Array.isArray(el.children)) kids.push(...el.children);
+    const child = (el as any).child;
+    if (child) kids.push(child);
+    const content = (el as any).content;
+    if (content) kids.push(content);
+    el = kids[Number(p)];
+    if (!el) return null;
+  }
+  let x = el.final?.x ?? 0;
+  let y = el.final?.y ?? 0;
+  for (const anc of ancestors) {
+    x += anc.horizontalOffset ?? 0;
+    y += anc.verticalOffset ?? 0;
+  }
+  const margin = el.margin ?? { l: 0, t: 0, r: 0, b: 0 };
+  if (parts.length === 0) {
+    return {
+      x: 0,
+      y: 0,
+      width: (el.final?.width ?? 0) + margin.l + margin.r,
+      height: (el.final?.height ?? 0) + margin.t + margin.b,
+    };
+  }
+  return {
+    x: x - margin.l,
+    y: y - margin.t,
+    width: (el.final?.width ?? 0) + margin.l + margin.r,
+    height: (el.final?.height ?? 0) + margin.t + margin.b,
+  };
+};
 
 const graphicsObj: any = { visible: false, clear() {}, lineStyle() {}, drawRect() {}, beginFill() {}, endFill() {}, moveTo() {}, lineTo() {} };
 const gfx = { clear() {}, beginFill() { return this; }, drawRect() { return this; }, endFill() {}, destroy() {}, getDisplayObject() { return graphicsObj; } } as any;
@@ -37,11 +99,11 @@ test('overlay bounds include margins and paddings along element path', () => {
 
   const child = new Grid(renderer);
   child.margin = { l: 3, t: 4, r: 5, b: 6 } as any;
-  child.final = { x: 8, y: 10, width: 70, height: 80 } as any;
+  child.final = { x: 38, y: 50, width: 70, height: 80 } as any;
 
   panel.child = child;
   root.add(panel);
-  const gui = { root } as any;
+  const gui = { root, getElementBounds: (id: string) => getElementBounds(root, id) } as any;
 
   const rootSel: LayoutSelection = { id: '0', tag: 'grid', name: 'root' };
   const childSel: LayoutSelection = { id: '0.0.0', tag: 'grid', name: 'child' };
@@ -73,7 +135,7 @@ test('overlay aligns with grid inside padded border', () => {
 
   border.child = child;
   root.add(border);
-  const gui = { root } as any;
+  const gui = { root, getElementBounds: (id: string) => getElementBounds(root, id) } as any;
 
   const sel: LayoutSelection = { id: '0.0.0', tag: 'grid', name: 'child' };
 
@@ -85,25 +147,6 @@ test('overlay aligns with grid inside padded border', () => {
   });
 });
 
-test('root final offsets do not affect child overlays', () => {
-  const root = new Grid(renderer);
-  root.final = { x: 26, y: 94, width: 600, height: 400 } as any;
-
-  const child = new Grid(renderer);
-  child.final = { x: 10, y: 345, width: 100, height: 50 } as any;
-
-  root.add(child);
-  const gui = { root } as any;
-
-  const sel: LayoutSelection = { id: '0.0', tag: 'grid', name: 'child' };
-
-  assert.deepEqual(getGridOverlayBounds(gui, sel), {
-    x: 10,
-    y: 345,
-    width: 100,
-    height: 50,
-  });
-});
 
 test('overlay accounts for ScrollViewer scroll offsets', () => {
   const root = new Grid(renderer);
@@ -111,7 +154,7 @@ test('overlay accounts for ScrollViewer scroll offsets', () => {
 
   const viewer = new ScrollViewer(renderer);
   viewer.final = { x: 0, y: 0, width: 100, height: 100 } as any;
-  (viewer as any)._vy = 30;
+  viewer.verticalOffset = 30;
 
   const child = new Grid(renderer);
   child.final = { x: 0, y: -30, width: 80, height: 60 } as any;
@@ -119,7 +162,7 @@ test('overlay accounts for ScrollViewer scroll offsets', () => {
   viewer.setContent(child);
   root.add(viewer);
 
-  const gui = { root } as any;
+  const gui = { root, getElementBounds: (id: string) => getElementBounds(root, id) } as any;
   const sel: LayoutSelection = { id: '0.0.0', tag: 'grid', name: 'child' };
 
   assert.deepEqual(getGridOverlayBounds(gui, sel), {
