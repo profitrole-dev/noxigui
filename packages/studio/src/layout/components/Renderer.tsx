@@ -4,7 +4,7 @@ import Noxi from "noxi.js";
 import { useStudio } from "../../state/useStudio";
 import type { Project } from "../../types/project";
 import CanvasStage from "./CanvasStage";
-import { getGridOverlayBounds } from "../utils/getGridOverlayBounds";
+import { getGridOverlayBounds } from "../utils/getGridOverlayBounds.js";
 
 export function Renderer() {
   const { project } = useStudio();
