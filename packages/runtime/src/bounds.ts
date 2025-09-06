@@ -13,35 +13,28 @@ const getKids = (el: any): any[] => {
 export function getElementBounds(root: any, id: string): Rect | null {
   const parts = id.split('.').slice(1);
   let el: any = root;
-  const ancestors: any[] = [];
+  const path: any[] = [root];
   for (const p of parts) {
-    ancestors.push(el);
     const idx = Number(p);
     const kids = getKids(el);
     const child = kids[idx];
     if (!child) return null;
     el = child;
+    path.push(el);
   }
-  if (!el) return null;
-  let x = el.final?.x ?? 0;
-  let y = el.final?.y ?? 0;
-  for (const anc of ancestors) {
-    x += anc.horizontalOffset ?? 0;
-    y += anc.verticalOffset ?? 0;
+  let x = 0;
+  let y = 0;
+  for (const node of path) {
+    const m = node.margin ?? { l: 0, t: 0, r: 0, b: 0 };
+    x += (node.final?.x ?? 0) - m.l + (node.horizontalOffset ?? 0);
+    y += (node.final?.y ?? 0) - m.t + (node.verticalOffset ?? 0);
   }
-  const margin = el.margin ?? { l: 0, t: 0, r: 0, b: 0 };
-  if (parts.length === 0) {
-    return {
-      x: 0,
-      y: 0,
-      width: (el.final?.width ?? 0) + margin.l + margin.r,
-      height: (el.final?.height ?? 0) + margin.t + margin.b,
-    };
-  }
+  const target = path[path.length - 1];
+  const margin = target.margin ?? { l: 0, t: 0, r: 0, b: 0 };
   return {
-    x: x - margin.l,
-    y: y - margin.t,
-    width: (el.final?.width ?? 0) + margin.l + margin.r,
-    height: (el.final?.height ?? 0) + margin.t + margin.b,
+    x,
+    y,
+    width: (target.final?.width ?? 0) + margin.l + margin.r,
+    height: (target.final?.height ?? 0) + margin.t + margin.b,
   };
 }

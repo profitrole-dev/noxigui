@@ -30,9 +30,8 @@ class ScrollViewer {
 const getElementBounds = (root: any, id: string) => {
   const parts = id.split('.').slice(1);
   let el: any = root;
-  const ancestors: any[] = [];
+  const path: any[] = [root];
   for (const p of parts) {
-    ancestors.push(el);
     const kids: any[] = [];
     if (Array.isArray(el.children)) kids.push(...el.children);
     const child = (el as any).child;
@@ -41,27 +40,22 @@ const getElementBounds = (root: any, id: string) => {
     if (content) kids.push(content);
     el = kids[Number(p)];
     if (!el) return null;
+    path.push(el);
   }
-  let x = el.final?.x ?? 0;
-  let y = el.final?.y ?? 0;
-  for (const anc of ancestors) {
-    x += anc.horizontalOffset ?? 0;
-    y += anc.verticalOffset ?? 0;
+  let x = 0;
+  let y = 0;
+  for (const node of path) {
+    const m = node.margin ?? { l: 0, t: 0, r: 0, b: 0 };
+    x += (node.final?.x ?? 0) - m.l + (node.horizontalOffset ?? 0);
+    y += (node.final?.y ?? 0) - m.t + (node.verticalOffset ?? 0);
   }
-  const margin = el.margin ?? { l: 0, t: 0, r: 0, b: 0 };
-  if (parts.length === 0) {
-    return {
-      x: 0,
-      y: 0,
-      width: (el.final?.width ?? 0) + margin.l + margin.r,
-      height: (el.final?.height ?? 0) + margin.t + margin.b,
-    };
-  }
+  const target = path[path.length - 1];
+  const margin = target.margin ?? { l: 0, t: 0, r: 0, b: 0 };
   return {
-    x: x - margin.l,
-    y: y - margin.t,
-    width: (el.final?.width ?? 0) + margin.l + margin.r,
-    height: (el.final?.height ?? 0) + margin.t + margin.b,
+    x,
+    y,
+    width: (target.final?.width ?? 0) + margin.l + margin.r,
+    height: (target.final?.height ?? 0) + margin.t + margin.b,
   };
 };
 
@@ -95,11 +89,11 @@ test('overlay bounds include margins and paddings along element path', () => {
   const panel = new BorderPanel(renderer);
   panel.margin = { l: 7, t: 8, r: 9, b: 10 } as any;
   panel.padding = { l: 5, t: 6, r: 7, b: 8 } as any;
-  panel.final = { x: 30, y: 40, width: 120, height: 100 } as any;
+  panel.final = { x: 37, y: 48, width: 120, height: 100 } as any;
 
   const child = new Grid(renderer);
   child.margin = { l: 3, t: 4, r: 5, b: 6 } as any;
-  child.final = { x: 38, y: 50, width: 70, height: 80 } as any;
+  child.final = { x: 8, y: 10, width: 70, height: 80 } as any;
 
   panel.child = child;
   root.add(panel);
